@@ -1,0 +1,37 @@
+generator client {
+    provider = "prisma-client-js"
+    output   = "./generated/client"
+}
+
+datasource db {
+    provider = "postgresql"
+    url      = env("AUTH_DATABASE_URL")
+}
+
+model AuthUser {
+    id                     String    @id @default(cuid())
+    email                  String    @unique
+    passwordHash           String    @map("password_hash")
+    isEmailVerified        Boolean   @default(false) @map("is_email_verified")
+    verificationToken      String?   @unique @map("verification_token")
+    resetPasswordToken     String?   @unique @map("reset_password_token")
+    resetPasswordExpiresAt DateTime? @map("reset_password_expires_at")
+    lastLoginAt            DateTime? @map("last_login_at")
+    createdAt              DateTime  @default(now()) @map("created_at")
+    updatedAt              DateTime  @updatedAt @map("updated_at")
+
+    @@map("auth_users")
+}
+
+model InvitationToken {
+    id             String    @id @default(cuid())
+    email          String    @unique
+    organizationId String    @map("organization_id")
+    token          String    @unique
+    invitedBy      String    @map("invited_by")
+    expiresAt      DateTime  @map("expires_at")
+    usedAt         DateTime? @map("used_at")
+    createdAt      DateTime  @default(now()) @map("created_at")
+
+    @@map("invitation_tokens")
+}

@@ -5,9 +5,9 @@ export interface IMembership {
   userId: string;
   organizationId: string;
   role: MembershipRole;
-  active: boolean;
-  invitedBy?: string;
-  joinedAt?: Date;
+  joinedAt: Date;
+  leftAt?: Date;
+  permissions?: any;
   createdAt: Date;
   updatedAt: Date;
 }

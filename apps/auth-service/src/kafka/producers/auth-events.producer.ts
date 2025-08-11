@@ -4,17 +4,12 @@ import { BaseProducer } from "libs/kafka/src";
 
 @Injectable()
 export class AuthEventsProducer extends BaseProducer {
-  async publishUserSignup(payload: {
-    userId: string;
-    email: string;
-    fullName: string;
-    organizationName?: string;
-  }) {
+  async publishUserSignup(payload: { authUserId: string; email: string }) {
     await this.publishEvent(KAFKA_TOPICS.USER_SIGNUP, payload);
   }
 
   async publishUserLogin(payload: {
-    userId: string;
+    authUserId: string;
     email: string;
     loginTime: Date;
   }) {
@@ -27,7 +22,7 @@ export class AuthEventsProducer extends BaseProducer {
     invitedBy: string;
     token: string;
   }) {
-    await this.publishEvent(KAFKA_TOPICS.USER_INVITE_SENT, payload);
+    await this.publishEvent(KAFKA_TOPICS.INVITATION_SENT, payload);
   }
 
   async publishMembershipCreated(payload: {
@@ -36,6 +31,6 @@ export class AuthEventsProducer extends BaseProducer {
     invitedBy?: string;
     role: string;
   }) {
-    await this.publishEvent(KAFKA_TOPICS.MEMBERSHIP_CREATED, payload);
+    await this.publishEvent(KAFKA_TOPICS.MEMBER_ADDED, payload);
   }
 }

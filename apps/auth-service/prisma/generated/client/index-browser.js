@@ -138,11 +138,18 @@ exports.Prisma.AuthUserScalarFieldEnum = {
 exports.Prisma.InvitationTokenScalarFieldEnum = {
   id: 'id',
   email: 'email',
-  organizationId: 'organizationId',
   token: 'token',
   invitedBy: 'invitedBy',
   expiresAt: 'expiresAt',
   usedAt: 'usedAt',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.RefreshTokenScalarFieldEnum = {
+  id: 'id',
+  token: 'token',
+  userId: 'userId',
+  expiresAt: 'expiresAt',
   createdAt: 'createdAt'
 };
 
@@ -164,7 +171,8 @@ exports.Prisma.NullsOrder = {
 
 exports.Prisma.ModelName = {
   AuthUser: 'AuthUser',
-  InvitationToken: 'InvitationToken'
+  InvitationToken: 'InvitationToken',
+  RefreshToken: 'RefreshToken'
 };
 
 /**

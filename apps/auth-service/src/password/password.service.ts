@@ -1,16 +1,25 @@
 import { Injectable } from "@nestjs/common";
 import * as bcrypt from "bcrypt";
+import { randomBytes } from "crypto";
 
 @Injectable()
 export class PasswordService {
-  private readonly saltRounds = 12;
+  private readonly SALT_ROUNDS = 12;
 
   async hash(password: string): Promise<string> {
-    return bcrypt.hash(password, this.saltRounds);
+    return bcrypt.hash(password, this.SALT_ROUNDS);
   }
 
-  async compare(password: string, hashedPassword: string): Promise<boolean> {
-    return await bcrypt.compare(password, hashedPassword);
+  async compare(password: string, hash: string): Promise<boolean> {
+    return bcrypt.compare(password, hash);
+  }
+
+  generateResetToken(): string {
+    return randomBytes(32).toString("hex");
+  }
+
+  generateVerificationToken(): string {
+    return randomBytes(32).toString("hex");
   }
 
   validatePasswordStrength(password: string): {
@@ -23,19 +32,19 @@ export class PasswordService {
       errors.push("Password must be at least 8 characters long");
     }
 
-    if (!/(?=.*[a-z])/.test(password)) {
-      errors.push("Password must contain at least one lowercase letter");
-    }
-
-    if (!/(?=.*[A-Z])/.test(password)) {
+    if (!/[A-Z]/.test(password)) {
       errors.push("Password must contain at least one uppercase letter");
     }
 
-    if (!/(?=.*\d)/.test(password)) {
+    if (!/[a-z]/.test(password)) {
+      errors.push("Password must contain at least one lowercase letter");
+    }
+
+    if (!/\d/.test(password)) {
       errors.push("Password must contain at least one number");
     }
 
-    if (!/(?=.*[@$!%*?&])/.test(password)) {
+    if (!/[!@#$%^&*(),.?":{}|<>]/.test(password)) {
       errors.push("Password must contain at least one special character");
     }
 

@@ -7,7 +7,7 @@ import {
 } from "@nestjs/common";
 import { Reflector } from "@nestjs/core";
 import { Request } from "express";
-import { JwtTokenService } from "libs/common/jwt/src/jwt.service";
+import { JwtTokenService } from "apps/auth-service/src/jwt/jwt.service";
 
 @Injectable()
 export class JwtAuthGuard implements CanActivate {
@@ -38,7 +38,7 @@ export class JwtAuthGuard implements CanActivate {
     }
 
     try {
-      const payload = await this.jwtService.verify(token);
+      const payload = await this.jwtService.validateToken(token);
 
       // Attach the user payload to the request object
       request["user"] = payload;

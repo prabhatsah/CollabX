@@ -1,4 +1,12 @@
-import { Body, Controller, Get, Post, UseGuards } from "@nestjs/common";
+import {
+  Body,
+  Controller,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Post,
+  UseGuards,
+} from "@nestjs/common";
 import {
   ApiBearerAuth,
   ApiOperation,
@@ -8,10 +16,15 @@ import {
 import { AuthService } from "./auth.service";
 import { SignupDto } from "./dto/signup.dto";
 import { LoginDto } from "./dto/login.dto";
-import { InviteUserDto } from "./dto/invite-user.dto";
 import { CurrentUser, JwtAuthGuard } from "@app/common";
-import { AcceptInviteDto } from "./dto/accept-invite.dto";
 import { MessagePattern } from "@nestjs/microservices";
+import { RefreshTokenDto } from "./dto/refresh-token.dto";
+import { LogoutDto } from "./dto/logout.dto";
+import { ForgotPasswordDto } from "./dto/forgot-password.dto";
+import { ResetPasswordDto } from "./dto/reset-password.dto";
+import { VerifyEmailDto } from "./dto/verify-email.dto";
+import { ResendVerificationDto } from "./dto/resend-verification.dto";
+import { SelectOrganizationDto } from "./dto/select-organization.dto";
 
 @ApiTags("Authentication")
 @Controller("auth")
@@ -19,62 +32,206 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Post("signup")
-  @ApiOperation({ summary: "User signup" })
-  @ApiResponse({ status: 201, description: "User created successfully" })
+  @HttpCode(HttpStatus.CREATED)
+  @ApiOperation({
+    summary: "Create authentication credentials",
+    description:
+      "Creates auth_user record with email/password. Does not create business user profile.",
+  })
+  @ApiResponse({
+    status: 201,
+    description: "Authentication credentials created successfully",
+    schema: {
+      example: {
+        authUserId: "clxxxxx",
+        email: "user@example.com",
+        isEmailVerified: false,
+        accessToken: "jwt_token_here",
+        refreshToken: "refresh_token_here",
+      },
+    },
+  })
+  @ApiResponse({
+    status: 400,
+    description: "Email already exists or validation error",
+  })
   async signup(@Body() signupDto: SignupDto) {
     return this.authService.signup(signupDto);
   }
 
   @Post("login")
-  @ApiOperation({ summary: "User login" })
-  @ApiResponse({ status: 200, description: "Login successful" })
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: "Authenticate user with email/password" })
+  @ApiResponse({
+    status: 200,
+    description: "Login successful",
+    schema: {
+      example: {
+        authUserId: "clxxxxx",
+        email: "user@example.com",
+        accessToken: "jwt_token_here",
+        refreshToken: "refresh_token_here",
+      },
+    },
+  })
+  @ApiResponse({ status: 401, description: "Invalid credentials" })
   async login(@Body() loginDto: LoginDto) {
-    console.log("Login DTO:", loginDto);
-
     return this.authService.login(loginDto);
   }
 
-  @Post("invite")
+  @Post("refresh")
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: "Refresh access token using refresh token" })
+  @ApiResponse({ status: 200, description: "Token refreshed successfully" })
+  @ApiResponse({ status: 401, description: "Invalid or expired refresh token" })
+  async refreshToken(@Body() refreshTokenDto: RefreshTokenDto) {
+    return this.authService.refreshToken(refreshTokenDto);
+  }
+
+  @Post("logout")
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
-  @ApiOperation({ summary: "Invite user to organization" })
-  async inviteUser(
-    @Body() inviteDto: InviteUserDto,
-    @CurrentUser("id") userId: string
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: "Logout user and invalidate tokens" })
+  @ApiResponse({ status: 200, description: "Logout successful" })
+  async logout(
+    @Body() logoutDto: LogoutDto,
+    @CurrentUser("id") authUserId: string
   ) {
-    return this.authService.inviteUser(inviteDto, userId);
+    return this.authService.logout(authUserId, logoutDto.refreshToken);
   }
 
-  @Post("accept-invite")
-  @ApiOperation({ summary: "Accept invitation" })
-  async acceptInvite(@Body() acceptInviteDto: AcceptInviteDto) {
-    return this.authService.acceptInvite(acceptInviteDto);
+  @Post("forgot-password")
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: "Request password reset token" })
+  @ApiResponse({
+    status: 200,
+    description: "Reset instructions sent if email exists",
+  })
+  async forgotPassword(@Body() forgotPasswordDto: ForgotPasswordDto) {
+    return this.authService.forgotPassword(forgotPasswordDto);
   }
 
-  @Get("validate")
-  @UseGuards(JwtAuthGuard)
-  @ApiBearerAuth()
-  @ApiOperation({ summary: "Validate token" })
-  async validateToken(@CurrentUser() user: any) {
-    return { valid: true, user };
+  @Post("reset-password")
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: "Reset password using token" })
+  @ApiResponse({ status: 200, description: "Password reset successful" })
+  @ApiResponse({ status: 400, description: "Invalid or expired token" })
+  async resetPassword(@Body() resetPasswordDto: ResetPasswordDto) {
+    return this.authService.resetPassword(resetPasswordDto);
   }
 
-  // Microservice patterns
-  @MessagePattern("auth.generate_org_token")
-  async generateOrgToken(data: {
-    userId: string;
-    organizationId: string;
-    role: string;
-  }) {
-    return this.authService.generateOrgToken(
-      data.userId,
-      data.organizationId,
-      data.role
-    );
+  @Post("verify-email")
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: "Verify email using verification token" })
+  @ApiResponse({ status: 200, description: "Email verified successfully" })
+  @ApiResponse({ status: 400, description: "Invalid verification token" })
+  async verifyEmail(@Body() verifyEmailDto: VerifyEmailDto) {
+    return this.authService.verifyEmail(verifyEmailDto);
   }
 
-  @MessagePattern("auth.validate_token")
-  async validateTokenPattern(data: { token: string }) {
-    return this.authService.validateToken(data.token);
+  @Post("resend-verification")
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: "Resend email verification token" })
+  @ApiResponse({
+    status: 200,
+    description: "Verification email sent if user exists",
+  })
+  async resendVerification(@Body() resendDto: ResendVerificationDto) {
+    return this.authService.resendVerification(resendDto);
   }
+
+  @Post("select-organization")
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: "Select organization after initial login" })
+  @ApiResponse({
+    status: 200,
+    description: "Organization selected and login completed",
+    schema: {
+      example: {
+        success: true,
+        data: {
+          authUserId: "clxxxxx",
+          email: "user@example.com",
+          selectedOrganization: {
+            organizationId: "org_123",
+            organizationName: "Acme Corp",
+            role: "ADMIN",
+          },
+          accessToken: "jwt_token_here",
+          refreshToken: "refresh_token_here",
+        },
+        message: "Login completed successfully",
+      },
+    },
+  })
+  @ApiResponse({ status: 401, description: "Invalid user or organization" })
+  async selectOrganization(@Body() selectOrgDto: SelectOrganizationDto) {
+    return this.authService.selectOrganization(selectOrgDto);
+  }
+
+  // =============================================================================
+  // MICROSERVICE MESSAGE PATTERNS (for internal service communication)
+  // =============================================================================
+
+  // @MessagePattern("auth.validate_token")
+  // async validateTokenPattern(data: { token: string }) {
+  //   return this.authService.validateTokenPattern(data);
+  // }
+
+  // @MessagePattern("auth.verify_credentials")
+  // async verifyCredentialsPattern(data: { email: string; password: string }) {
+  //   return this.authService.verifyCredentialsPattern(data);
+  // }
+
+  // @MessagePattern("auth.generate_tokens")
+  // async generateTokensPattern(data: { authUserId: string; email: string }) {
+  //   return this.authService.generateTokensPattern(data);
+  // }
+
+  // @MessagePattern("auth.invalidate_user_tokens")
+  // async invalidateUserTokensPattern(data: { authUserId: string }) {
+  //   try {
+  //     await this.authService.invalidateAllUserTokens(data.authUserId);
+  //     return { success: true };
+  //   } catch (error) {
+  //     return { success: false, error: error.message };
+  //   }
+  // }
+
+  // @MessagePattern("auth.get_user_by_id")
+  // async getUserByIdPattern(data: { authUserId: string }) {
+  //   try {
+  //     const user = await this.prisma.authUser.findUnique({
+  //       where: { id: data.authUserId },
+  //       select: {
+  //         id: true,
+  //         email: true,
+  //         isEmailVerified: true,
+  //         lastLoginAt: true,
+  //         createdAt: true,
+  //       },
+  //     });
+
+  //     if (!user) {
+  //       return { found: false };
+  //     }
+
+  //     return {
+  //       found: true,
+  //       user: {
+  //         authUserId: user.id,
+  //         email: user.email,
+  //         isEmailVerified: user.isEmailVerified,
+  //         lastLoginAt: user.lastLoginAt,
+  //         createdAt: user.createdAt,
+  //       },
+  //     };
+  //   } catch (error) {
+  //     return {
+  //       found: false,
+  //       error: error.message,
+  //     };
+  //   }
+  // }
 }

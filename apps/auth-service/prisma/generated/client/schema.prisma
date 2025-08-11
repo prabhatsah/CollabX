@@ -20,18 +20,34 @@ model AuthUser {
   createdAt              DateTime  @default(now()) @map("created_at")
   updatedAt              DateTime  @updatedAt @map("updated_at")
 
+  invitations   InvitationToken[] @relation("UserInvitations")
+  refreshTokens RefreshToken[]
+
   @@map("auth_users")
 }
 
 model InvitationToken {
-  id             String    @id @default(cuid())
-  email          String    @unique
-  organizationId String    @map("organization_id")
-  token          String    @unique
-  invitedBy      String    @map("invited_by")
-  expiresAt      DateTime  @map("expires_at")
-  usedAt         DateTime? @map("used_at")
-  createdAt      DateTime  @default(now()) @map("created_at")
+  id        String    @id @default(cuid())
+  email     String    @unique
+  token     String    @unique
+  invitedBy String    @map("invited_by") // auth_user_id
+  expiresAt DateTime  @map("expires_at")
+  usedAt    DateTime? @map("used_at")
+  createdAt DateTime  @default(now()) @map("created_at")
+
+  inviter AuthUser @relation("UserInvitations", fields: [invitedBy], references: [id])
 
   @@map("invitation_tokens")
+}
+
+model RefreshToken {
+  id        String   @id @default(cuid())
+  token     String   @unique
+  userId    String   @map("user_id")
+  expiresAt DateTime @map("expires_at")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user AuthUser @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("refresh_tokens")
 }

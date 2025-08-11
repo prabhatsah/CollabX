@@ -1,0 +1,146 @@
+// apps/user-organization-service/prisma/schema.prisma
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "./generated/client"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("USER_ORG_DATABASE_URL")
+}
+
+model User {
+  id              String     @id @default(cuid())
+  email           String     @unique
+  fullName        String?
+  profileImage    String?
+  status          UserStatus @default(ACTIVE)
+  isEmailVerified Boolean    @default(false)
+  lastLoginAt     DateTime?
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
+
+  // Relations
+  memberships Membership[]
+  createdOrgs Organization[] @relation("OrganizationCreator")
+  invitations Invitation[]
+  auditLogs   AuditLog[]
+
+  @@map("users")
+}
+
+model Organization {
+  id          String   @id @default(cuid())
+  name        String
+  slug        String   @unique
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  createdById String
+  createdBy   User         @relation("OrganizationCreator", fields: [createdById], references: [id])
+  memberships Membership[]
+  invitations Invitation[]
+  auditLogs   AuditLog[]
+
+  @@map("organizations")
+}
+
+model Membership {
+  id        String           @id @default(cuid())
+  role      MembershipRole   @default(USER)
+  status    MembershipStatus @default(ACTIVE)
+  joinedAt  DateTime         @default(now())
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
+
+  // Relations
+  userId         String
+  organizationId String
+  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  auditLogs      AuditLog[]
+
+  @@unique([userId, organizationId])
+  @@map("memberships")
+}
+
+model Invitation {
+  id         String           @id @default(cuid())
+  email      String
+  role       MembershipRole   @default(USER)
+  status     InvitationStatus @default(PENDING)
+  token      String           @unique
+  expiresAt  DateTime
+  sentAt     DateTime         @default(now())
+  acceptedAt DateTime?
+  createdAt  DateTime         @default(now())
+  updatedAt  DateTime         @updatedAt
+
+  // Relations
+  organizationId String
+  invitedById    String?
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  invitedBy      User?        @relation(fields: [invitedById], references: [id])
+
+  @@map("invitations")
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  action    String // e.g., "USER_INVITED", "MEMBER_ROLE_CHANGED"
+  entity    String // e.g., "USER", "ORGANIZATION", "MEMBERSHIP"
+  entityId  String
+  oldValues Json?
+  newValues Json?
+  metadata  Json?
+  createdAt DateTime @default(now())
+
+  // Relations
+  userId         String?
+  organizationId String?
+  membershipId   String?
+  user           User?         @relation(fields: [userId], references: [id])
+  organization   Organization? @relation(fields: [organizationId], references: [id])
+  membership     Membership?   @relation(fields: [membershipId], references: [id])
+
+  @@map("audit_logs")
+}
+
+// Enums
+enum UserStatus {
+  ACTIVE
+  INACTIVE
+  SUSPENDED
+  PENDING_VERIFICATION
+}
+
+enum MembershipRole {
+  ADMIN
+  SUPPORT
+  USER
+}
+
+enum MembershipStatus {
+  ACTIVE
+  INACTIVE
+  SUSPENDED
+  LEFT
+}
+
+enum InvitationStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+  EXPIRED
+  CANCELLED
+}
+
+enum OrganizationPlan {
+  FREE
+  BASIC
+  PREMIUM
+  ENTERPRISE
+}

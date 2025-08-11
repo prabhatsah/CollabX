@@ -1,5 +1,4 @@
 import { Module } from "@nestjs/common";
-import { AuthEventsProducer } from "./producers/auth-events.producer";
 import { KafkaModule } from "libs/kafka/src";
 
 @Module({

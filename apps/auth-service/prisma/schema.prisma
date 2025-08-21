@@ -1,0 +1,53 @@
+generator client {
+    provider = "prisma-client-js"
+    output   = "./generated/client"
+}
+
+datasource db {
+    provider = "postgresql"
+    url      = env("AUTH_DATABASE_URL")
+}
+
+model AuthUser {
+    id                     String    @id @default(cuid())
+    email                  String    @unique
+    passwordHash           String    @map("password_hash")
+    isEmailVerified        Boolean   @default(false) @map("is_email_verified")
+    verificationToken      String?   @unique @map("verification_token")
+    resetPasswordToken     String?   @unique @map("reset_password_token")
+    resetPasswordExpiresAt DateTime? @map("reset_password_expires_at")
+    lastLoginAt            DateTime? @map("last_login_at")
+    createdAt              DateTime  @default(now()) @map("created_at")
+    updatedAt              DateTime  @updatedAt @map("updated_at")
+
+    invitations   InvitationToken[] @relation("UserInvitations")
+    refreshTokens RefreshToken[]
+
+    @@map("auth_users")
+}
+
+model InvitationToken {
+    id        String    @id @default(cuid())
+    email     String    @unique
+    token     String    @unique
+    invitedBy String    @map("invited_by") // auth_user_id
+    expiresAt DateTime  @map("expires_at")
+    usedAt    DateTime? @map("used_at")
+    createdAt DateTime  @default(now()) @map("created_at")
+
+    inviter AuthUser @relation("UserInvitations", fields: [invitedBy], references: [id])
+
+    @@map("invitation_tokens")
+}
+
+model RefreshToken {
+    id        String   @id @default(cuid())
+    token     String   @unique
+    userId    String   @map("user_id")
+    expiresAt DateTime @map("expires_at")
+    createdAt DateTime @default(now()) @map("created_at")
+
+    user AuthUser @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+    @@map("refresh_tokens")
+}

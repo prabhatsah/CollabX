@@ -1,0 +1,75 @@
+syntax = "proto3";
+
+package auth;
+
+service AuthService {
+    // Create an auth user 
+    rpc CreateAuthUser (CreateAuthUserRequest) returns (CreateAuthUserResponse) {}
+
+    // Login with email/password
+    rpc Login (LoginRequest) returns (LoginResponse) {}
+
+    // Change password
+    rpc ChangePassword (ChangePasswordRequest) returns (ChangePasswordResponse) {}
+
+    // Verify an access token (for API Gateway to validate requests)
+    rpc VerifyToken (VerifyTokenRequest) returns (VerifyTokenResponse) {}
+
+    //chck health
+    rpc CheckHealth (HealthCheckRequest) returns (HealthCheckResponse) {}
+}
+    
+
+// ----------- Messages -----------
+
+message CreateAuthUserRequest {
+    string email = 2;
+    string password = 3;
+}
+
+message CreateAuthUserResponse {
+    string authUserId = 1;
+}
+
+message LoginRequest {
+    string email = 1;
+    string password = 2;
+}
+
+message LoginResponse {
+    string accessToken = 1;
+    string refreshToken = 2;
+}
+
+message ChangePasswordRequest {
+    string authUserId = 1;
+    string oldPassword = 2;
+    string newPassword = 3;
+}
+
+message ChangePasswordResponse {
+    bool success = 1;
+}
+
+// ----------- Token verification -----------
+
+message VerifyTokenRequest {
+    string accessToken = 1;
+}
+
+message VerifyTokenResponse {
+    string authUserId = 2;
+    bool valid = 1;
+    string type = 3;
+}
+
+// -------------- Health check -----------------
+message HealthCheckRequest {}
+
+message HealthCheckResponse {
+    bool serviceUp = 1;             // true if service is running
+    bool databaseConnected = 2;     // true if DB is reachable
+    bool dependenciesHealthy = 3;   // true if all gRPC dependencies are healthy
+    string statusMessage = 4;       // optional human-readable status
+}
+

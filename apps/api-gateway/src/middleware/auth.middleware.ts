@@ -1,0 +1,68 @@
+import { status } from '@grpc/grpc-js';
+import {
+  Injectable,
+  Logger,
+  NestMiddleware,
+  UnauthorizedException,
+} from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { NextFunction, Request, Response } from 'express';
+import * as jwt from 'jsonwebtoken';
+import { SessionService } from '../session/session.service';
+
+//const JWT_SECRET = process.env.JWT_SECRET || 'super-secret';
+
+export interface AuthenticatedUser {
+  userId: string;
+  email: string;
+  organizations: { orgId: string; role: string }[];
+}
+
+@Injectable()
+export class AuthMiddleware implements NestMiddleware {
+  private readonly logger = new Logger(AuthMiddleware.name);
+
+  constructor(
+    private readonly configService: ConfigService,
+    private readonly sessionService: SessionService,
+  ) {}
+
+  async use(req: Request, _: Response, next: NextFunction) {
+    const JWT_SECRET =
+      this.configService.get<string>('JWT_SECRET') || 'super-secret';
+
+    const authHeader = req.headers['authorization'];
+
+    const token: string | undefined = authHeader?.startsWith('Bearer')
+      ? authHeader.split(' ')[1]
+      : (req.cookies?.access_token as string | undefined);
+
+    this.logger.error(`JWT_SECRET: ${JWT_SECRET}`);
+
+    if (!token) {
+      this.logger.error(`Missing auth token`);
+
+      throw new UnauthorizedException('Missing auth token');
+    }
+
+    try {
+      //   const decoded = jwt.verify(token, JWT_SECRET) as AuthenticatedUser;
+      //   req.user = decoded;
+      //   // Forward user context to downstream services (microservices)
+      //   req.headers['x-user-id'] = decoded.userId;
+      //   req.headers['x-user-email'] = decoded.email;
+      //   req.headers['x-user-orgs'] = JSON.stringify(decoded.organizations);\
+
+      const sessionRes = await this.sessionService.getSession({
+        accessToken: token,
+      });
+
+      // Attach user session to request (so downstream controllers can use req.user)
+      (req as any).user = sessionRes.data;
+
+      next();
+    } catch (err) {
+      throw new UnauthorizedException('Invalid or expired token');
+    }
+  }
+}

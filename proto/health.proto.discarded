@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+package health;
+
+service HealthService {
+    rpc CheckHealth (HealthCheckRequest) returns (HealthCheckResponse) {}
+}
+
+message HealthCheckRequest {}
+
+message HealthCheckResponse {
+    bool serviceUp = 1;             // true if service is running
+    bool databaseConnected = 2;     // true if DB is reachable
+    bool dependenciesHealthy = 3;   // true if all gRPC dependencies are healthy
+    string statusMessage = 4;       // optional human-readable status
+}

@@ -1,0 +1,97 @@
+syntax = "proto3";
+
+package userorg;
+
+service UserOrgService {
+    // Create user + organization + membership
+    rpc CreateUserAndOrg (CreateUserAndOrgRequest) returns (CreateUserAndOrgResponse) {}
+
+    // Get organization details
+    rpc GetOrganization (GetOrganizationRequest) returns (GetOrganizationResponse) {}
+
+    // Get users in an organization
+    rpc GetUsersInOrg (GetUsersInOrgRequest) returns (GetUsersInOrgResponse) {}
+
+    //chck health
+    rpc CheckHealth (HealthCheckRequest) returns (HealthCheckResponse) {}
+
+    // Get session info
+    rpc GetSession (GetSessionRequest) returns (GetSessionResponse) {}
+
+}
+
+
+// -----------Session Messages begins -----------
+message GetSessionRequest {
+    string authUserId = 1; 
+}
+
+message GetSessionResponse {
+    UserInfo userInfo = 1;
+    repeated OrgSummary organizations = 2;
+    OrgSummary currentOrg = 3;
+}
+
+message UserInfo {
+    string id = 1;
+    string authUserId = 2;
+    string fullName = 3;
+    string email = 4;
+}
+
+message OrgSummary {
+    string id = 1;
+    string name = 2;
+    string role = 3; // user's role in org
+}
+// -----------Session Messages ends -----------
+
+// -----------User Org creation Messages begins -----------
+message CreateUserAndOrgRequest {
+    string authUserId = 1;
+    string organizationName = 2;
+    string fullName = 3;
+    string email = 4;
+}
+
+message CreateUserAndOrgResponse {
+    string userId = 1;
+    string organizationId = 2;
+    string membershipId = 3;
+}
+// -----------User Org creation Messages ends -----------
+
+message GetOrganizationRequest {
+    string organizationId = 1;
+}
+
+message GetOrganizationResponse {
+    string organizationId = 1;
+    string organizationName = 2;
+    string createdAt = 3;
+}
+
+message GetUsersInOrgRequest {
+    string organizationId = 1;
+}
+
+message GetUsersInOrgResponse {
+    repeated UserInOrg users = 1;
+}
+
+message UserInOrg {
+    string userId = 1;
+    string fullName = 2;
+    string email = 3;
+    string role = 4;
+}
+
+// -------------- Health check -----------------
+message HealthCheckRequest {}
+
+message HealthCheckResponse {
+    bool serviceUp = 1;             // true if service is running
+    bool databaseConnected = 2;     // true if DB is reachable
+    bool dependenciesHealthy = 3;   // true if all gRPC dependencies are healthy
+    string statusMessage = 4;       // optional human-readable status
+}

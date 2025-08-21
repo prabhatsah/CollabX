@@ -1,0 +1,114 @@
+// apps/user-organization-service/prisma/schema.prisma
+
+generator client {
+    provider = "prisma-client-js"
+    output   = "./generated/client"
+}
+
+datasource db {
+    provider = "postgresql"
+    url      = env("USER_ORG_DATABASE_URL")
+}
+
+model User {
+    id           String     @id @default(cuid())
+    authUserId   String     @unique
+    email        String     @unique
+    fullName     String?
+    profileImage String?
+    status       UserStatus @default(ACTIVE)
+    createdAt    DateTime   @default(now())
+    updatedAt    DateTime   @updatedAt
+
+    // Relations
+    memberships Membership[]
+    createdOrgs Organization[] @relation("OrganizationCreator")
+    invitations Invitation[]
+
+    @@map("users")
+}
+
+model Organization {
+    id          String   @id @default(cuid())
+    name        String
+    slug        String   @unique
+    description String?
+    createdAt   DateTime @default(now())
+    updatedAt   DateTime @updatedAt
+
+    // Relations
+    createdById String
+    createdBy   User         @relation("OrganizationCreator", fields: [createdById], references: [id])
+    memberships Membership[]
+    invitations Invitation[]
+
+    @@map("organizations")
+}
+
+model Membership {
+    id        String           @id @default(cuid())
+    role      MembershipRole   @default(USER)
+    status    MembershipStatus @default(ACTIVE)
+    joinedAt  DateTime         @default(now())
+    createdAt DateTime         @default(now())
+    updatedAt DateTime         @updatedAt
+
+    // Relations
+    userId         String
+    organizationId String
+    user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+    organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+    @@unique([userId, organizationId])
+    @@map("memberships")
+}
+
+model Invitation {
+    id         String           @id @default(cuid())
+    email      String
+    role       MembershipRole   @default(USER)
+    status     InvitationStatus @default(PENDING)
+    token      String           @unique
+    expiresAt  DateTime
+    sentAt     DateTime         @default(now())
+    acceptedAt DateTime?
+    createdAt  DateTime         @default(now())
+    updatedAt  DateTime         @updatedAt
+
+    // Relations
+    organizationId String
+    invitedById    String?
+    organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+    invitedBy      User?        @relation(fields: [invitedById], references: [id])
+
+    @@map("invitations")
+}
+
+// Enums
+enum UserStatus {
+    ACTIVE
+    INACTIVE
+    SUSPENDED
+    PENDING_VERIFICATION
+}
+
+enum MembershipRole {
+    ADMIN
+    SUPPORT
+    USER
+}
+
+enum MembershipStatus {
+    ACTIVE
+    INACTIVE
+    SUSPENDED
+    LEFT
+}
+
+enum InvitationStatus {
+    PENDING
+    ACCEPTED
+    REJECTED
+    EXPIRED
+    CANCELLED
+}

@@ -1,0 +1,6 @@
+export const SERVICE_NAMES = {
+  HEALTH_SERVICE: 'HEALTH_SERVICE',
+
+  AUTH_SERVICE: 'AUTH_SERVICE',
+  USER_ORG_SERVICE: 'UserOrgService',
+};

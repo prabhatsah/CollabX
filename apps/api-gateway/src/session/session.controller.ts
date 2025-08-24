@@ -33,7 +33,8 @@ export class SessionController {
   @Get('me')
   @HttpCode(HttpStatus.OK)
   getMe(@Req() req: AuthenticatedRequest) {
-    console.log('req', req);
+    // getMe(@CurrentUser() req: SessionUser) {
+    console.log('req', req.user);
     const authHeader = req.headers['authorization'];
     const cookieToken = req.cookies?.['access_token'];
 
@@ -45,12 +46,6 @@ export class SessionController {
 
     return this.sessionService.getSession({ accessToken: token });
   }
-
-  // @Get('me')
-  // @HttpCode(HttpStatus.OK)
-  // getMe(@CurrentUser() user: SessionUser) {
-  //   return user;
-  // }
 
   @Post('logout')
   async logout(

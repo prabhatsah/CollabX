@@ -1,18 +1,18 @@
-"use client";
+'use client';
 
-import type React from "react";
+import type React from 'react';
 
-import { useState } from "react";
-import { Button } from "@/components/ui/button";
+import { useState } from 'react';
+import { Button } from '@/components/ui/button';
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+} from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import {
   Table,
   TableBody,
@@ -20,9 +20,9 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+} from '@/components/ui/table';
+import { Badge } from '@/components/ui/badge';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
   Dialog,
   DialogContent,
@@ -31,14 +31,14 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog";
+} from '@/components/ui/dialog';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from '@/components/ui/select';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -46,7 +46,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+} from '@/components/ui/dropdown-menu';
 import {
   UserPlus,
   MoreHorizontal,
@@ -54,11 +54,11 @@ import {
   Shield,
   User,
   Eye,
-} from "lucide-react";
-import { toast } from "sonner";
-import { useOrgUsers } from "@/hooks/use-org-users";
+} from 'lucide-react';
+import { toast } from 'sonner';
+import { useOrgUsers } from '@/hooks/useOrgUsers';
 
-type UserRole = "Admin" | "Agent" | "Viewer";
+type UserRole = 'Admin' | 'Agent' | 'Viewer';
 
 interface OrgUser {
   id: string;
@@ -66,45 +66,45 @@ interface OrgUser {
   email: string;
   role: UserRole;
   avatar?: string;
-  status: "Active" | "Pending" | "Inactive";
+  status: 'Active' | 'Pending' | 'Inactive';
   lastActive: string;
 }
 
 const mockUsers: OrgUser[] = [
   {
-    id: "1",
-    name: "John Doe",
-    email: "john@acme.com",
-    role: "Admin",
-    avatar: "/placeholder.svg?height=40&width=40",
-    status: "Active",
-    lastActive: "2 hours ago",
+    id: '1',
+    name: 'John Doe',
+    email: 'john@acme.com',
+    role: 'Admin',
+    avatar: '/placeholder.svg?height=40&width=40',
+    status: 'Active',
+    lastActive: '2 hours ago',
   },
   {
-    id: "2",
-    name: "Sarah Wilson",
-    email: "sarah@acme.com",
-    role: "Agent",
-    avatar: "/placeholder.svg?height=40&width=40",
-    status: "Active",
-    lastActive: "1 day ago",
+    id: '2',
+    name: 'Sarah Wilson',
+    email: 'sarah@acme.com',
+    role: 'Agent',
+    avatar: '/placeholder.svg?height=40&width=40',
+    status: 'Active',
+    lastActive: '1 day ago',
   },
   {
-    id: "3",
-    name: "Mike Johnson",
-    email: "mike@acme.com",
-    role: "Viewer",
-    status: "Pending",
-    lastActive: "Never",
+    id: '3',
+    name: 'Mike Johnson',
+    email: 'mike@acme.com',
+    role: 'Viewer',
+    status: 'Pending',
+    lastActive: 'Never',
   },
   {
-    id: "4",
-    name: "Lisa Davis",
-    email: "lisa@acme.com",
-    role: "Agent",
-    avatar: "/placeholder.svg?height=40&width=40",
-    status: "Active",
-    lastActive: "3 hours ago",
+    id: '4',
+    name: 'Lisa Davis',
+    email: 'lisa@acme.com',
+    role: 'Agent',
+    avatar: '/placeholder.svg?height=40&width=40',
+    status: 'Active',
+    lastActive: '3 hours ago',
   },
 ];
 
@@ -114,8 +114,8 @@ export default function UserManagementPage() {
   //const [users, setUsers] = useState<OrgUser[]>(mockUsers);
   const [inviteDialogOpen, setInviteDialogOpen] = useState(false);
   const [inviteData, setInviteData] = useState({
-    email: "",
-    role: "Viewer" as UserRole,
+    email: '',
+    role: 'Viewer' as UserRole,
   });
 
   const handleInviteUser = (e: React.FormEvent) => {
@@ -123,16 +123,16 @@ export default function UserManagementPage() {
     // In a real app, send invitation via API
     const newUser: OrgUser = {
       id: Date.now().toString(),
-      name: inviteData.email.split("@")[0],
+      name: inviteData.email.split('@')[0],
       email: inviteData.email,
       role: inviteData.role,
-      status: "Pending",
-      lastActive: "Never",
+      status: 'Pending',
+      lastActive: 'Never',
     };
     setUsers([...users, newUser]);
     setInviteDialogOpen(false);
-    setInviteData({ email: "", role: "Viewer" });
-    toast.info("Invitation sent", {
+    setInviteData({ email: '', role: 'Viewer' });
+    toast.info('Invitation sent', {
       description: `Invitation sent to ${inviteData.email}`,
     });
   };
@@ -140,53 +140,53 @@ export default function UserManagementPage() {
   const handleRoleChange = (userId: string, newRole: UserRole) => {
     setUsers(
       users.map((user) =>
-        user.id === userId ? { ...user, role: newRole } : user
-      )
+        user.id === userId ? { ...user, role: newRole } : user,
+      ),
     );
-    toast.info("Role updated", {
-      description: "User role has been updated successfully.",
+    toast.info('Role updated', {
+      description: 'User role has been updated successfully.',
     });
   };
 
   const handleRemoveUser = (userId: string) => {
     setUsers(users.filter((user) => user.id !== userId));
-    toast.success("User removed", {
-      description: "User has been removed from the organization.",
+    toast.success('User removed', {
+      description: 'User has been removed from the organization.',
     });
   };
 
   const getRoleIcon = (role: UserRole) => {
     switch (role) {
-      case "Admin":
+      case 'Admin':
         return <Shield className="h-4 w-4" />;
-      case "Agent":
+      case 'Agent':
         return <User className="h-4 w-4" />;
-      case "Viewer":
+      case 'Viewer':
         return <Eye className="h-4 w-4" />;
     }
   };
 
   const getRoleColor = (role: UserRole) => {
     switch (role) {
-      case "Admin":
-        return "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300";
-      case "Agent":
-        return "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300";
-      case "Viewer":
-        return "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-300";
+      case 'Admin':
+        return 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300';
+      case 'Agent':
+        return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300';
+      case 'Viewer':
+        return 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-300';
     }
   };
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case "Active":
-        return "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300";
-      case "Pending":
-        return "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300";
-      case "Inactive":
-        return "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-300";
+      case 'Active':
+        return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300';
+      case 'Pending':
+        return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300';
+      case 'Inactive':
+        return 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-300';
       default:
-        return "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-300";
+        return 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-300';
     }
   };
 
@@ -286,14 +286,14 @@ export default function UserManagementPage() {
                 <div className="flex items-center space-x-3">
                   <Avatar className="h-8 w-8">
                     <AvatarImage
-                      src={user.avatar || "/placeholder.svg"}
+                      src={user.avatar || '/placeholder.svg'}
                       alt={user.name}
                     />
                     <AvatarFallback>
                       {user.name
-                        .split(" ")
+                        .split(' ')
                         .map((n) => n[0])
-                        .join("")}
+                        .join('')}
                     </AvatarFallback>
                   </Avatar>
                   <div>
@@ -330,19 +330,19 @@ export default function UserManagementPage() {
                   <DropdownMenuContent align="end">
                     <DropdownMenuLabel>Change Role</DropdownMenuLabel>
                     <DropdownMenuItem
-                      onClick={() => handleRoleChange(user.id, "Admin")}
+                      onClick={() => handleRoleChange(user.id, 'Admin')}
                     >
                       <Shield className="mr-2 h-4 w-4" />
                       Admin
                     </DropdownMenuItem>
                     <DropdownMenuItem
-                      onClick={() => handleRoleChange(user.id, "Agent")}
+                      onClick={() => handleRoleChange(user.id, 'Agent')}
                     >
                       <User className="mr-2 h-4 w-4" />
                       Agent
                     </DropdownMenuItem>
                     <DropdownMenuItem
-                      onClick={() => handleRoleChange(user.id, "Viewer")}
+                      onClick={() => handleRoleChange(user.id, 'Viewer')}
                     >
                       <Eye className="mr-2 h-4 w-4" />
                       Viewer

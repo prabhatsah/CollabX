@@ -1,6 +1,7 @@
 import {
   CreateUserAndOrgRequest,
   GetSessionRequest,
+  GetUserByAuthIdRequest,
   OrgSummary,
 } from '@app/common/proto/user-org';
 import { Injectable, Logger } from '@nestjs/common';
@@ -9,6 +10,7 @@ import { MembershipService } from '../memberships/membership.service';
 import { PrismaService } from '../database/prisma.service';
 import { RpcException } from '@nestjs/microservices';
 import { status } from '@grpc/grpc-js';
+import { log } from 'console';
 
 @Injectable()
 export class UserService {
@@ -138,6 +140,47 @@ export class UserService {
         code: status.NOT_FOUND,
         message: 'Session fetch failed',
       });
+    }
+  }
+
+  async getUserByAuthId(request: GetUserByAuthIdRequest) {
+    const { authUserId } = request;
+    this.logger.debug(`Started fetching user complete info: ${authUserId}`);
+
+    try {
+      const userDetails = await this.prismaService.user.findUnique({
+        where: {
+          authUserId,
+        },
+        include: {
+          memberships: {
+            include: {
+              organization: true,
+            },
+          },
+        },
+      });
+
+      const organizations = userDetails?.memberships.map((membership) => ({
+        orgId: membership.organizationId,
+        orgName: membership.organization.name,
+        role: membership.role,
+      }));
+
+      const user = {
+        userId: userDetails?.id,
+        authUserId: userDetails?.authUserId,
+        fullName: userDetails?.fullName,
+        email: userDetails?.email,
+        memberships: organizations,
+      };
+
+      this.logger.verbose(`User info: ${JSON.stringify(user)}`);
+
+      return { user };
+    } catch (error) {
+      this.logger.error(`Transaction failed for ${authUserId}.`, error);
+      throw error;
     }
   }
 }

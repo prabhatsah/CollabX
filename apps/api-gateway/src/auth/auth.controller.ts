@@ -11,6 +11,7 @@ import {
 import { AuthService } from './auth.service';
 import type { CreateAuthUserRequest, LoginRequest } from '@app/common';
 import type { Response } from 'express';
+import { ApiOperation, ApiResponse } from '@nestjs/swagger';
 
 @Controller('auth')
 export class AuthController {
@@ -26,6 +27,8 @@ export class AuthController {
 
   @Post('login')
   @HttpCode(HttpStatus.ACCEPTED)
+  @ApiOperation({ summary: 'Create a new user' })
+  @ApiResponse({ status: 201, description: 'User created successfully' })
   async login(
     @Body() request: LoginRequest,
     @Res({ passthrough: true }) res: Response,

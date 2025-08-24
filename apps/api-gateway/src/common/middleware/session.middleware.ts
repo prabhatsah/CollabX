@@ -40,10 +40,12 @@ export class SessionMiddleware implements NestMiddleware {
         accessToken: token,
       });
 
-      //console.log(`Session user:`, sessionRes.data);
-
       // Attach user session to request (so downstream controllers can use req.user)
       req.user = sessionRes.data as SessionUser;
+
+      this.logger.debug(
+        `Session data set in middleware: ${JSON.stringify(req.user)}`,
+      );
 
       next();
     } catch (err) {

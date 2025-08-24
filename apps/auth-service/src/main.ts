@@ -35,6 +35,6 @@ async function bootstrap() {
 
   await app.listen();
 
-  console.log(`🔐 Auth Service service is up and running on port: ${PORT}...`);
+  console.log(`🔐 Auth Service service is up and running on port: ${PORT}`);
 }
 bootstrap();

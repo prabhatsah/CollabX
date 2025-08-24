@@ -18,6 +18,32 @@ service UserOrgService {
     // Get session info
     rpc GetSession (GetSessionRequest) returns (GetSessionResponse) {}
 
+    // Fetch one user’s complete details
+    rpc GetUserByAuthId(GetUserByAuthIdRequest) returns (GetUserByAuthIdResponse) {}
+
+}
+
+message GetUserByAuthIdRequest {
+  string authUserId = 1;
+}
+
+message GetUserByAuthIdResponse {
+  User user = 1;
+}
+
+message User {
+  string userId = 1;            // internal userId (from user-org service)
+  string authUserId = 2;    // FK from auth-service
+  string fullName = 3;
+  string email = 4;
+  repeated Membership memberships = 5;  // user may belong to multiple orgs
+}
+
+// Org membership details
+message Membership {
+  string orgId = 1;
+  string orgName = 2;
+  string role = 3;
 }
 
 

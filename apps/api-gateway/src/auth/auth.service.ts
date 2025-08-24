@@ -15,7 +15,6 @@ import { firstValueFrom, lastValueFrom } from 'rxjs';
 export class AuthService implements OnModuleInit {
   private readonly logger = new Logger(AuthService.name);
 
-  //gRPC client from proto
   private authServiceClient: AuthServiceClient;
 
   constructor(@Inject(SERVICE_NAMES.AUTH_SERVICE) private client: ClientGrpc) {}

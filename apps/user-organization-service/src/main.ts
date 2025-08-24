@@ -8,7 +8,7 @@ import { PROTO_PATHS } from '@app/common';
 dotenv.config({ path: '.env' });
 
 async function bootstrap() {
-  const PORT = process.env.USER_ORG_GRPC_SERVICE_PORT || 5002;
+  const PORT = process.env.USER_ORG_GRPC_SERVICE_PORT || 3002;
   const USER_ORG_GRPC_PACKAGE = process.env.UER_ORG_GRPC_PACKAGE || 'userorg';
 
   const app = await NestFactory.createMicroservice<MicroserviceOptions>(

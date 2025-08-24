@@ -10,6 +10,32 @@ import { Observable } from "rxjs";
 
 export const protobufPackage = "userorg";
 
+export interface GetUserByAuthIdRequest {
+  authUserId: string;
+}
+
+export interface GetUserByAuthIdResponse {
+  user: User | undefined;
+}
+
+export interface User {
+  /** internal userId (from user-org service) */
+  userId: string;
+  /** FK from auth-service */
+  authUserId: string;
+  fullName: string;
+  email: string;
+  /** user may belong to multiple orgs */
+  memberships: Membership[];
+}
+
+/** Org membership details */
+export interface Membership {
+  orgId: string;
+  orgName: string;
+  role: string;
+}
+
 /** -----------Session Messages begins ----------- */
 export interface GetSessionRequest {
   authUserId: string;
@@ -111,6 +137,10 @@ export interface UserOrgServiceClient {
   /** Get session info */
 
   getSession(request: GetSessionRequest): Observable<GetSessionResponse>;
+
+  /** Fetch one user’s complete details */
+
+  getUserByAuthId(request: GetUserByAuthIdRequest): Observable<GetUserByAuthIdResponse>;
 }
 
 export interface UserOrgServiceController {
@@ -143,11 +173,24 @@ export interface UserOrgServiceController {
   getSession(
     request: GetSessionRequest,
   ): Promise<GetSessionResponse> | Observable<GetSessionResponse> | GetSessionResponse;
+
+  /** Fetch one user’s complete details */
+
+  getUserByAuthId(
+    request: GetUserByAuthIdRequest,
+  ): Promise<GetUserByAuthIdResponse> | Observable<GetUserByAuthIdResponse> | GetUserByAuthIdResponse;
 }
 
 export function UserOrgServiceControllerMethods() {
   return function (constructor: Function) {
-    const grpcMethods: string[] = ["createUserAndOrg", "getOrganization", "getUsersInOrg", "checkHealth", "getSession"];
+    const grpcMethods: string[] = [
+      "createUserAndOrg",
+      "getOrganization",
+      "getUsersInOrg",
+      "checkHealth",
+      "getSession",
+      "getUserByAuthId",
+    ];
     for (const method of grpcMethods) {
       const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);
       GrpcMethod("UserOrgService", method)(constructor.prototype[method], method, descriptor);

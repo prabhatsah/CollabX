@@ -17,7 +17,7 @@ import { PROTO_PATHS, SERVICE_NAMES } from '@app/common';
           transport: Transport.GRPC,
           options: {
             package: configService.get<string>('AUTH_GRPC_PACKAGE') || 'auth',
-            protoPath: PROTO_PATHS.AUTH, //join(__dirname, '../auth.proto'),
+            protoPath: PROTO_PATHS.AUTH,
             url: `${configService.get<string>('AUTH_GRPC_SERVICE_HOST')}:${configService.get<number>('AUTH_GRPC_SERVICE_PORT')}`,
           },
         }),

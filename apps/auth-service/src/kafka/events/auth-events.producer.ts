@@ -1,5 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { KafkaService } from '../kafka.service';
+import { EventPayload } from '@app/common/interfaces';
 
 @Injectable()
 export class AuthEventsProducer {
@@ -7,16 +8,24 @@ export class AuthEventsProducer {
 
   constructor(private readonly kafkaService: KafkaService) {}
 
-  async loginSuccess(payload: { userId: string; email: string }) {
+  async loginSuccess(payload: EventPayload) {
+    console.log('payload:', payload);
+
     await this.kafkaService.emit('auth.login.success', {
       ...payload,
+      event: 'Login',
       timestamp: new Date().toISOString(),
     });
   }
 
-  async loginFailed(payload: { userId: string; email: string }) {
+  async loginFailed(payload: {
+    email: string;
+    message: string;
+    success: boolean;
+  }) {
     await this.kafkaService.emit('auth.login.failed', {
       ...payload,
+      event: 'Login',
       timestamp: new Date().toISOString(),
     });
   }

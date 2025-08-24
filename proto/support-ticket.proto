@@ -1,0 +1,105 @@
+syntax="proto3";
+
+package supportticket;
+
+service SupportTicket {
+    rpc CreateTicket(CreateTicketRequest) returns (TicketResponse) {}
+    rpc GetTicket(GetTicketRequest) returns (TicketResponse) {}
+    rpc ListTickets(ListTicketsRequest) returns (ListTicketsResponse) {}
+    rpc AddComment(AddCommentRequest) returns (CommentResponse) {}
+    rpc AssignTicket(AssignTicketRequest) returns (TicketResponse) {}
+    rpc TransitionStatus(TransitionStatusRequest) returns (TicketResponse) {}
+
+    // optional: internal for gateway health
+    rpc CheckHealth(Empty) returns (Empty) {}
+}
+
+message Empty {}
+
+// enum TicketStatus {
+//   OPEN = 0;
+//   ASSIGNED = 1;
+//   IN_PROGRESS = 2;
+//   ON_HOLD = 3;
+//   CANCELLED = 4;
+//   RESOLVED = 5;
+//   CLOSED = 6;
+// }
+
+// enum TicketPriority {
+//   LOW = 0;
+//   MEDIUM = 1;
+//   HIGH = 2;
+// }
+
+message Ticket {
+  string id = 1;
+  string orgId = 2;
+  string title = 3;
+  string description = 4;
+  string createdByUserId = 5;
+  string assigneeUserId = 6; 
+  string status = 7;
+  string priority = 8;
+  string createdAt = 9;
+  string updatedAt = 10;
+}
+
+message Comment {
+  string id = 1;
+  string ticketId = 2;
+  string orgId = 3;
+  string authorUserId = 4;
+  string body = 5;
+  string createdAt = 6;
+}
+
+message CreateTicketRequest {
+  string orgId = 1;
+  string title = 2;
+  string description = 3;
+  string priority = 4;
+  string createdByUserId = 5;
+}
+
+message TicketResponse { Ticket ticket = 1; }
+
+message GetTicketRequest { string orgId = 1; string ticketId = 2; }
+
+message ListTicketsRequest {
+  string orgId = 1;
+  string status = 2; 
+  string priority = 3; 
+  string assigneeUserId = 4; 
+  int32 limit = 5; // pagination
+  string cursor = 6; // pagination
+}
+
+message ListTicketsResponse {
+  repeated Ticket tickets = 1;
+  string nextCursor = 2;
+}
+
+message AddCommentRequest {
+  string orgId = 1;
+  string ticketId = 2;
+  string body = 3;
+  string authorUserId = 4;
+}
+
+message CommentResponse { Comment comment = 1; }
+
+message AssignTicketRequest {
+  string orgId = 1;
+  string ticketId = 2;
+  string assigneeUserId = 3;
+  string actorUserId = 4; // who assigns (for audit)
+}
+
+message TransitionStatusRequest {
+  string orgId = 1;
+  string ticketId = 2;
+  string newStatus = 3; 
+  string actorUserId = 4;
+  string reason = 5; // optional
+}

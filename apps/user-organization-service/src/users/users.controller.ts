@@ -1,7 +1,9 @@
 import { SERVICE_NAMES } from '@app/common';
-import type {
-  CreateUserAndOrgRequest,
-  GetSessionRequest,
+import {
+  type GetUserByAuthIdRequest,
+  USER_ORG_SERVICE_NAME,
+  type CreateUserAndOrgRequest,
+  type GetSessionRequest,
 } from '@app/common/proto/user-org';
 import { Controller } from '@nestjs/common';
 import { GrpcMethod } from '@nestjs/microservices';
@@ -19,5 +21,10 @@ export class UserController {
   @GrpcMethod(SERVICE_NAMES.USER_ORG_SERVICE, 'GetSession')
   getSession(request: GetSessionRequest) {
     return this.userService.getSession(request);
+  }
+
+  @GrpcMethod(USER_ORG_SERVICE_NAME, 'GetUserByAuthId')
+  async getUserByAuthId(request: GetUserByAuthIdRequest) {
+    return this.userService.getUserByAuthId(request);
   }
 }

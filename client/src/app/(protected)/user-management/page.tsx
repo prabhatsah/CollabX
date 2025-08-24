@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useOrgUsers } from '@/hooks/use-org-users';
+import { useOrgUsers } from '@/hooks/useOrgUsers';
 import {
   Table,
   TableHeader,
@@ -45,6 +45,8 @@ import { removeUserFromOrg } from '@/lib/api/users/removeUserFromOrg';
 
 import { User } from '@/types';
 import { useRouter } from 'next/navigation';
+import { BoxSpinner } from '@/components/loading-style/box-spinner';
+import ErrorPage from '@/components/error-style/error-page';
 
 export default function UserManagementPage() {
   const { users, loading, error, refresh } = useOrgUsers();
@@ -53,7 +55,6 @@ export default function UserManagementPage() {
   const [inviteRole, setInviteRole] = useState<User['role']>('USER');
   const { setLoading } = useLoading();
 
- 
   async function handleInvite(e: React.FormEvent) {
     e.preventDefault();
     try {
@@ -115,8 +116,10 @@ export default function UserManagementPage() {
     }
   }
 
-  if (loading) return <p className="p-6">Loading users…</p>;
-  if (error) return <p className="p-6 text-red-600">Error: {error}</p>;
+  console.log('Users:', users);
+
+  if (loading) return <BoxSpinner />;
+  if (error) return <ErrorPage />;
 
   return (
     <div className="p-6 space-y-4">
@@ -187,6 +190,7 @@ export default function UserManagementPage() {
         <TableHeader>
           <TableRow>
             <TableHead>User</TableHead>
+            <TableHead>Email</TableHead>
             <TableHead>Role</TableHead>
             <TableHead>Actions</TableHead>
           </TableRow>
@@ -194,7 +198,8 @@ export default function UserManagementPage() {
         <TableBody className="border-b">
           {users.map((u) => (
             <TableRow className="" key={u.id}>
-              <TableCell>{u.name ?? u.email}</TableCell>
+              <TableCell>{u.fullName}</TableCell>
+              <TableCell>{u.email}</TableCell>
               <TableCell>{u.role}</TableCell>
               <TableCell className="flex space-x-2">
                 <DropdownMenu>

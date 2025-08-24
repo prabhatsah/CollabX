@@ -2,7 +2,14 @@
 
 import { usePathname } from 'next/navigation';
 import * as React from 'react';
-import { Bot, GalleryVerticalEnd, Home, Tickets, User } from 'lucide-react';
+import {
+  Bot,
+  GalleryVerticalEnd,
+  Home,
+  Tickets,
+  User,
+  FileCheck2,
+} from 'lucide-react';
 import { NavMain } from '@/components/nav-main';
 import { NavUser } from '@/components/nav-user';
 import {
@@ -19,94 +26,46 @@ import { NavSecondary } from './nav-secondary';
 import { IconHelp, IconSettings } from '@tabler/icons-react';
 
 import { useSession } from '@/context/session-context';
-import { BoxSpinner } from './BoxSpinner';
-
-// const data1 = {
-//   user: {
-//     name: "Alisha Barik",
-//     email: "barik@gmail.com",
-//     avatar: "/avatars/shadcn.jpg",
-//   },
-//   nav: [
-//     {
-//       title: "Dashboard",
-//       url: "/",
-//       icon: Home,
-//     },
-//   ],
-//   navMain: [
-//     {
-//       title: "Customer Support",
-//       url: "/customer-support/dashboard",
-//       icon: Tickets,
-//       isActive: true,
-//       items: [
-//         {
-//           title: "Dashboard",
-//           url: "/customer-support/dashboard",
-//         },
-//         {
-//           title: "Open tickets",
-//           url: "/customer-support/open-tickets",
-//         },
-//         {
-//           title: "Closed tickets",
-//           url: "/customer-support/closed-tickets",
-//         },
-//       ],
-//     },
-//     {
-//       title: "Models",
-//       url: "#",
-//       icon: Bot,
-//       items: [
-//         {
-//           title: "Genesis",
-//           url: "#",
-//         },
-//         {
-//           title: "Explorer",
-//           url: "#",
-//         },
-//         {
-//           title: "Quantum",
-//           url: "#",
-//         },
-//       ],
-//     },
-//   ],
-//   navSecondary: [
-//     {
-//       title: "User Management",
-//       url: "/user-management",
-//       icon: User,
-//     },
-//     {
-//       title: "Settings",
-//       url: "#",
-//       icon: IconSettings,
-//     },
-//     {
-//       title: "Get Help",
-//       url: "#",
-//       icon: IconHelp,
-//     },
-//   ],
-// };
+import { BoxSpinner } from './loading-style/box-spinner';
+import RoundSpinner from './loading-style/round-spinner';
+import { useLoading } from '@/context/LoadingContext';
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { session, isLoading: sessionLoading } = useSession();
+  const { setLoading } = useLoading();
 
   const pathname = usePathname();
+
+  // if (sessionLoading || !session?.userInfo) {
+  //   setLoading(true);
+  //   // return (
+  //   //   <>
+  //   //     <div className="p-2 w-64 border-r"></div>
+  //   //     {/* <BoxSpinner /> */}
+  //   //     {/* <RoundSpinner /> */}
+  //   //   </>
+  //   // );
+  // } else {
+  //   setLoading(false);
+  // }
+
+  React.useEffect(() => {
+    if (sessionLoading || !session?.userInfo) {
+      setLoading(true);
+    } else {
+      setLoading(false);
+    }
+  }, [sessionLoading, session, setLoading]);
 
   if (sessionLoading || !session?.userInfo) {
     return (
       <>
-        <div className="p-2 w-64 border-r"></div>
-        <BoxSpinner />
+        {/* to manage left sidebar width during loading */}
+        <div className="p-2 w-64 border-r"></div>;
       </>
     );
   }
+
   const isAdmin = session?.currentOrg?.role === 'ADMIN';
 
   const data = {
@@ -171,17 +130,17 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               url: '/user-management',
               icon: User,
             },
+            {
+              title: 'Audit Log',
+              url: '/audit-log',
+              icon: FileCheck2,
+            },
           ]
         : []),
       {
         title: 'Settings',
         url: '#',
         icon: IconSettings,
-      },
-      {
-        title: 'Get Help',
-        url: '#',
-        icon: IconHelp,
       },
     ],
   };

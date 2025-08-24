@@ -10,11 +10,13 @@ import { ConfigModule } from '@nestjs/config';
 import { SignupModule } from './signup/signup.module';
 import { HealthModule } from './health/health.module';
 import { SessionModule } from './session/session.module';
-import { AuthMiddleware } from './middleware/auth.middleware';
+import { AuthMiddleware } from './middleware/auth.middleware.ts.bak';
 import { SessionService } from './session/session.service';
 import { UserOrgService } from './user-org/user-org.service';
 import { AuthService } from './auth/auth.service';
 import { CommonModule } from './common/common.module';
+import { AuditModule } from './audit/audit.module';
+import { SupportTicketModule } from './support-ticket/support-ticket.module';
 
 @Module({
   imports: [
@@ -26,21 +28,10 @@ import { CommonModule } from './common/common.module';
     SignupModule,
     HealthModule,
     CommonModule,
+    AuditModule,
+    SupportTicketModule,
   ],
   controllers: [AppController],
   providers: [AppService],
 })
-// export class AppModule implements NestModule {
-//   configure(consumer: MiddlewareConsumer) {
-//     consumer
-//       .apply(AuthMiddleware)
-//       .exclude(
-//         { path: 'auth/(.*)', method: RequestMethod.ALL },
-//         { path: 'signup', method: RequestMethod.POST },
-//         { path: 'healthCheck', method: RequestMethod.GET },
-//         { path: 'session/(.*)', method: RequestMethod.ALL },
-//       )
-//       .forRoutes('*');
-//   }
-// }
 export class AppModule {}

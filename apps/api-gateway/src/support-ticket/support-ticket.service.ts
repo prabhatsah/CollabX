@@ -1,12 +1,12 @@
 import {
   SUPPORT_TICKET_SERVICE_NAME,
   SupportTicketClient,
-  TicketPriority,
 } from '@app/common/proto/support-ticket';
 import { Inject, Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { type ClientGrpc } from '@nestjs/microservices';
 import { CreateTicketDto } from './dto/create-ticket.dto';
 import { lastValueFrom } from 'rxjs';
+import { ListTicketsDto } from './dto/list-tickets.dto';
 
 @Injectable()
 export class SupportTicketService implements OnModuleInit {
@@ -25,14 +25,20 @@ export class SupportTicketService implements OnModuleInit {
   }
 
   async createTicket(request: CreateTicketDto) {
-    console.log('Ticket creation request:', request);
-
     const res = await lastValueFrom(
       this.supportTicketClient.createTicket(request),
     );
-
-    console.log('Rs', res);
-
+    this.logger.debug(
+      `Ticket created successfully with title: ${res.ticket?.title}`,
+    );
     return res.ticket;
+  }
+
+  async listTickets(request: ListTicketsDto) {
+    const res = await lastValueFrom(
+      this.supportTicketClient.listTickets(request),
+    );
+    this.logger.debug(`Ticket fetched successfully: ${JSON.stringify(res)}`);
+    return res;
   }
 }

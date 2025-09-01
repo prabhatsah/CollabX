@@ -20,13 +20,10 @@ export function useAuditlogs(): UseAuditLogsResult {
     if (!session) return;
     setLoading(true);
     setError(null);
-    debugger;
 
     try {
       const res: AuditLogResponse = await apiFetch(`/audit/logs`);
-
       console.log('AuditLogs:', res);
-
       setAuditLogs(res.data.auditLogs);
     } catch (error) {
       console.error('useAuditlogs error:', error);

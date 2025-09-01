@@ -45,7 +45,6 @@ model Comment {
 
 enum TicketStatus {
     OPEN
-    ASSIGNED
     IN_PROGRESS
     ON_HOLD
     CANCELLED

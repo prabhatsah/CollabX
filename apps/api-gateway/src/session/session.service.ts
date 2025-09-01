@@ -69,7 +69,6 @@ export class SessionService {
     }
 
     const session = JSON.parse(cached) as GetSessionResponse;
-    console.log('Session:', session);
 
     // Find the organization by ID
     const newCurrentOrg = session.organizations.find((org) => org.id === orgId);

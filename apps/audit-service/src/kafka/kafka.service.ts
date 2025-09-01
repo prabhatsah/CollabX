@@ -22,7 +22,7 @@ export class KafkaService implements OnModuleInit, OnModuleDestroy {
   constructor() {
     this.kafka = new Kafka({
       clientId: 'audit-service',
-      brokers: [process.env.KAFKA_BROKER || 'localhost:9092'],
+      brokers: [process.env.KAFKA_BROKER || 'localhost:29092'],
     });
 
     this.consumer = this.kafka.consumer({ groupId: 'audit-service-group' });

@@ -12,6 +12,7 @@ export class CommonModule {
       .apply(SessionMiddleware)
       .exclude(
         { path: 'auth/(.*)', method: RequestMethod.ALL },
+        { path: 'signup', method: RequestMethod.POST },
         { path: 'healthCheck', method: RequestMethod.GET },
       )
       .forRoutes('*'); // everything else is protected

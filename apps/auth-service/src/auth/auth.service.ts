@@ -98,7 +98,9 @@ export class AuthService implements OnModuleInit {
     // Generate tokens with organization context
     const tokens = await this.jwtTokenService.generateTokens(authUser.id);
 
-    this.logger.log(`log-in success with access-token: ${tokens.accessToken} `);
+    this.logger.debug(
+      `Log-in success with access-token: ${tokens.accessToken} `,
+    );
 
     //emiting event
     const userInfo = await this.getUserByAuthUserId({
@@ -106,9 +108,10 @@ export class AuthService implements OnModuleInit {
     });
 
     await this.authEvents.loginSuccess({
-      email: authUser.email,
-      fullName: userInfo.user?.fullName,
-      organizations: userInfo.user?.memberships,
+      userId: userInfo.user?.userId,
+      // email: authUser.email,
+      // fullName: userInfo.user?.fullName,
+      // organizations: userInfo.user?.memberships,
       message: 'Login success',
       success: true,
       ...meta,

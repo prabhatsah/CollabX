@@ -18,7 +18,7 @@ export class KafkaService implements OnModuleInit, OnModuleDestroy {
   constructor() {
     this.kafka = new Kafka({
       clientId: 'auth-service',
-      brokers: [process.env.KAFKA_BROKER || 'localhost:9092'],
+      brokers: [process.env.KAFKA_BROKER || 'localhost:29092'],
     });
 
     this.producer = this.kafka.producer();
@@ -26,7 +26,7 @@ export class KafkaService implements OnModuleInit, OnModuleDestroy {
 
   async onModuleInit() {
     await this.producer.connect();
-    this.logger.log(`Auth service producer connected`);
+    this.logger.log(`✅ Auth service producer connected`);
   }
 
   async emit(topic: string, message: any) {
@@ -36,9 +36,7 @@ export class KafkaService implements OnModuleInit, OnModuleDestroy {
       topic,
       messages: [{ key, value: JSON.stringify(message) }],
     });
-    this.logger.log(
-      `Event emitted for topic: ${topic} with email: ${message.email}`,
-    );
+    this.logger.log(`Event emitted for topic: ${topic}`);
   }
 
   async onModuleDestroy() {

@@ -68,11 +68,12 @@ message GetTicketRequest { string orgId = 1; string ticketId = 2; }
 
 message ListTicketsRequest {
   string orgId = 1;
-  string status = 2; 
-  string priority = 3; 
+  repeated string status = 2; 
+  repeated string priority = 3; 
   string assigneeUserId = 4; 
-  int32 limit = 5; // pagination
-  string cursor = 6; // pagination
+  string createdByUserId = 5;
+  int32 limit = 6; // pagination
+  string cursor = 7; // pagination
 }
 
 message ListTicketsResponse {

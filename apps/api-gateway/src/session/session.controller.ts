@@ -34,7 +34,6 @@ export class SessionController {
   @HttpCode(HttpStatus.OK)
   getMe(@Req() req: AuthenticatedRequest) {
     // getMe(@CurrentUser() req: SessionUser) {
-    console.log('req', req.user);
     const authHeader = req.headers['authorization'];
     const cookieToken = req.cookies?.['access_token'];
 

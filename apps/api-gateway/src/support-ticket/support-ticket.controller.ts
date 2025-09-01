@@ -12,6 +12,7 @@ import { ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { type SessionUser } from '@app/common/interfaces';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { ApiResponseDto } from '@app/common/dto/response.dto';
+import { ListTicketsDto } from './dto/list-tickets.dto';
 
 @Controller('ticket')
 export class SupportTicketController {
@@ -25,15 +26,34 @@ export class SupportTicketController {
     @Body() request: CreateTicketDto,
     @CurrentUser() user: SessionUser,
   ) {
-    console.log('Req:', user);
-
-    // Attaching creator userId to the request
+    // Attaching creator userId and orgId to the request
     request = {
       ...request,
       createdByUserId: user.userInfo.id,
+      orgId: user.currentOrg?.id || '',
     };
 
     const res = await this.supportTicketService.createTicket(request);
     return ApiResponseDto.success(res, 'Ticket created sucessfully');
+  }
+
+  @Post('list')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'List tickets' })
+  @ApiResponse({ status: 201, description: 'Tickets fetched sucsessfully' })
+  async listTickets(
+    @Body() request: ListTicketsDto,
+    @CurrentUser() user: SessionUser,
+  ) {
+    // Attaching creator userId and orgId to the request
+    request = {
+      ...request,
+      createdByUserId: user.userInfo.id,
+      orgId: user.currentOrg?.id || '',
+    };
+
+    const res = await this.supportTicketService.listTickets(request);
+
+    return ApiResponseDto.success(res, 'Ticket fetched sucessfully');
   }
 }

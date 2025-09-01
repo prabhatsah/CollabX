@@ -20,22 +20,42 @@ export interface Organization {
   role: string;
 }
 
+/**
+ * message AuditPayload {
+ *     string email = 1;
+ *     string message = 2;
+ *     string event = 3;
+ *     string timestamp = 4;
+ *     bool success = 5;
+ *     string fullName = 6;
+ *     repeated Organization organizations = 7;
+ * }
+ */
 export interface AuditPayload {
-  email: string;
   message: string;
   event: string;
   timestamp: string;
   success: boolean;
-  fullName: string;
-  organizations: Organization[];
+  userId: string;
+  orgId: string;
 }
 
+/**
+ * message AuditLogs {
+ *     string id = 1;
+ *     string eventType = 2;
+ *     AuditPayload payload = 3;
+ *     string userId = 4;
+ *     string orgId = 5;
+ *     string ip = 6;
+ *     string userAgent = 7;
+ *     string createdAt = 8;
+ * }
+ */
 export interface AuditLogs {
   id: string;
   eventType: string;
   payload: AuditPayload | undefined;
-  userId: string;
-  orgId: string;
   ip: string;
   userAgent: string;
   createdAt: string;

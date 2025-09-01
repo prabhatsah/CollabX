@@ -20,6 +20,18 @@ export class AuditEventsConsumer implements OnModuleInit {
       await this.auditService.createLog('auth.login.failed', event);
     });
 
+    await this.kafkaService.subscribe(
+      'ticket.create.success',
+      async (event) => {
+        await this.auditService.createLog('ticket.create.success', event);
+      },
+    );
+
+    //Listen for auth login failed
+    await this.kafkaService.subscribe('ticket.create.failed', async (event) => {
+      await this.auditService.createLog('ticket.create.failed', event);
+    });
+
     // start consuming after subscriptions are registered
     await this.kafkaService.start();
   }

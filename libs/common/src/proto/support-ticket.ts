@@ -54,9 +54,10 @@ export interface GetTicketRequest {
 
 export interface ListTicketsRequest {
   orgId: string;
-  status: string;
-  priority: string;
+  status: string[];
+  priority: string[];
   assigneeUserId: string;
+  createdByUserId: string;
   /** pagination */
   limit: number;
   /** pagination */

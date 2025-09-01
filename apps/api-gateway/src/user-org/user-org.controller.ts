@@ -29,8 +29,6 @@ export class UserOrgController {
     @Param('organizationId') organizationId: string,
     @CurrentUser() user: SessionUser,
   ) {
-    console.log(`Current user session:`, user);
-
     return await this.userOrgService.getUsersInOrg({ organizationId });
   }
 

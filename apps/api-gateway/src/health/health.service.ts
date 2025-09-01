@@ -15,15 +15,12 @@ export class HealthService {
     const healthData = {};
     const authHealth = await this.authService.checkHealth();
     healthData['auth-service'] = authHealth.data;
-    console.log('Auth service health fetched');
 
     const userOrgHealth = await this.userOrgService.checkHealth();
     healthData['user-Organization-service'] = userOrgHealth.data;
-    console.log('User-org service health fetched');
 
     const auditHealth = await this.auditService.checkHealth();
     healthData['audit-service'] = auditHealth.data;
-    console.log('Audit service health fetched', auditHealth);
 
     return healthData;
   }

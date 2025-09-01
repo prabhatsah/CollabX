@@ -17,9 +17,6 @@ export class AuditController {
   @HttpCode(HttpStatus.OK)
   async getlogs(@Query('limit') limit?: number) {
     const res = await this.auditService.getlogs({ limit });
-
-    console.log('Logs', res);
-
     return ApiResponseDto.success(res, 'Logs fetched sucessfully');
   }
 

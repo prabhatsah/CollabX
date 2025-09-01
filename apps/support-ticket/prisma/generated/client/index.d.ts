@@ -30,7 +30,6 @@ export type Comment = $Result.DefaultSelection<Prisma.$CommentPayload>
 export namespace $Enums {
   export const TicketStatus: {
   OPEN: 'OPEN',
-  ASSIGNED: 'ASSIGNED',
   IN_PROGRESS: 'IN_PROGRESS',
   ON_HOLD: 'ON_HOLD',
   CANCELLED: 'CANCELLED',

@@ -10,8 +10,6 @@ interface UseOrgUsersResult {
   refresh: () => Promise<void>;
 }
 
-const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
-
 export function useOrgUsers(): UseOrgUsersResult {
   const { session, isLoading: sessionLoading, refreshSession } = useSession();
   const [users, setUsers] = useState<User[]>([]);
@@ -22,7 +20,6 @@ export function useOrgUsers(): UseOrgUsersResult {
     if (!session) return;
     setLoading(true);
     setError(null);
-    debugger;
 
     try {
       const res: UsersInOrgResponse = await apiFetch(

@@ -9,8 +9,6 @@ export class AuthEventsProducer {
   constructor(private readonly kafkaService: KafkaService) {}
 
   async loginSuccess(payload: EventPayload) {
-    console.log('payload:', payload);
-
     await this.kafkaService.emit('auth.login.success', {
       ...payload,
       event: 'Login',

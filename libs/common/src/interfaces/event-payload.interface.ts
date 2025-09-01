@@ -1,9 +1,10 @@
 import { Organization } from './organization.interface';
 
 export interface EventPayload {
-  email: string;
+  // email: string;
+  // fullName?: string;
+  // organizations?: Organization[];
+  userId: string;
   message: string;
   success: boolean;
-  fullName?: string;
-  organizations?: Organization[];
 }

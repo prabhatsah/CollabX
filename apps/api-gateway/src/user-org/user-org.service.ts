@@ -65,8 +65,6 @@ export class UserOrgService implements OnModuleInit {
       this.userOrgServiceClient.getUsersInOrg(request),
     );
 
-    console.log('Users:', response);
-
     return response;
   }
 

@@ -28,6 +28,7 @@ export class AuditService {
       take: limit > 0 ? limit : 100, // fallback to 10 if no limit passed
       orderBy: { createdAt: 'desc' },
     });
+    console.log('auditLogs:', auditLogs);
 
     return { auditLogs: auditLogs };
   }

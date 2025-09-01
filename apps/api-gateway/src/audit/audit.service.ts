@@ -29,8 +29,6 @@ export class AuditService implements OnModuleInit {
       this.auditServiceClient.getLogs(request),
     );
 
-    console.log('Response:', response);
-
     return response;
   }
 

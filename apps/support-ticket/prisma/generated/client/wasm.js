@@ -158,7 +158,6 @@ exports.Prisma.NullsOrder = {
 };
 exports.TicketStatus = exports.$Enums.TicketStatus = {
   OPEN: 'OPEN',
-  ASSIGNED: 'ASSIGNED',
   IN_PROGRESS: 'IN_PROGRESS',
   ON_HOLD: 'ON_HOLD',
   CANCELLED: 'CANCELLED',

@@ -1,5 +1,5 @@
-@import "tailwindcss";
-@import "tw-animate-css";
+@import 'tailwindcss';
+@import 'tw-animate-css';
 
 @custom-variant dark (&:is(.dark *));
 
@@ -43,9 +43,27 @@
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
+
+  /* SLA */
+  --color-sla-breached: var(--sla-breached);
+  --color-sla-at-risk: var(--sla-at-risk);
+  --color-sla-on-track: var(--sla-on-track);
+
+  /* Status */
+  --color-status-open: var(--status-open);
+  --color-status-assigned: var(--status-assigned);
+  --color-status-in-progress: var(--status-in-progress);
+  --color-status-on-hold: var(--status-on-hold);
+  --color-status-resolved: var(--status-resolved);
+  --color-status-closed: var(--status-closed);
+
+  /* Priority */
+  --color-priority-low: var(--priority-low);
+  --color-priority-medium: var(--priority-medium);
+  --color-priority-high: var(--priority-high);
 }
 
-:root {
+/* :root {
   --radius: 0.65rem;
   --background: oklch(1 0 0);
   --foreground: oklch(0.141 0.005 285.823);
@@ -78,9 +96,10 @@
   --sidebar-accent-foreground: oklch(0.17 0.03 266.21);
   --sidebar-border: oklch(0.92 0.004 286.32);
   --sidebar-ring: oklch(0.51 0.1 166);
-}
+} */
 
 .dark {
+  --radius: 0.65rem;
   --success: oklch(0.6 0.13 163);
   --warning: oklch(0.8 0.16 86);
   --background: oklab(0.13 0 -0.03);
@@ -114,6 +133,24 @@
   --sidebar-accent-foreground: oklch(0.985 0 0);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.43 0.09 167);
+
+  /* SLA */
+  --sla-breached: oklch(61.956% 0.24993 25.156 / 0.623);
+  --sla-at-risk: oklch(0.78 0.2 70);
+  --sla-on-track: oklch(0.65 0.2 145);
+
+  /* Status */
+  --status-open: oklch(61.956% 0.24993 25.156 / 0.623);
+  --status-assigned: oklch(0.6 0.12 260);
+  --status-in-progress: oklch(0.55 0.15 210);
+  --status-on-hold: oklch(0.7 0.15 80);
+  --status-resolved: oklch(0.8 0.1 160);
+  --status-closed: oklch(0.65 0.2 145);
+
+  /* Priority */
+  --priority-low: oklch(0.8 0.1 160);
+  --priority-medium: oklch(0.75 0.15 80);
+  --priority-high: oklch(61.956% 0.24993 25.156 / 0.623);
 }
 
 @layer base {

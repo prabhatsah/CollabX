@@ -25,12 +25,16 @@ export class TicketService {
     data: CreateTicketRequest,
     meta: { ip?: string; userAgent?: string },
   ) {
-    const { orgId, title, description, priority, createdByUserId } = data;
+    const { orgId, orgName, title, description, priority, createdByUserId } =
+      data;
 
-    this.logger.log(`Ticket creation request with title: ${priority}`);
+    const ticketNo = await this.generateTicketNumber(orgId, orgName);
+
+    this.logger.log(`Ticket creation request with ticketNo: ${ticketNo}`);
 
     const ticket = await this.prismaService.ticket.create({
       data: {
+        ticketNo,
         orgId,
         title,
         description,
@@ -43,6 +47,7 @@ export class TicketService {
     console.log('ticket:', ticket);
 
     await this.ticketEventsProducer.ticketCreationSuccess({
+      ticketNo,
       userId: createdByUserId,
       orgId: orgId,
       title: ticket.title,
@@ -94,6 +99,7 @@ export class TicketService {
     return {
       tickets: tickets.map((t) => ({
         id: t.id,
+        ticketNo: t.ticketNo,
         orgId: t.orgId,
         title: t.title,
         description: t.description,
@@ -107,8 +113,27 @@ export class TicketService {
       nextCursor,
     };
   }
+  
 
-  async getTicket(request: GetTicketRequest) {
-    return 'Ticket';
+  // Helper functions
+  async generateTicketNumber(orgId: string, orgName: string): Promise<string> {
+    const now = new Date();
+    const yy = now.getFullYear().toString().slice(-2);
+    const mm = String(now.getMonth() + 1).padStart(2, '0');
+    const yearMonth = `${yy}${mm}`;
+
+    console.log('Org', orgId, orgName);
+
+    const prefix = orgName.substring(0, 3).toUpperCase();
+
+    const counterRecord = await this.prismaService.ticketCounter.upsert({
+      where: { orgId_yearMonth: { orgId, yearMonth } },
+      update: { counter: { increment: 1 } },
+      create: { orgId, yearMonth, counter: 1 },
+    });
+
+    const counter = String(counterRecord.counter).padStart(3, '0');
+
+    return `${prefix}-${yearMonth}${counter}`;
   }
 }

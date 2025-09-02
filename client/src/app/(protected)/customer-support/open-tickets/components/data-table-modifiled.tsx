@@ -98,6 +98,9 @@ import { useUserlookup } from '@/hooks/useUserLookup';
 import { CreateTicketForm } from './create-ticket';
 import { ViewUpdateTicket } from '../../components/view-update-ticket';
 import { Ticket } from '@/types';
+import { PriorityBadge } from '../../components/PriorityBadge';
+import { TicketStatusBadge } from '../../components/ticket-badge.tsx.discarded';
+import { StatusBadge } from '../../components/StatusBadge';
 
 export const schema = z.object({
   id: z.number(),
@@ -134,55 +137,58 @@ function CreatedByCell({ userId }: { userId: string }) {
 
 const columns: ColumnDef<Ticket>[] = [
   {
+    accessorKey: 'ticketNo',
+    header: 'Ticket',
+    cell: ({ row }) => {
+      return <ViewUpdateTicket item={row.original} />;
+    },
+    enableHiding: false,
+  },
+  {
     accessorKey: 'title',
     header: 'Title',
     cell: ({ row }) => {
       // return <TableCellViewer item={row.original} />;
-      return <ViewUpdateTicket item={row.original} />;
+      // return <ViewUpdateTicket item={row.original} />;
+      return row.original.title;
     },
     enableHiding: false,
   },
   {
     accessorKey: 'status',
     header: 'Status',
-    // cell: ({ row }) => TicketStatusBadge(row.original.status),
-    cell: ({ row }) => (
-      <Badge variant="outline" className="text-muted-foreground px-1.5">
-        {row.original.status === 'OPEN' ? (
-          <IconCircleDotFilled className="text-red-500 " />
-        ) : row.original.status === 'In Progress' ? (
-          <IconLoader className="text-blue-500" />
-        ) : row.original.status === 'On Hold' ? (
-          <IconClockHour4Filled className="text-yellow-500 " />
-        ) : row.original.status === 'Cancelled' ? (
-          <IconCircleMinus className="text-red-500" />
-        ) : row.original.status === 'Resolved' ? (
-          <IconCircleCheckFilled className="fill-green-500 " />
-        ) : row.original.status === 'Closed' ? (
-          <IconCircleCheckFilled className="fill-green-500 " />
-        ) : (
-          <IconLoader />
-        )}
-        {row.original.status}
-      </Badge>
-    ),
+    cell: ({ row }) => {
+      const ticket = row.original;
+      return <StatusBadge status={ticket.status} />;
+    },
+    // cell: ({ row }) => (
+    //   <Badge variant="outline" className="text-muted-foreground px-1.5">
+    //     {row.original.status === 'OPEN' ? (
+    //       <IconCircleDotFilled className="text-red-500 " />
+    //     ) : row.original.status === 'In Progress' ? (
+    //       <IconLoader className="text-blue-500" />
+    //     ) : row.original.status === 'On Hold' ? (
+    //       <IconClockHour4Filled className="text-yellow-500 " />
+    //     ) : row.original.status === 'Cancelled' ? (
+    //       <IconCircleMinus className="text-red-500" />
+    //     ) : row.original.status === 'Resolved' ? (
+    //       <IconCircleCheckFilled className="fill-green-500 " />
+    //     ) : row.original.status === 'Closed' ? (
+    //       <IconCircleCheckFilled className="fill-green-500 " />
+    //     ) : (
+    //       <IconLoader />
+    //     )}
+    //     {row.original.status}
+    //   </Badge>
+    // ),
   },
   {
     accessorKey: 'priority',
     header: 'Priority',
-    // cell: ({ row }) => TicketStatusBadge(row.original.status),
-    cell: ({ row }) => (
-      <Badge variant="outline" className="text-muted-foreground px-1.5">
-        {row.original.priority === 'HIGH' ? (
-          <IconCircleDotFilled className="text-red-500 " />
-        ) : row.original.priority === 'MEDIUM' ? (
-          <IconCircleDotFilled className="text-yellow-500" />
-        ) : (
-          <IconCircleDotFilled className="fill-green-500 " />
-        )}
-        {row.original.priority}
-      </Badge>
-    ),
+    cell: ({ row }) => {
+      const ticket = row.original;
+      return <PriorityBadge priority={ticket.priority} />;
+    },
   },
   {
     accessorKey: 'AssignedTo',
@@ -367,10 +373,6 @@ export function OpenTicketTable({
                   {table.getRowModel().rows.map((row) => (
                     // <DraggableRow key={row.id} row={row} />
                     <NormalRow key={row.id} row={row} />
-                    // <TableRow>
-                    //   {' '}
-                    //   <TableCell>Hello</TableCell>
-                    // </TableRow>
                   ))}
                 </SortableContext>
               ) : (

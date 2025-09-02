@@ -34,15 +34,16 @@ message Empty {}
 
 message Ticket {
   string id = 1;
-  string orgId = 2;
-  string title = 3;
-  string description = 4;
-  string createdByUserId = 5;
-  string assigneeUserId = 6; 
-  string status = 7;
-  string priority = 8;
-  string createdAt = 9;
-  string updatedAt = 10;
+  string ticketNo = 2;
+  string orgId = 3;
+  string title = 4;
+  string description = 5;
+  string createdByUserId = 6;
+  string assigneeUserId = 7; 
+  string status = 8;
+  string priority = 9;
+  string createdAt = 10;
+  string updatedAt = 11;
 }
 
 message Comment {
@@ -56,10 +57,11 @@ message Comment {
 
 message CreateTicketRequest {
   string orgId = 1;
-  string title = 2;
-  string description = 3;
-  string priority = 4;
-  string createdByUserId = 5;
+  string orgName = 2;
+  string title = 3;
+  string description = 4;
+  string priority = 5;
+  string createdByUserId = 6;
 }
 
 message TicketResponse { Ticket ticket = 1; }

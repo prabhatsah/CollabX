@@ -23,6 +23,11 @@ export type Ticket = $Result.DefaultSelection<Prisma.$TicketPayload>
  * 
  */
 export type Comment = $Result.DefaultSelection<Prisma.$CommentPayload>
+/**
+ * Model TicketCounter
+ * 
+ */
+export type TicketCounter = $Result.DefaultSelection<Prisma.$TicketCounterPayload>
 
 /**
  * Enums
@@ -195,6 +200,16 @@ export class PrismaClient<
     * ```
     */
   get comment(): Prisma.CommentDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.ticketCounter`: Exposes CRUD operations for the **TicketCounter** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more TicketCounters
+    * const ticketCounters = await prisma.ticketCounter.findMany()
+    * ```
+    */
+  get ticketCounter(): Prisma.TicketCounterDelegate<ExtArgs, ClientOptions>;
 }
 
 export namespace Prisma {
@@ -636,7 +651,8 @@ export namespace Prisma {
 
   export const ModelName: {
     Ticket: 'Ticket',
-    Comment: 'Comment'
+    Comment: 'Comment',
+    TicketCounter: 'TicketCounter'
   };
 
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -655,7 +671,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "ticket" | "comment"
+      modelProps: "ticket" | "comment" | "ticketCounter"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -807,6 +823,80 @@ export namespace Prisma {
           }
         }
       }
+      TicketCounter: {
+        payload: Prisma.$TicketCounterPayload<ExtArgs>
+        fields: Prisma.TicketCounterFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.TicketCounterFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TicketCounterPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.TicketCounterFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TicketCounterPayload>
+          }
+          findFirst: {
+            args: Prisma.TicketCounterFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TicketCounterPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.TicketCounterFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TicketCounterPayload>
+          }
+          findMany: {
+            args: Prisma.TicketCounterFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TicketCounterPayload>[]
+          }
+          create: {
+            args: Prisma.TicketCounterCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TicketCounterPayload>
+          }
+          createMany: {
+            args: Prisma.TicketCounterCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.TicketCounterCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TicketCounterPayload>[]
+          }
+          delete: {
+            args: Prisma.TicketCounterDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TicketCounterPayload>
+          }
+          update: {
+            args: Prisma.TicketCounterUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TicketCounterPayload>
+          }
+          deleteMany: {
+            args: Prisma.TicketCounterDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.TicketCounterUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.TicketCounterUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TicketCounterPayload>[]
+          }
+          upsert: {
+            args: Prisma.TicketCounterUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TicketCounterPayload>
+          }
+          aggregate: {
+            args: Prisma.TicketCounterAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateTicketCounter>
+          }
+          groupBy: {
+            args: Prisma.TicketCounterGroupByArgs<ExtArgs>
+            result: $Utils.Optional<TicketCounterGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.TicketCounterCountArgs<ExtArgs>
+            result: $Utils.Optional<TicketCounterCountAggregateOutputType> | number
+          }
+        }
+      }
     }
   } & {
     other: {
@@ -901,6 +991,7 @@ export namespace Prisma {
   export type GlobalOmitConfig = {
     ticket?: TicketOmit
     comment?: CommentOmit
+    ticketCounter?: TicketCounterOmit
   }
 
   /* Types for Logging */
@@ -1024,6 +1115,7 @@ export namespace Prisma {
   export type TicketMinAggregateOutputType = {
     id: string | null
     orgId: string | null
+    ticketNo: string | null
     title: string | null
     description: string | null
     createdByUserId: string | null
@@ -1037,6 +1129,7 @@ export namespace Prisma {
   export type TicketMaxAggregateOutputType = {
     id: string | null
     orgId: string | null
+    ticketNo: string | null
     title: string | null
     description: string | null
     createdByUserId: string | null
@@ -1050,6 +1143,7 @@ export namespace Prisma {
   export type TicketCountAggregateOutputType = {
     id: number
     orgId: number
+    ticketNo: number
     title: number
     description: number
     createdByUserId: number
@@ -1065,6 +1159,7 @@ export namespace Prisma {
   export type TicketMinAggregateInputType = {
     id?: true
     orgId?: true
+    ticketNo?: true
     title?: true
     description?: true
     createdByUserId?: true
@@ -1078,6 +1173,7 @@ export namespace Prisma {
   export type TicketMaxAggregateInputType = {
     id?: true
     orgId?: true
+    ticketNo?: true
     title?: true
     description?: true
     createdByUserId?: true
@@ -1091,6 +1187,7 @@ export namespace Prisma {
   export type TicketCountAggregateInputType = {
     id?: true
     orgId?: true
+    ticketNo?: true
     title?: true
     description?: true
     createdByUserId?: true
@@ -1177,6 +1274,7 @@ export namespace Prisma {
   export type TicketGroupByOutputType = {
     id: string
     orgId: string
+    ticketNo: string
     title: string
     description: string
     createdByUserId: string
@@ -1207,6 +1305,7 @@ export namespace Prisma {
   export type TicketSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     orgId?: boolean
+    ticketNo?: boolean
     title?: boolean
     description?: boolean
     createdByUserId?: boolean
@@ -1222,6 +1321,7 @@ export namespace Prisma {
   export type TicketSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     orgId?: boolean
+    ticketNo?: boolean
     title?: boolean
     description?: boolean
     createdByUserId?: boolean
@@ -1235,6 +1335,7 @@ export namespace Prisma {
   export type TicketSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     orgId?: boolean
+    ticketNo?: boolean
     title?: boolean
     description?: boolean
     createdByUserId?: boolean
@@ -1248,6 +1349,7 @@ export namespace Prisma {
   export type TicketSelectScalar = {
     id?: boolean
     orgId?: boolean
+    ticketNo?: boolean
     title?: boolean
     description?: boolean
     createdByUserId?: boolean
@@ -1258,7 +1360,7 @@ export namespace Prisma {
     updatedAt?: boolean
   }
 
-  export type TicketOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "orgId" | "title" | "description" | "createdByUserId" | "assigneeUserId" | "status" | "priority" | "createdAt" | "updatedAt", ExtArgs["result"]["ticket"]>
+  export type TicketOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "orgId" | "ticketNo" | "title" | "description" | "createdByUserId" | "assigneeUserId" | "status" | "priority" | "createdAt" | "updatedAt", ExtArgs["result"]["ticket"]>
   export type TicketInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     comments?: boolean | Ticket$commentsArgs<ExtArgs>
     _count?: boolean | TicketCountOutputTypeDefaultArgs<ExtArgs>
@@ -1274,6 +1376,7 @@ export namespace Prisma {
     scalars: $Extensions.GetPayloadResult<{
       id: string
       orgId: string
+      ticketNo: string
       title: string
       description: string
       createdByUserId: string
@@ -1708,6 +1811,7 @@ export namespace Prisma {
   interface TicketFieldRefs {
     readonly id: FieldRef<"Ticket", 'String'>
     readonly orgId: FieldRef<"Ticket", 'String'>
+    readonly ticketNo: FieldRef<"Ticket", 'String'>
     readonly title: FieldRef<"Ticket", 'String'>
     readonly description: FieldRef<"Ticket", 'String'>
     readonly createdByUserId: FieldRef<"Ticket", 'String'>
@@ -3218,6 +3322,1026 @@ export namespace Prisma {
 
 
   /**
+   * Model TicketCounter
+   */
+
+  export type AggregateTicketCounter = {
+    _count: TicketCounterCountAggregateOutputType | null
+    _avg: TicketCounterAvgAggregateOutputType | null
+    _sum: TicketCounterSumAggregateOutputType | null
+    _min: TicketCounterMinAggregateOutputType | null
+    _max: TicketCounterMaxAggregateOutputType | null
+  }
+
+  export type TicketCounterAvgAggregateOutputType = {
+    id: number | null
+    counter: number | null
+  }
+
+  export type TicketCounterSumAggregateOutputType = {
+    id: number | null
+    counter: number | null
+  }
+
+  export type TicketCounterMinAggregateOutputType = {
+    id: number | null
+    orgId: string | null
+    yearMonth: string | null
+    counter: number | null
+  }
+
+  export type TicketCounterMaxAggregateOutputType = {
+    id: number | null
+    orgId: string | null
+    yearMonth: string | null
+    counter: number | null
+  }
+
+  export type TicketCounterCountAggregateOutputType = {
+    id: number
+    orgId: number
+    yearMonth: number
+    counter: number
+    _all: number
+  }
+
+
+  export type TicketCounterAvgAggregateInputType = {
+    id?: true
+    counter?: true
+  }
+
+  export type TicketCounterSumAggregateInputType = {
+    id?: true
+    counter?: true
+  }
+
+  export type TicketCounterMinAggregateInputType = {
+    id?: true
+    orgId?: true
+    yearMonth?: true
+    counter?: true
+  }
+
+  export type TicketCounterMaxAggregateInputType = {
+    id?: true
+    orgId?: true
+    yearMonth?: true
+    counter?: true
+  }
+
+  export type TicketCounterCountAggregateInputType = {
+    id?: true
+    orgId?: true
+    yearMonth?: true
+    counter?: true
+    _all?: true
+  }
+
+  export type TicketCounterAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which TicketCounter to aggregate.
+     */
+    where?: TicketCounterWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of TicketCounters to fetch.
+     */
+    orderBy?: TicketCounterOrderByWithRelationInput | TicketCounterOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: TicketCounterWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` TicketCounters from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` TicketCounters.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned TicketCounters
+    **/
+    _count?: true | TicketCounterCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: TicketCounterAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: TicketCounterSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: TicketCounterMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: TicketCounterMaxAggregateInputType
+  }
+
+  export type GetTicketCounterAggregateType<T extends TicketCounterAggregateArgs> = {
+        [P in keyof T & keyof AggregateTicketCounter]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateTicketCounter[P]>
+      : GetScalarType<T[P], AggregateTicketCounter[P]>
+  }
+
+
+
+
+  export type TicketCounterGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: TicketCounterWhereInput
+    orderBy?: TicketCounterOrderByWithAggregationInput | TicketCounterOrderByWithAggregationInput[]
+    by: TicketCounterScalarFieldEnum[] | TicketCounterScalarFieldEnum
+    having?: TicketCounterScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: TicketCounterCountAggregateInputType | true
+    _avg?: TicketCounterAvgAggregateInputType
+    _sum?: TicketCounterSumAggregateInputType
+    _min?: TicketCounterMinAggregateInputType
+    _max?: TicketCounterMaxAggregateInputType
+  }
+
+  export type TicketCounterGroupByOutputType = {
+    id: number
+    orgId: string
+    yearMonth: string
+    counter: number
+    _count: TicketCounterCountAggregateOutputType | null
+    _avg: TicketCounterAvgAggregateOutputType | null
+    _sum: TicketCounterSumAggregateOutputType | null
+    _min: TicketCounterMinAggregateOutputType | null
+    _max: TicketCounterMaxAggregateOutputType | null
+  }
+
+  type GetTicketCounterGroupByPayload<T extends TicketCounterGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<TicketCounterGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof TicketCounterGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], TicketCounterGroupByOutputType[P]>
+            : GetScalarType<T[P], TicketCounterGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type TicketCounterSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    orgId?: boolean
+    yearMonth?: boolean
+    counter?: boolean
+  }, ExtArgs["result"]["ticketCounter"]>
+
+  export type TicketCounterSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    orgId?: boolean
+    yearMonth?: boolean
+    counter?: boolean
+  }, ExtArgs["result"]["ticketCounter"]>
+
+  export type TicketCounterSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    orgId?: boolean
+    yearMonth?: boolean
+    counter?: boolean
+  }, ExtArgs["result"]["ticketCounter"]>
+
+  export type TicketCounterSelectScalar = {
+    id?: boolean
+    orgId?: boolean
+    yearMonth?: boolean
+    counter?: boolean
+  }
+
+  export type TicketCounterOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "orgId" | "yearMonth" | "counter", ExtArgs["result"]["ticketCounter"]>
+
+  export type $TicketCounterPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "TicketCounter"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      id: number
+      orgId: string
+      yearMonth: string
+      counter: number
+    }, ExtArgs["result"]["ticketCounter"]>
+    composites: {}
+  }
+
+  type TicketCounterGetPayload<S extends boolean | null | undefined | TicketCounterDefaultArgs> = $Result.GetResult<Prisma.$TicketCounterPayload, S>
+
+  type TicketCounterCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<TicketCounterFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: TicketCounterCountAggregateInputType | true
+    }
+
+  export interface TicketCounterDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['TicketCounter'], meta: { name: 'TicketCounter' } }
+    /**
+     * Find zero or one TicketCounter that matches the filter.
+     * @param {TicketCounterFindUniqueArgs} args - Arguments to find a TicketCounter
+     * @example
+     * // Get one TicketCounter
+     * const ticketCounter = await prisma.ticketCounter.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends TicketCounterFindUniqueArgs>(args: SelectSubset<T, TicketCounterFindUniqueArgs<ExtArgs>>): Prisma__TicketCounterClient<$Result.GetResult<Prisma.$TicketCounterPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one TicketCounter that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {TicketCounterFindUniqueOrThrowArgs} args - Arguments to find a TicketCounter
+     * @example
+     * // Get one TicketCounter
+     * const ticketCounter = await prisma.ticketCounter.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends TicketCounterFindUniqueOrThrowArgs>(args: SelectSubset<T, TicketCounterFindUniqueOrThrowArgs<ExtArgs>>): Prisma__TicketCounterClient<$Result.GetResult<Prisma.$TicketCounterPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first TicketCounter that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TicketCounterFindFirstArgs} args - Arguments to find a TicketCounter
+     * @example
+     * // Get one TicketCounter
+     * const ticketCounter = await prisma.ticketCounter.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends TicketCounterFindFirstArgs>(args?: SelectSubset<T, TicketCounterFindFirstArgs<ExtArgs>>): Prisma__TicketCounterClient<$Result.GetResult<Prisma.$TicketCounterPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first TicketCounter that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TicketCounterFindFirstOrThrowArgs} args - Arguments to find a TicketCounter
+     * @example
+     * // Get one TicketCounter
+     * const ticketCounter = await prisma.ticketCounter.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends TicketCounterFindFirstOrThrowArgs>(args?: SelectSubset<T, TicketCounterFindFirstOrThrowArgs<ExtArgs>>): Prisma__TicketCounterClient<$Result.GetResult<Prisma.$TicketCounterPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more TicketCounters that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TicketCounterFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all TicketCounters
+     * const ticketCounters = await prisma.ticketCounter.findMany()
+     * 
+     * // Get first 10 TicketCounters
+     * const ticketCounters = await prisma.ticketCounter.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const ticketCounterWithIdOnly = await prisma.ticketCounter.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends TicketCounterFindManyArgs>(args?: SelectSubset<T, TicketCounterFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TicketCounterPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a TicketCounter.
+     * @param {TicketCounterCreateArgs} args - Arguments to create a TicketCounter.
+     * @example
+     * // Create one TicketCounter
+     * const TicketCounter = await prisma.ticketCounter.create({
+     *   data: {
+     *     // ... data to create a TicketCounter
+     *   }
+     * })
+     * 
+     */
+    create<T extends TicketCounterCreateArgs>(args: SelectSubset<T, TicketCounterCreateArgs<ExtArgs>>): Prisma__TicketCounterClient<$Result.GetResult<Prisma.$TicketCounterPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many TicketCounters.
+     * @param {TicketCounterCreateManyArgs} args - Arguments to create many TicketCounters.
+     * @example
+     * // Create many TicketCounters
+     * const ticketCounter = await prisma.ticketCounter.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends TicketCounterCreateManyArgs>(args?: SelectSubset<T, TicketCounterCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many TicketCounters and returns the data saved in the database.
+     * @param {TicketCounterCreateManyAndReturnArgs} args - Arguments to create many TicketCounters.
+     * @example
+     * // Create many TicketCounters
+     * const ticketCounter = await prisma.ticketCounter.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many TicketCounters and only return the `id`
+     * const ticketCounterWithIdOnly = await prisma.ticketCounter.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends TicketCounterCreateManyAndReturnArgs>(args?: SelectSubset<T, TicketCounterCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TicketCounterPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a TicketCounter.
+     * @param {TicketCounterDeleteArgs} args - Arguments to delete one TicketCounter.
+     * @example
+     * // Delete one TicketCounter
+     * const TicketCounter = await prisma.ticketCounter.delete({
+     *   where: {
+     *     // ... filter to delete one TicketCounter
+     *   }
+     * })
+     * 
+     */
+    delete<T extends TicketCounterDeleteArgs>(args: SelectSubset<T, TicketCounterDeleteArgs<ExtArgs>>): Prisma__TicketCounterClient<$Result.GetResult<Prisma.$TicketCounterPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one TicketCounter.
+     * @param {TicketCounterUpdateArgs} args - Arguments to update one TicketCounter.
+     * @example
+     * // Update one TicketCounter
+     * const ticketCounter = await prisma.ticketCounter.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends TicketCounterUpdateArgs>(args: SelectSubset<T, TicketCounterUpdateArgs<ExtArgs>>): Prisma__TicketCounterClient<$Result.GetResult<Prisma.$TicketCounterPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more TicketCounters.
+     * @param {TicketCounterDeleteManyArgs} args - Arguments to filter TicketCounters to delete.
+     * @example
+     * // Delete a few TicketCounters
+     * const { count } = await prisma.ticketCounter.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends TicketCounterDeleteManyArgs>(args?: SelectSubset<T, TicketCounterDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more TicketCounters.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TicketCounterUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many TicketCounters
+     * const ticketCounter = await prisma.ticketCounter.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends TicketCounterUpdateManyArgs>(args: SelectSubset<T, TicketCounterUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more TicketCounters and returns the data updated in the database.
+     * @param {TicketCounterUpdateManyAndReturnArgs} args - Arguments to update many TicketCounters.
+     * @example
+     * // Update many TicketCounters
+     * const ticketCounter = await prisma.ticketCounter.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more TicketCounters and only return the `id`
+     * const ticketCounterWithIdOnly = await prisma.ticketCounter.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends TicketCounterUpdateManyAndReturnArgs>(args: SelectSubset<T, TicketCounterUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TicketCounterPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one TicketCounter.
+     * @param {TicketCounterUpsertArgs} args - Arguments to update or create a TicketCounter.
+     * @example
+     * // Update or create a TicketCounter
+     * const ticketCounter = await prisma.ticketCounter.upsert({
+     *   create: {
+     *     // ... data to create a TicketCounter
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the TicketCounter we want to update
+     *   }
+     * })
+     */
+    upsert<T extends TicketCounterUpsertArgs>(args: SelectSubset<T, TicketCounterUpsertArgs<ExtArgs>>): Prisma__TicketCounterClient<$Result.GetResult<Prisma.$TicketCounterPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of TicketCounters.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TicketCounterCountArgs} args - Arguments to filter TicketCounters to count.
+     * @example
+     * // Count the number of TicketCounters
+     * const count = await prisma.ticketCounter.count({
+     *   where: {
+     *     // ... the filter for the TicketCounters we want to count
+     *   }
+     * })
+    **/
+    count<T extends TicketCounterCountArgs>(
+      args?: Subset<T, TicketCounterCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], TicketCounterCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a TicketCounter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TicketCounterAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends TicketCounterAggregateArgs>(args: Subset<T, TicketCounterAggregateArgs>): Prisma.PrismaPromise<GetTicketCounterAggregateType<T>>
+
+    /**
+     * Group by TicketCounter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TicketCounterGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends TicketCounterGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: TicketCounterGroupByArgs['orderBy'] }
+        : { orderBy?: TicketCounterGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, TicketCounterGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetTicketCounterGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the TicketCounter model
+   */
+  readonly fields: TicketCounterFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for TicketCounter.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__TicketCounterClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the TicketCounter model
+   */
+  interface TicketCounterFieldRefs {
+    readonly id: FieldRef<"TicketCounter", 'Int'>
+    readonly orgId: FieldRef<"TicketCounter", 'String'>
+    readonly yearMonth: FieldRef<"TicketCounter", 'String'>
+    readonly counter: FieldRef<"TicketCounter", 'Int'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * TicketCounter findUnique
+   */
+  export type TicketCounterFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TicketCounter
+     */
+    select?: TicketCounterSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TicketCounter
+     */
+    omit?: TicketCounterOmit<ExtArgs> | null
+    /**
+     * Filter, which TicketCounter to fetch.
+     */
+    where: TicketCounterWhereUniqueInput
+  }
+
+  /**
+   * TicketCounter findUniqueOrThrow
+   */
+  export type TicketCounterFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TicketCounter
+     */
+    select?: TicketCounterSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TicketCounter
+     */
+    omit?: TicketCounterOmit<ExtArgs> | null
+    /**
+     * Filter, which TicketCounter to fetch.
+     */
+    where: TicketCounterWhereUniqueInput
+  }
+
+  /**
+   * TicketCounter findFirst
+   */
+  export type TicketCounterFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TicketCounter
+     */
+    select?: TicketCounterSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TicketCounter
+     */
+    omit?: TicketCounterOmit<ExtArgs> | null
+    /**
+     * Filter, which TicketCounter to fetch.
+     */
+    where?: TicketCounterWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of TicketCounters to fetch.
+     */
+    orderBy?: TicketCounterOrderByWithRelationInput | TicketCounterOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for TicketCounters.
+     */
+    cursor?: TicketCounterWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` TicketCounters from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` TicketCounters.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of TicketCounters.
+     */
+    distinct?: TicketCounterScalarFieldEnum | TicketCounterScalarFieldEnum[]
+  }
+
+  /**
+   * TicketCounter findFirstOrThrow
+   */
+  export type TicketCounterFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TicketCounter
+     */
+    select?: TicketCounterSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TicketCounter
+     */
+    omit?: TicketCounterOmit<ExtArgs> | null
+    /**
+     * Filter, which TicketCounter to fetch.
+     */
+    where?: TicketCounterWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of TicketCounters to fetch.
+     */
+    orderBy?: TicketCounterOrderByWithRelationInput | TicketCounterOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for TicketCounters.
+     */
+    cursor?: TicketCounterWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` TicketCounters from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` TicketCounters.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of TicketCounters.
+     */
+    distinct?: TicketCounterScalarFieldEnum | TicketCounterScalarFieldEnum[]
+  }
+
+  /**
+   * TicketCounter findMany
+   */
+  export type TicketCounterFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TicketCounter
+     */
+    select?: TicketCounterSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TicketCounter
+     */
+    omit?: TicketCounterOmit<ExtArgs> | null
+    /**
+     * Filter, which TicketCounters to fetch.
+     */
+    where?: TicketCounterWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of TicketCounters to fetch.
+     */
+    orderBy?: TicketCounterOrderByWithRelationInput | TicketCounterOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing TicketCounters.
+     */
+    cursor?: TicketCounterWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` TicketCounters from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` TicketCounters.
+     */
+    skip?: number
+    distinct?: TicketCounterScalarFieldEnum | TicketCounterScalarFieldEnum[]
+  }
+
+  /**
+   * TicketCounter create
+   */
+  export type TicketCounterCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TicketCounter
+     */
+    select?: TicketCounterSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TicketCounter
+     */
+    omit?: TicketCounterOmit<ExtArgs> | null
+    /**
+     * The data needed to create a TicketCounter.
+     */
+    data: XOR<TicketCounterCreateInput, TicketCounterUncheckedCreateInput>
+  }
+
+  /**
+   * TicketCounter createMany
+   */
+  export type TicketCounterCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many TicketCounters.
+     */
+    data: TicketCounterCreateManyInput | TicketCounterCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * TicketCounter createManyAndReturn
+   */
+  export type TicketCounterCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TicketCounter
+     */
+    select?: TicketCounterSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the TicketCounter
+     */
+    omit?: TicketCounterOmit<ExtArgs> | null
+    /**
+     * The data used to create many TicketCounters.
+     */
+    data: TicketCounterCreateManyInput | TicketCounterCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * TicketCounter update
+   */
+  export type TicketCounterUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TicketCounter
+     */
+    select?: TicketCounterSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TicketCounter
+     */
+    omit?: TicketCounterOmit<ExtArgs> | null
+    /**
+     * The data needed to update a TicketCounter.
+     */
+    data: XOR<TicketCounterUpdateInput, TicketCounterUncheckedUpdateInput>
+    /**
+     * Choose, which TicketCounter to update.
+     */
+    where: TicketCounterWhereUniqueInput
+  }
+
+  /**
+   * TicketCounter updateMany
+   */
+  export type TicketCounterUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update TicketCounters.
+     */
+    data: XOR<TicketCounterUpdateManyMutationInput, TicketCounterUncheckedUpdateManyInput>
+    /**
+     * Filter which TicketCounters to update
+     */
+    where?: TicketCounterWhereInput
+    /**
+     * Limit how many TicketCounters to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * TicketCounter updateManyAndReturn
+   */
+  export type TicketCounterUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TicketCounter
+     */
+    select?: TicketCounterSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the TicketCounter
+     */
+    omit?: TicketCounterOmit<ExtArgs> | null
+    /**
+     * The data used to update TicketCounters.
+     */
+    data: XOR<TicketCounterUpdateManyMutationInput, TicketCounterUncheckedUpdateManyInput>
+    /**
+     * Filter which TicketCounters to update
+     */
+    where?: TicketCounterWhereInput
+    /**
+     * Limit how many TicketCounters to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * TicketCounter upsert
+   */
+  export type TicketCounterUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TicketCounter
+     */
+    select?: TicketCounterSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TicketCounter
+     */
+    omit?: TicketCounterOmit<ExtArgs> | null
+    /**
+     * The filter to search for the TicketCounter to update in case it exists.
+     */
+    where: TicketCounterWhereUniqueInput
+    /**
+     * In case the TicketCounter found by the `where` argument doesn't exist, create a new TicketCounter with this data.
+     */
+    create: XOR<TicketCounterCreateInput, TicketCounterUncheckedCreateInput>
+    /**
+     * In case the TicketCounter was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<TicketCounterUpdateInput, TicketCounterUncheckedUpdateInput>
+  }
+
+  /**
+   * TicketCounter delete
+   */
+  export type TicketCounterDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TicketCounter
+     */
+    select?: TicketCounterSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TicketCounter
+     */
+    omit?: TicketCounterOmit<ExtArgs> | null
+    /**
+     * Filter which TicketCounter to delete.
+     */
+    where: TicketCounterWhereUniqueInput
+  }
+
+  /**
+   * TicketCounter deleteMany
+   */
+  export type TicketCounterDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which TicketCounters to delete
+     */
+    where?: TicketCounterWhereInput
+    /**
+     * Limit how many TicketCounters to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * TicketCounter without action
+   */
+  export type TicketCounterDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TicketCounter
+     */
+    select?: TicketCounterSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TicketCounter
+     */
+    omit?: TicketCounterOmit<ExtArgs> | null
+  }
+
+
+  /**
    * Enums
    */
 
@@ -3234,6 +4358,7 @@ export namespace Prisma {
   export const TicketScalarFieldEnum: {
     id: 'id',
     orgId: 'orgId',
+    ticketNo: 'ticketNo',
     title: 'title',
     description: 'description',
     createdByUserId: 'createdByUserId',
@@ -3257,6 +4382,16 @@ export namespace Prisma {
   };
 
   export type CommentScalarFieldEnum = (typeof CommentScalarFieldEnum)[keyof typeof CommentScalarFieldEnum]
+
+
+  export const TicketCounterScalarFieldEnum: {
+    id: 'id',
+    orgId: 'orgId',
+    yearMonth: 'yearMonth',
+    counter: 'counter'
+  };
+
+  export type TicketCounterScalarFieldEnum = (typeof TicketCounterScalarFieldEnum)[keyof typeof TicketCounterScalarFieldEnum]
 
 
   export const SortOrder: {
@@ -3356,6 +4491,20 @@ export namespace Prisma {
    */
   export type ListIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int[]'>
     
+
+
+  /**
+   * Reference to a field of type 'Float'
+   */
+  export type FloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float'>
+    
+
+
+  /**
+   * Reference to a field of type 'Float[]'
+   */
+  export type ListFloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float[]'>
+    
   /**
    * Deep Input Types
    */
@@ -3367,6 +4516,7 @@ export namespace Prisma {
     NOT?: TicketWhereInput | TicketWhereInput[]
     id?: StringFilter<"Ticket"> | string
     orgId?: StringFilter<"Ticket"> | string
+    ticketNo?: StringFilter<"Ticket"> | string
     title?: StringFilter<"Ticket"> | string
     description?: StringFilter<"Ticket"> | string
     createdByUserId?: StringFilter<"Ticket"> | string
@@ -3381,6 +4531,7 @@ export namespace Prisma {
   export type TicketOrderByWithRelationInput = {
     id?: SortOrder
     orgId?: SortOrder
+    ticketNo?: SortOrder
     title?: SortOrder
     description?: SortOrder
     createdByUserId?: SortOrder
@@ -3394,6 +4545,7 @@ export namespace Prisma {
 
   export type TicketWhereUniqueInput = Prisma.AtLeast<{
     id?: string
+    ticketNo?: string
     AND?: TicketWhereInput | TicketWhereInput[]
     OR?: TicketWhereInput[]
     NOT?: TicketWhereInput | TicketWhereInput[]
@@ -3407,11 +4559,12 @@ export namespace Prisma {
     createdAt?: DateTimeFilter<"Ticket"> | Date | string
     updatedAt?: DateTimeFilter<"Ticket"> | Date | string
     comments?: CommentListRelationFilter
-  }, "id">
+  }, "id" | "ticketNo">
 
   export type TicketOrderByWithAggregationInput = {
     id?: SortOrder
     orgId?: SortOrder
+    ticketNo?: SortOrder
     title?: SortOrder
     description?: SortOrder
     createdByUserId?: SortOrder
@@ -3431,6 +4584,7 @@ export namespace Prisma {
     NOT?: TicketScalarWhereWithAggregatesInput | TicketScalarWhereWithAggregatesInput[]
     id?: StringWithAggregatesFilter<"Ticket"> | string
     orgId?: StringWithAggregatesFilter<"Ticket"> | string
+    ticketNo?: StringWithAggregatesFilter<"Ticket"> | string
     title?: StringWithAggregatesFilter<"Ticket"> | string
     description?: StringWithAggregatesFilter<"Ticket"> | string
     createdByUserId?: StringWithAggregatesFilter<"Ticket"> | string
@@ -3501,9 +4655,60 @@ export namespace Prisma {
     createdAt?: DateTimeWithAggregatesFilter<"Comment"> | Date | string
   }
 
+  export type TicketCounterWhereInput = {
+    AND?: TicketCounterWhereInput | TicketCounterWhereInput[]
+    OR?: TicketCounterWhereInput[]
+    NOT?: TicketCounterWhereInput | TicketCounterWhereInput[]
+    id?: IntFilter<"TicketCounter"> | number
+    orgId?: StringFilter<"TicketCounter"> | string
+    yearMonth?: StringFilter<"TicketCounter"> | string
+    counter?: IntFilter<"TicketCounter"> | number
+  }
+
+  export type TicketCounterOrderByWithRelationInput = {
+    id?: SortOrder
+    orgId?: SortOrder
+    yearMonth?: SortOrder
+    counter?: SortOrder
+  }
+
+  export type TicketCounterWhereUniqueInput = Prisma.AtLeast<{
+    id?: number
+    orgId_yearMonth?: TicketCounterOrgIdYearMonthCompoundUniqueInput
+    AND?: TicketCounterWhereInput | TicketCounterWhereInput[]
+    OR?: TicketCounterWhereInput[]
+    NOT?: TicketCounterWhereInput | TicketCounterWhereInput[]
+    orgId?: StringFilter<"TicketCounter"> | string
+    yearMonth?: StringFilter<"TicketCounter"> | string
+    counter?: IntFilter<"TicketCounter"> | number
+  }, "id" | "orgId_yearMonth">
+
+  export type TicketCounterOrderByWithAggregationInput = {
+    id?: SortOrder
+    orgId?: SortOrder
+    yearMonth?: SortOrder
+    counter?: SortOrder
+    _count?: TicketCounterCountOrderByAggregateInput
+    _avg?: TicketCounterAvgOrderByAggregateInput
+    _max?: TicketCounterMaxOrderByAggregateInput
+    _min?: TicketCounterMinOrderByAggregateInput
+    _sum?: TicketCounterSumOrderByAggregateInput
+  }
+
+  export type TicketCounterScalarWhereWithAggregatesInput = {
+    AND?: TicketCounterScalarWhereWithAggregatesInput | TicketCounterScalarWhereWithAggregatesInput[]
+    OR?: TicketCounterScalarWhereWithAggregatesInput[]
+    NOT?: TicketCounterScalarWhereWithAggregatesInput | TicketCounterScalarWhereWithAggregatesInput[]
+    id?: IntWithAggregatesFilter<"TicketCounter"> | number
+    orgId?: StringWithAggregatesFilter<"TicketCounter"> | string
+    yearMonth?: StringWithAggregatesFilter<"TicketCounter"> | string
+    counter?: IntWithAggregatesFilter<"TicketCounter"> | number
+  }
+
   export type TicketCreateInput = {
     id?: string
     orgId: string
+    ticketNo: string
     title: string
     description: string
     createdByUserId: string
@@ -3518,6 +4723,7 @@ export namespace Prisma {
   export type TicketUncheckedCreateInput = {
     id?: string
     orgId: string
+    ticketNo: string
     title: string
     description: string
     createdByUserId: string
@@ -3532,6 +4738,7 @@ export namespace Prisma {
   export type TicketUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     orgId?: StringFieldUpdateOperationsInput | string
+    ticketNo?: StringFieldUpdateOperationsInput | string
     title?: StringFieldUpdateOperationsInput | string
     description?: StringFieldUpdateOperationsInput | string
     createdByUserId?: StringFieldUpdateOperationsInput | string
@@ -3546,6 +4753,7 @@ export namespace Prisma {
   export type TicketUncheckedUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     orgId?: StringFieldUpdateOperationsInput | string
+    ticketNo?: StringFieldUpdateOperationsInput | string
     title?: StringFieldUpdateOperationsInput | string
     description?: StringFieldUpdateOperationsInput | string
     createdByUserId?: StringFieldUpdateOperationsInput | string
@@ -3560,6 +4768,7 @@ export namespace Prisma {
   export type TicketCreateManyInput = {
     id?: string
     orgId: string
+    ticketNo: string
     title: string
     description: string
     createdByUserId: string
@@ -3573,6 +4782,7 @@ export namespace Prisma {
   export type TicketUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
     orgId?: StringFieldUpdateOperationsInput | string
+    ticketNo?: StringFieldUpdateOperationsInput | string
     title?: StringFieldUpdateOperationsInput | string
     description?: StringFieldUpdateOperationsInput | string
     createdByUserId?: StringFieldUpdateOperationsInput | string
@@ -3586,6 +4796,7 @@ export namespace Prisma {
   export type TicketUncheckedUpdateManyInput = {
     id?: StringFieldUpdateOperationsInput | string
     orgId?: StringFieldUpdateOperationsInput | string
+    ticketNo?: StringFieldUpdateOperationsInput | string
     title?: StringFieldUpdateOperationsInput | string
     description?: StringFieldUpdateOperationsInput | string
     createdByUserId?: StringFieldUpdateOperationsInput | string
@@ -3656,6 +4867,52 @@ export namespace Prisma {
     authorUserId?: StringFieldUpdateOperationsInput | string
     body?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type TicketCounterCreateInput = {
+    orgId: string
+    yearMonth: string
+    counter?: number
+  }
+
+  export type TicketCounterUncheckedCreateInput = {
+    id?: number
+    orgId: string
+    yearMonth: string
+    counter?: number
+  }
+
+  export type TicketCounterUpdateInput = {
+    orgId?: StringFieldUpdateOperationsInput | string
+    yearMonth?: StringFieldUpdateOperationsInput | string
+    counter?: IntFieldUpdateOperationsInput | number
+  }
+
+  export type TicketCounterUncheckedUpdateInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    orgId?: StringFieldUpdateOperationsInput | string
+    yearMonth?: StringFieldUpdateOperationsInput | string
+    counter?: IntFieldUpdateOperationsInput | number
+  }
+
+  export type TicketCounterCreateManyInput = {
+    id?: number
+    orgId: string
+    yearMonth: string
+    counter?: number
+  }
+
+  export type TicketCounterUpdateManyMutationInput = {
+    orgId?: StringFieldUpdateOperationsInput | string
+    yearMonth?: StringFieldUpdateOperationsInput | string
+    counter?: IntFieldUpdateOperationsInput | number
+  }
+
+  export type TicketCounterUncheckedUpdateManyInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    orgId?: StringFieldUpdateOperationsInput | string
+    yearMonth?: StringFieldUpdateOperationsInput | string
+    counter?: IntFieldUpdateOperationsInput | number
   }
 
   export type StringFilter<$PrismaModel = never> = {
@@ -3731,6 +4988,7 @@ export namespace Prisma {
   export type TicketCountOrderByAggregateInput = {
     id?: SortOrder
     orgId?: SortOrder
+    ticketNo?: SortOrder
     title?: SortOrder
     description?: SortOrder
     createdByUserId?: SortOrder
@@ -3744,6 +5002,7 @@ export namespace Prisma {
   export type TicketMaxOrderByAggregateInput = {
     id?: SortOrder
     orgId?: SortOrder
+    ticketNo?: SortOrder
     title?: SortOrder
     description?: SortOrder
     createdByUserId?: SortOrder
@@ -3757,6 +5016,7 @@ export namespace Prisma {
   export type TicketMinOrderByAggregateInput = {
     id?: SortOrder
     orgId?: SortOrder
+    ticketNo?: SortOrder
     title?: SortOrder
     description?: SortOrder
     createdByUserId?: SortOrder
@@ -3869,6 +5129,69 @@ export namespace Prisma {
     createdAt?: SortOrder
   }
 
+  export type IntFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel>
+    in?: number[] | ListIntFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntFilter<$PrismaModel> | number
+  }
+
+  export type TicketCounterOrgIdYearMonthCompoundUniqueInput = {
+    orgId: string
+    yearMonth: string
+  }
+
+  export type TicketCounterCountOrderByAggregateInput = {
+    id?: SortOrder
+    orgId?: SortOrder
+    yearMonth?: SortOrder
+    counter?: SortOrder
+  }
+
+  export type TicketCounterAvgOrderByAggregateInput = {
+    id?: SortOrder
+    counter?: SortOrder
+  }
+
+  export type TicketCounterMaxOrderByAggregateInput = {
+    id?: SortOrder
+    orgId?: SortOrder
+    yearMonth?: SortOrder
+    counter?: SortOrder
+  }
+
+  export type TicketCounterMinOrderByAggregateInput = {
+    id?: SortOrder
+    orgId?: SortOrder
+    yearMonth?: SortOrder
+    counter?: SortOrder
+  }
+
+  export type TicketCounterSumOrderByAggregateInput = {
+    id?: SortOrder
+    counter?: SortOrder
+  }
+
+  export type IntWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel>
+    in?: number[] | ListIntFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntWithAggregatesFilter<$PrismaModel> | number
+    _count?: NestedIntFilter<$PrismaModel>
+    _avg?: NestedFloatFilter<$PrismaModel>
+    _sum?: NestedIntFilter<$PrismaModel>
+    _min?: NestedIntFilter<$PrismaModel>
+    _max?: NestedIntFilter<$PrismaModel>
+  }
+
   export type CommentCreateNestedManyWithoutTicketInput = {
     create?: XOR<CommentCreateWithoutTicketInput, CommentUncheckedCreateWithoutTicketInput> | CommentCreateWithoutTicketInput[] | CommentUncheckedCreateWithoutTicketInput[]
     connectOrCreate?: CommentCreateOrConnectWithoutTicketInput | CommentCreateOrConnectWithoutTicketInput[]
@@ -3943,6 +5266,14 @@ export namespace Prisma {
     upsert?: TicketUpsertWithoutCommentsInput
     connect?: TicketWhereUniqueInput
     update?: XOR<XOR<TicketUpdateToOneWithWhereWithoutCommentsInput, TicketUpdateWithoutCommentsInput>, TicketUncheckedUpdateWithoutCommentsInput>
+  }
+
+  export type IntFieldUpdateOperationsInput = {
+    set?: number
+    increment?: number
+    decrement?: number
+    multiply?: number
+    divide?: number
   }
 
   export type NestedStringFilter<$PrismaModel = never> = {
@@ -4088,6 +5419,33 @@ export namespace Prisma {
     _max?: NestedDateTimeFilter<$PrismaModel>
   }
 
+  export type NestedIntWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel>
+    in?: number[] | ListIntFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntWithAggregatesFilter<$PrismaModel> | number
+    _count?: NestedIntFilter<$PrismaModel>
+    _avg?: NestedFloatFilter<$PrismaModel>
+    _sum?: NestedIntFilter<$PrismaModel>
+    _min?: NestedIntFilter<$PrismaModel>
+    _max?: NestedIntFilter<$PrismaModel>
+  }
+
+  export type NestedFloatFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel>
+    in?: number[] | ListFloatFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel>
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatFilter<$PrismaModel> | number
+  }
+
   export type CommentCreateWithoutTicketInput = {
     id?: string
     orgId: string
@@ -4145,6 +5503,7 @@ export namespace Prisma {
   export type TicketCreateWithoutCommentsInput = {
     id?: string
     orgId: string
+    ticketNo: string
     title: string
     description: string
     createdByUserId: string
@@ -4158,6 +5517,7 @@ export namespace Prisma {
   export type TicketUncheckedCreateWithoutCommentsInput = {
     id?: string
     orgId: string
+    ticketNo: string
     title: string
     description: string
     createdByUserId: string
@@ -4187,6 +5547,7 @@ export namespace Prisma {
   export type TicketUpdateWithoutCommentsInput = {
     id?: StringFieldUpdateOperationsInput | string
     orgId?: StringFieldUpdateOperationsInput | string
+    ticketNo?: StringFieldUpdateOperationsInput | string
     title?: StringFieldUpdateOperationsInput | string
     description?: StringFieldUpdateOperationsInput | string
     createdByUserId?: StringFieldUpdateOperationsInput | string
@@ -4200,6 +5561,7 @@ export namespace Prisma {
   export type TicketUncheckedUpdateWithoutCommentsInput = {
     id?: StringFieldUpdateOperationsInput | string
     orgId?: StringFieldUpdateOperationsInput | string
+    ticketNo?: StringFieldUpdateOperationsInput | string
     title?: StringFieldUpdateOperationsInput | string
     description?: StringFieldUpdateOperationsInput | string
     createdByUserId?: StringFieldUpdateOperationsInput | string

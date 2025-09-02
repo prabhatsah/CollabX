@@ -123,6 +123,7 @@ exports.Prisma.TransactionIsolationLevel = makeStrictEnum({
 exports.Prisma.TicketScalarFieldEnum = {
   id: 'id',
   orgId: 'orgId',
+  ticketNo: 'ticketNo',
   title: 'title',
   description: 'description',
   createdByUserId: 'createdByUserId',
@@ -140,6 +141,13 @@ exports.Prisma.CommentScalarFieldEnum = {
   authorUserId: 'authorUserId',
   body: 'body',
   createdAt: 'createdAt'
+};
+
+exports.Prisma.TicketCounterScalarFieldEnum = {
+  id: 'id',
+  orgId: 'orgId',
+  yearMonth: 'yearMonth',
+  counter: 'counter'
 };
 
 exports.Prisma.SortOrder = {
@@ -173,7 +181,8 @@ exports.TicketPriority = exports.$Enums.TicketPriority = {
 
 exports.Prisma.ModelName = {
   Ticket: 'Ticket',
-  Comment: 'Comment'
+  Comment: 'Comment',
+  TicketCounter: 'TicketCounter'
 };
 
 /**

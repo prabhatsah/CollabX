@@ -15,6 +15,7 @@ export interface Empty {
 
 export interface Ticket {
   id: string;
+  ticketNo: string;
   orgId: string;
   title: string;
   description: string;
@@ -37,6 +38,7 @@ export interface Comment {
 
 export interface CreateTicketRequest {
   orgId: string;
+  orgName: string;
   title: string;
   description: string;
   priority: string;

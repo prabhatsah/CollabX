@@ -25,7 +25,7 @@ export class TicketController {
     console.log('request: ', request);
 
     const res = await this.ticketService.listTickets(request);
-    console.log('res: ', res);
+    console.log('res1: ', res);
     return res;
   }
 

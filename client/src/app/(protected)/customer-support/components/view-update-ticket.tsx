@@ -25,6 +25,7 @@ import {
 import { Ticket } from '@/types';
 import { Lock } from 'lucide-react';
 import { formatDate } from '@/lib/formatDate';
+import TicketActivityDemo from './ticket-activity';
 
 export function ViewUpdateTicket({ item }: { item: Ticket }) {
   const isMobile = useIsMobile();
@@ -33,7 +34,7 @@ export function ViewUpdateTicket({ item }: { item: Ticket }) {
     <Drawer direction={isMobile ? 'bottom' : 'right'}>
       <DrawerTrigger asChild className="w-sm align-top">
         <Button variant="link" className="text-foreground px-0 justify-start">
-          {item.title}
+          {item.ticketNo}
         </Button>
       </DrawerTrigger>
       <DrawerContent className="min-w-6xl ">
@@ -41,7 +42,9 @@ export function ViewUpdateTicket({ item }: { item: Ticket }) {
           <div className="h-[90vh] border-r-2 flex flex-col flex-2 me-5 gap-3 pe-5">
             <div className="flex justify-between ">
               <div className="flex flex-col">
-                <span className="text-sm text-muted-foreground">Title</span>
+                <span className="text-sm text-muted-foreground">
+                  # {item.ticketNo}
+                </span>
                 <label className="text-md">{item.title}</label>
               </div>
               <div className="">
@@ -52,7 +55,7 @@ export function ViewUpdateTicket({ item }: { item: Ticket }) {
             </div>
             <div className="flex flex-col">
               <span className="text-sm text-muted-foreground">Description</span>
-              <label className="text-md border p-3 rounded-md mt-2">
+              <p className="text-md border p-3 rounded-md mt-2 overflow-auto max-h-28">
                 {item.description} Lorem ipsum dolor, sit amet consectetur
                 adipisicing elit. Quod, alias! Eveniet, iusto eum dolore,
                 veritatis magnam ipsam praesentium molestias ipsa sapiente quod
@@ -61,8 +64,9 @@ export function ViewUpdateTicket({ item }: { item: Ticket }) {
                 alias! Eveniet, iusto eum dolore, veritatis magnam ipsam
                 praesentium molestias ipsa sapiente quod autem velit
                 consequuntur doloribus vero nulla exercitationem ab.
-              </label>
+              </p>
             </div>
+            <TicketActivityDemo />
           </div>
           <div className="flex-1">
             <div>
@@ -112,7 +116,7 @@ export function ViewUpdateTicket({ item }: { item: Ticket }) {
                   </div>
                 </div>
               </div>
-              <div className='mt-10'>
+              <div className="mt-10">
                 <label className="font-medium">Assignee Details</label>
                 <Separator className="my-3" />
                 <div className="flex flex-col gap-2">

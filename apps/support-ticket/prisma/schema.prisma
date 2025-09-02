@@ -12,7 +12,8 @@ datasource db {
 
 model Ticket {
     id              String         @id @default(cuid())
-    orgId           String // org scope
+    orgId           String
+    ticketNo        String         @unique
     title           String
     description     String
     createdByUserId String
@@ -41,6 +42,15 @@ model Comment {
 
     @@index([orgId, ticketId])
     @@map("comments")
+}
+
+model TicketCounter {
+    id        Int    @id @default(autoincrement())
+    orgId     String
+    yearMonth String
+    counter   Int    @default(0)
+
+    @@unique([orgId, yearMonth])
 }
 
 enum TicketStatus {

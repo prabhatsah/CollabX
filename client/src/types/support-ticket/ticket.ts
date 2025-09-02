@@ -1,9 +1,9 @@
-import z from 'zod';
-
 export type TicketStatus =
   'OPEN | IN_PROGRESS | ON_HOLD | CANCELLED | RESOLVED | CLOSED';
 
 export type TicketPriority = 'LOW | MEDIUM | HIGH';
+
+export type SLAStatus = 'ON_TRACK' | 'AT_RISK' | 'BREACHED';
 
 export interface Ticket {
   id: string;
@@ -16,19 +16,30 @@ export interface Ticket {
   priority: TicketPriority;
   createdAt: string;
   updatedAt: string;
+  slaDeadline?: string;
+  slaStatus?: SLAStatus;
 }
 
-// export const ticketSchema = z.object({
-//   id: z.number(),
-//   title: z.string(),
-//   type: z.string(),
-//   status: z.string(),
-//   description: z.string(),
-//   createdByUserId: z.string(),
-//   orgId: z.string(),
-//   assignedTo: z.string(),
-//   createdAt: z.string().transform((val) => new Date(val)),
-//   updatedAt: z.string().transform((val) => new Date(val)),
-// });
+export interface TicketListResponse {
+  tickets: Ticket[];
+  nextCursor?: string;
+}
 
-// export type Ticket = z.infer<typeof ticketSchema>;
+export interface CreateTicketRequest {
+  title: string;
+  priority: TicketPriority;
+  description: string;
+}
+
+export interface TicketMetrics {
+  totalOpen: number;
+  totalClosed30d: number;
+  avgResolutionTime: number;
+  backlogAging: number;
+}
+
+export interface OrgUser {
+  id: string;
+  fullName: string;
+  email: string;
+}

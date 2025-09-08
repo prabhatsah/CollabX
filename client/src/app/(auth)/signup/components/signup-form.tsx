@@ -41,7 +41,6 @@ export function SignupForm({
 
     try {
       const res = await signup(name, email, password, orgName);
-      console.log('Signup:', res);
 
       toast.success('User created.', {
         description: 'Redirecting to your login page...',

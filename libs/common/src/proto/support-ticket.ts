@@ -23,6 +23,8 @@ export interface Ticket {
   assigneeUserId: string;
   status: string;
   priority: string;
+  type: string;
+  locked: boolean;
   createdAt: string;
   updatedAt: string;
 }
@@ -42,6 +44,7 @@ export interface CreateTicketRequest {
   title: string;
   description: string;
   priority: string;
+  type: string;
   createdByUserId: string;
 }
 
@@ -54,16 +57,24 @@ export interface GetTicketRequest {
   ticketId: string;
 }
 
+export interface UserContext {
+  userId: string;
+  role: string;
+}
+
 export interface ListTicketsRequest {
   orgId: string;
   status: string[];
   priority: string[];
   assigneeUserId: string;
-  createdByUserId: string;
+  /** string createdByUserId = 5; */
+  type: string[];
   /** pagination */
   limit: number;
   /** pagination */
   cursor: string;
+  /** caller */
+  actor: UserContext | undefined;
 }
 
 export interface ListTicketsResponse {
@@ -86,7 +97,6 @@ export interface AssignTicketRequest {
   orgId: string;
   ticketId: string;
   assigneeUserId: string;
-  /** who assigns (for audit) */
   actorUserId: string;
 }
 
@@ -95,18 +105,45 @@ export interface TransitionStatusRequest {
   ticketId: string;
   newStatus: string;
   actorUserId: string;
-  /** optional */
   reason: string;
+}
+
+export interface UpdatePriorityRequest {
+  orgId: string;
+  ticketId: string;
+  newPriority: string;
+  actorUserId: string;
+  reason: string;
+}
+
+export interface UpdateTypeRequest {
+  orgId: string;
+  ticketId: string;
+  newType: string;
+  actorUserId: string;
+  reason: string;
+}
+
+export interface LockTicketRequest {
+  orgId: string;
+  ticketId: string;
+  /** true = lock, false = unlock */
+  lock: boolean;
+  actorUserId: string;
 }
 
 export const SUPPORTTICKET_PACKAGE_NAME = "supportticket";
 
 export interface SupportTicketClient {
+  /** Ticket CRUD */
+
   createTicket(request: CreateTicketRequest): Observable<TicketResponse>;
 
   getTicket(request: GetTicketRequest): Observable<TicketResponse>;
 
   listTickets(request: ListTicketsRequest): Observable<ListTicketsResponse>;
+
+  /** Ticket Updates */
 
   addComment(request: AddCommentRequest): Observable<CommentResponse>;
 
@@ -114,12 +151,20 @@ export interface SupportTicketClient {
 
   transitionStatus(request: TransitionStatusRequest): Observable<TicketResponse>;
 
-  /** optional: internal for gateway health */
+  updatePriority(request: UpdatePriorityRequest): Observable<TicketResponse>;
+
+  updateType(request: UpdateTypeRequest): Observable<TicketResponse>;
+
+  lockTicket(request: LockTicketRequest): Observable<TicketResponse>;
+
+  /** Internal for gateway health */
 
   checkHealth(request: Empty): Observable<Empty>;
 }
 
 export interface SupportTicketController {
+  /** Ticket CRUD */
+
   createTicket(request: CreateTicketRequest): Promise<TicketResponse> | Observable<TicketResponse> | TicketResponse;
 
   getTicket(request: GetTicketRequest): Promise<TicketResponse> | Observable<TicketResponse> | TicketResponse;
@@ -127,6 +172,8 @@ export interface SupportTicketController {
   listTickets(
     request: ListTicketsRequest,
   ): Promise<ListTicketsResponse> | Observable<ListTicketsResponse> | ListTicketsResponse;
+
+  /** Ticket Updates */
 
   addComment(request: AddCommentRequest): Promise<CommentResponse> | Observable<CommentResponse> | CommentResponse;
 
@@ -136,7 +183,13 @@ export interface SupportTicketController {
     request: TransitionStatusRequest,
   ): Promise<TicketResponse> | Observable<TicketResponse> | TicketResponse;
 
-  /** optional: internal for gateway health */
+  updatePriority(request: UpdatePriorityRequest): Promise<TicketResponse> | Observable<TicketResponse> | TicketResponse;
+
+  updateType(request: UpdateTypeRequest): Promise<TicketResponse> | Observable<TicketResponse> | TicketResponse;
+
+  lockTicket(request: LockTicketRequest): Promise<TicketResponse> | Observable<TicketResponse> | TicketResponse;
+
+  /** Internal for gateway health */
 
   checkHealth(request: Empty): Promise<Empty> | Observable<Empty> | Empty;
 }
@@ -150,6 +203,9 @@ export function SupportTicketControllerMethods() {
       "addComment",
       "assignTicket",
       "transitionStatus",
+      "updatePriority",
+      "updateType",
+      "lockTicket",
       "checkHealth",
     ];
     for (const method of grpcMethods) {

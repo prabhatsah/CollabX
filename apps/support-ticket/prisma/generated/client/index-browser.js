@@ -130,8 +130,20 @@ exports.Prisma.TicketScalarFieldEnum = {
   assigneeUserId: 'assigneeUserId',
   status: 'status',
   priority: 'priority',
+  type: 'type',
+  locked: 'locked',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
+};
+
+exports.Prisma.TicketActivityScalarFieldEnum = {
+  id: 'id',
+  ticketId: 'ticketId',
+  orgId: 'orgId',
+  type: 'type',
+  actorUserId: 'actorUserId',
+  meta: 'meta',
+  createdAt: 'createdAt'
 };
 
 exports.Prisma.CommentScalarFieldEnum = {
@@ -155,6 +167,10 @@ exports.Prisma.SortOrder = {
   desc: 'desc'
 };
 
+exports.Prisma.JsonNullValueInput = {
+  JsonNull: Prisma.JsonNull
+};
+
 exports.Prisma.QueryMode = {
   default: 'default',
   insensitive: 'insensitive'
@@ -163,6 +179,12 @@ exports.Prisma.QueryMode = {
 exports.Prisma.NullsOrder = {
   first: 'first',
   last: 'last'
+};
+
+exports.Prisma.JsonNullValueFilter = {
+  DbNull: Prisma.DbNull,
+  JsonNull: Prisma.JsonNull,
+  AnyNull: Prisma.AnyNull
 };
 exports.TicketStatus = exports.$Enums.TicketStatus = {
   OPEN: 'OPEN',
@@ -179,8 +201,15 @@ exports.TicketPriority = exports.$Enums.TicketPriority = {
   HIGH: 'HIGH'
 };
 
+exports.TicketType = exports.$Enums.TicketType = {
+  INCIDENT: 'INCIDENT',
+  BUG: 'BUG',
+  FEATURE: 'FEATURE'
+};
+
 exports.Prisma.ModelName = {
   Ticket: 'Ticket',
+  TicketActivity: 'TicketActivity',
   Comment: 'Comment',
   TicketCounter: 'TicketCounter'
 };

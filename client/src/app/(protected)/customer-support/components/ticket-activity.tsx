@@ -4,7 +4,7 @@ import TicketActivityTimeline, {
   TicketActivityItem,
 } from './ticket-activity-timeline';
 
-export default function TicketActivityDemo() {
+export default function TicketActivity() {
   const demoItems: TicketActivityItem[] = [
     {
       id: '1',
@@ -49,10 +49,7 @@ export default function TicketActivityDemo() {
   ];
 
   return (
-    <div className="dark rounded-lg border border-border bg-card p-4">
-      <h2 className="mb-4 text-pretty text-lg font-semibold text-foreground">
-        Activity
-      </h2>
+    <div className="">
       <TicketActivityTimeline items={demoItems} />
     </div>
   );

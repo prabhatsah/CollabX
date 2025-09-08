@@ -44,7 +44,7 @@ export class SessionMiddleware implements NestMiddleware {
       req.user = sessionRes.data as SessionUser;
 
       this.logger.debug(
-        `Session data set in middleware: ${JSON.stringify(req.user)}`,
+        `Session data set by middleware: ${JSON.stringify(req.user)}`,
       );
 
       next();

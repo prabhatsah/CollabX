@@ -38,7 +38,6 @@ export const SessionProvider = ({
 
       if (res.ok) {
         const json = await res.json();
-        console.log('Session:', json);
 
         setSession(json.data);
       } else {

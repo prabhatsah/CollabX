@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import { useOrgUsers } from '@/hooks/useOrgUsers';
 import {
   Table,
   TableHeader,
@@ -44,9 +43,10 @@ import { useLoading } from '@/context/LoadingContext';
 import { removeUserFromOrg } from '@/lib/api/users/removeUserFromOrg';
 
 import { User } from '@/types';
-import { useRouter } from 'next/navigation';
 import { BoxSpinner } from '@/components/loading-style/box-spinner';
 import ErrorPage from '@/components/error-style/error-page';
+import { useOrgUsers } from '@/hooks/useOrgUsers';
+
 
 export default function UserManagementPage() {
   const { users, loading, error, refresh } = useOrgUsers();
@@ -115,8 +115,6 @@ export default function UserManagementPage() {
       setLoading(false);
     }
   }
-
-  console.log('Users:', users);
 
   if (loading) return <BoxSpinner />;
   if (error) return <ErrorPage />;

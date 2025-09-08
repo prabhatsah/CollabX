@@ -4,6 +4,7 @@ import { ConfigService } from '@nestjs/config';
 import { GrpcToHttpExceptionFilter } from './common/filters/grpc-to-http.filter';
 import * as cookieParser from 'cookie-parser';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { BadRequestException, ValidationPipe } from '@nestjs/common';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -24,6 +25,17 @@ async function bootstrap() {
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     credentials: true,
   });
+
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true, // strip properties not in DTO
+      forbidNonWhitelisted: true, // throw error if extra properties exist
+      transform: true, // transform payloads to DTO instances
+      // exceptionFactory: (errors) => {
+      //   return new BadRequestException(errors);
+      // },
+    }),
+  );
 
   // Swagger config
   const config = new DocumentBuilder()

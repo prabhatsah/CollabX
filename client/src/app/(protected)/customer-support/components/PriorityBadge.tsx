@@ -28,7 +28,7 @@ const priorityConfig = {
 };
 
 export function PriorityBadge({ priority, className }: PriorityBadgeProps) {
-  debugger;
+ 
   const config = priorityConfig[priority];
   const Icon = config.icon;
 

@@ -12,7 +12,6 @@ import { useAuditlogs } from '@/hooks/useAuditLogs';
 import { formatDate } from '@/lib/formatDate';
 import { StatusDotFail, StatusDotSuccess } from '@/components/status-dot';
 import NoRecordsFound from '@/components/no-records';
-import { BoxSpinner } from '@/components/loading-style/box-spinner';
 import ErrorPage from '@/components/error-style/error-page';
 import { useEffect } from 'react';
 import { useLoading } from '@/context/LoadingContext';
@@ -22,8 +21,6 @@ export default function AuditLogPage() {
   const { auditLogs, loading, error } = useAuditlogs();
   const { setLoading } = useLoading();
   const { getUserDetails } = useUserlookup();
-
-  console.log('auditLogs in page:', auditLogs);
 
   // if (loading) return <BoxSpinner />;
   useEffect(() => {
@@ -35,7 +32,7 @@ export default function AuditLogPage() {
   }, [loading, setLoading]);
 
   if (error) return <ErrorPage />;
-  debugger;
+ 
   return (
     <div className="p-6 space-y-4 h-[100vh]">
       <header className="flex justify-between items-center">

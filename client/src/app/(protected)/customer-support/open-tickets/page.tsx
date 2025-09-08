@@ -1,18 +1,17 @@
 'use client';
 import { SectionCards } from '@/components/section-cards';
-import { OpenTicketTable } from './components/data-table-modifiled';
 
 import data from '../data.json';
-import { useListTickets } from '@/hooks/support-ticket/useOpenTickets';
+import { useListTickets } from '@/hooks/support-ticket/useFetchTickets';
 import { BoxSpinner } from '@/components/loading-style/box-spinner';
 import ErrorPage from '@/components/error-style/error-page';
+import { OpenTicketTable } from './components/tickets-table';
 
 const Page = () => {
   const { tickets, loading, error, refresh } = useListTickets();
 
   if (loading) return <BoxSpinner />;
   if (error) return <ErrorPage />;
-  console.log('tickets:', tickets);
 
   return (
     <div className="flex flex-1 flex-col py-5">
@@ -21,7 +20,6 @@ const Page = () => {
           <SectionCards />
         </div>
         <div className=" py-2">
-          {/* <OpenTicketTable data={data} /> */}
           <OpenTicketTable data={tickets} onRefresh={refresh} />
         </div>
       </div>

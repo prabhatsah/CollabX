@@ -1,0 +1,296 @@
+'use client';
+
+import * as React from 'react';
+import {
+  closestCenter,
+  DndContext,
+  KeyboardSensor,
+  MouseSensor,
+  TouchSensor,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+  type UniqueIdentifier,
+} from '@dnd-kit/core';
+import { restrictToVerticalAxis } from '@dnd-kit/modifiers';
+import {
+  arrayMove,
+  SortableContext,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
+import { IconChevronDown, IconLayoutColumns } from '@tabler/icons-react';
+import {
+  ColumnDef,
+  ColumnFiltersState,
+  flexRender,
+  getCoreRowModel,
+  getFacetedRowModel,
+  getFacetedUniqueValues,
+  getFilteredRowModel,
+  getPaginationRowModel,
+  getSortedRowModel,
+  Row,
+  SortingState,
+  useReactTable,
+  VisibilityState,
+} from '@tanstack/react-table';
+
+import { Button } from '@/components/ui/button';
+import {
+  DropdownMenu,
+  DropdownMenuCheckboxItem,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
+import { formatDate } from '@/lib/formatDate';
+import { CreateTicketForm } from './create-ticket';
+import { Ticket } from '@/types';
+import { PriorityBadge } from '../../components/PriorityBadge';
+import { StatusBadge } from '../../components/StatusBadge';
+import TicketDashboard from '../../components/TicketDashboard';
+import { useOrgUsers } from '@/hooks/useOrgUsers';
+
+function NormalRow({ row }: { row: Row<Ticket> }) {
+  return (
+    <TableRow
+      data-state={row.getIsSelected() && 'selected'}
+      className="relative z-0"
+    >
+      {row.getVisibleCells().map((cell) => (
+        <TableCell key={cell.id}>
+          {flexRender(cell.column.columnDef.cell, cell.getContext())}
+        </TableCell>
+      ))}
+    </TableRow>
+  );
+}
+
+export function OpenTicketTable({
+  data: initialData,
+  onRefresh,
+}: {
+  data: Ticket[];
+  onRefresh?: () => void;
+}) {
+  const { loading: usersLoading, getUserById } = useOrgUsers();
+
+  const [data, setData] = React.useState(() => initialData);
+  const [rowSelection, setRowSelection] = React.useState({});
+  const [columnVisibility, setColumnVisibility] =
+    React.useState<VisibilityState>({});
+  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
+    [],
+  );
+  const [sorting, setSorting] = React.useState<SortingState>([]);
+  const [pagination, setPagination] = React.useState({
+    pageIndex: 0,
+    pageSize: 10,
+  });
+
+  const sortableId = React.useId();
+  const sensors = useSensors(
+    useSensor(MouseSensor, {}),
+    useSensor(TouchSensor, {}),
+    useSensor(KeyboardSensor, {}),
+  );
+
+  const dataIds = React.useMemo<UniqueIdentifier[]>(
+    () => data?.map(({ id }) => id) || [],
+    [data],
+  );
+
+  const columns: ColumnDef<Ticket>[] = [
+    {
+      accessorKey: 'ticketNo',
+      header: 'Ticket',
+      cell: ({ row }) => (
+        <TicketDashboard ticket={row.original} onSuccess={onRefresh} />
+      ),
+      enableHiding: false,
+    },
+    {
+      accessorKey: 'title',
+      header: 'Title',
+      cell: ({ row }) => row.original.title,
+      enableHiding: false,
+    },
+    {
+      accessorKey: 'status',
+      header: 'Status',
+      cell: ({ row }) => <StatusBadge status={row.original.status} />,
+    },
+    {
+      accessorKey: 'priority',
+      header: 'Priority',
+      cell: ({ row }) => <PriorityBadge priority={row.original.priority} />,
+    },
+    {
+      accessorKey: 'AssignedTo',
+      header: 'Current Assignee',
+      cell: ({ row }) => (
+        <div>
+          {(!usersLoading &&
+            getUserById(row.original.assigneeUserId)?.fullName) ||
+            '...'}
+        </div>
+      ),
+    },
+    {
+      accessorKey: 'createdAt',
+      header: 'Creation Time',
+      cell: ({ row }) => <div>{formatDate(row.original.createdAt)}</div>,
+    },
+    {
+      accessorKey: 'CreatedBy',
+      header: 'Created By',
+      cell: ({ row }) => (
+        <div>
+          {(!usersLoading &&
+            getUserById(row.original.createdByUserId)?.fullName) ||
+            '...'}
+        </div>
+      ),
+    },
+  ];
+
+  const table = useReactTable({
+    data: data ?? [],
+    columns: columns ?? [],
+    state: {
+      sorting,
+      columnVisibility,
+      rowSelection,
+      columnFilters,
+      pagination,
+    },
+    getRowId: (row) => row.id.toString(),
+    enableRowSelection: true,
+    onRowSelectionChange: setRowSelection,
+    onSortingChange: setSorting,
+    onColumnFiltersChange: setColumnFilters,
+    onColumnVisibilityChange: setColumnVisibility,
+    onPaginationChange: setPagination,
+    getCoreRowModel: getCoreRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    getFacetedRowModel: getFacetedRowModel(),
+    getFacetedUniqueValues: getFacetedUniqueValues(),
+  });
+
+  function handleDragEnd(event: DragEndEvent) {
+    const { active, over } = event;
+    if (active && over && active.id !== over.id) {
+      setData((data) => {
+        const oldIndex = dataIds.indexOf(active.id);
+        const newIndex = dataIds.indexOf(over.id);
+        return arrayMove(data, oldIndex, newIndex);
+      });
+    }
+  }
+
+  return (
+    <div className="flex flex-col gap-2">
+      {/* filters + actions */}
+      <div className="flex justify-end w-full">
+        <div className="flex items-center gap-2">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="sm">
+                <IconLayoutColumns />
+                <span className="hidden lg:inline">Filters</span>
+                <span className="lg:hidden">Filters</span>
+                <IconChevronDown />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-56">
+              {table
+                .getAllColumns()
+                .filter(
+                  (column) =>
+                    typeof column.accessorFn !== 'undefined' &&
+                    column.getCanHide(),
+                )
+                .map((column) => (
+                  <DropdownMenuCheckboxItem
+                    key={column.id}
+                    className="capitalize"
+                    checked={column.getIsVisible()}
+                    onCheckedChange={(value) =>
+                      column.toggleVisibility(!!value)
+                    }
+                  >
+                    {column.id}
+                  </DropdownMenuCheckboxItem>
+                ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+          <CreateTicketForm onSuccess={onRefresh} />
+        </div>
+      </div>
+
+      {/* table */}
+      <div className="overflow-hidden rounded-lg border">
+        <DndContext
+          collisionDetection={closestCenter}
+          modifiers={[restrictToVerticalAxis]}
+          onDragEnd={handleDragEnd}
+          sensors={sensors}
+          id={sortableId}
+        >
+          <Table>
+            <TableHeader className="bg-muted sticky top-0 z-10">
+              {table.getHeaderGroups().map((headerGroup) => (
+                <TableRow key={headerGroup.id}>
+                  {headerGroup.headers.map((header) => (
+                    <TableHead key={header.id} colSpan={header.colSpan}>
+                      {header.isPlaceholder
+                        ? null
+                        : flexRender(
+                            header.column.columnDef.header,
+                            header.getContext(),
+                          )}
+                    </TableHead>
+                  ))}
+                </TableRow>
+              ))}
+            </TableHeader>
+            <TableBody>
+              {table.getRowModel().rows.length ? (
+                <SortableContext
+                  items={dataIds}
+                  strategy={verticalListSortingStrategy}
+                >
+                  {table.getRowModel().rows.map((row) => (
+                    <NormalRow key={row.id} row={row} />
+                  ))}
+                </SortableContext>
+              ) : (
+                <TableRow>
+                  <TableCell
+                    colSpan={columns.length}
+                    className="h-24 text-center"
+                  >
+                    No results.
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </DndContext>
+      </div>
+
+      {/* pagination */}
+      {/* ... keep your pagination footer code ... */}
+    </div>
+  );
+}

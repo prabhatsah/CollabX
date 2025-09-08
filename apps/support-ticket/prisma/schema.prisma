@@ -20,14 +20,34 @@ model Ticket {
     assigneeUserId  String?
     status          TicketStatus   @default(OPEN)
     priority        TicketPriority @default(MEDIUM)
+    type            TicketType
+    locked          Boolean        @default(false)
     createdAt       DateTime       @default(now())
     updatedAt       DateTime       @updatedAt
 
+    history  TicketActivity[]
     comments Comment[]
 
+    @@index(orgId)
+    @@index([orgId, id])
     @@index([orgId, status])
     @@index([orgId, assigneeUserId])
     @@map("tickets")
+}
+
+model TicketActivity {
+    id          String   @id @default(cuid())
+    ticketId    String
+    orgId       String
+    type        String // "created", "assigned", "status_changed", "priority_changed", "comment_added"
+    actorUserId String // who performed the action
+    meta        Json // flexible field to store details (from/to values, body, assignee, etc.)
+    createdAt   DateTime @default(now())
+
+    ticket Ticket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+
+    @@index([orgId, ticketId])
+    @@map("ticket_activities")
 }
 
 model Comment {
@@ -66,4 +86,10 @@ enum TicketPriority {
     LOW
     MEDIUM
     HIGH
+}
+
+enum TicketType {
+    INCIDENT
+    BUG
+    FEATURE
 }

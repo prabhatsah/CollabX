@@ -7,6 +7,7 @@ export type SLAStatus = 'ON_TRACK' | 'AT_RISK' | 'BREACHED';
 
 export interface Ticket {
   id: string;
+  ticketNo: string;
   orgId: string;
   title: string;
   description: string;

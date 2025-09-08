@@ -3,34 +3,24 @@ syntax="proto3";
 package supportticket;
 
 service SupportTicket {
-    rpc CreateTicket(CreateTicketRequest) returns (TicketResponse) {}
-    rpc GetTicket(GetTicketRequest) returns (TicketResponse) {}
-    rpc ListTickets(ListTicketsRequest) returns (ListTicketsResponse) {}
-    rpc AddComment(AddCommentRequest) returns (CommentResponse) {}
-    rpc AssignTicket(AssignTicketRequest) returns (TicketResponse) {}
-    rpc TransitionStatus(TransitionStatusRequest) returns (TicketResponse) {}
+  // Ticket CRUD
+  rpc CreateTicket(CreateTicketRequest) returns (TicketResponse) {}
+  rpc GetTicket(GetTicketRequest) returns (TicketResponse) {}
+  rpc ListTickets(ListTicketsRequest) returns (ListTicketsResponse) {}
 
-    // optional: internal for gateway health
-    rpc CheckHealth(Empty) returns (Empty) {}
+  // Ticket Updates
+  rpc AddComment(AddCommentRequest) returns (CommentResponse) {}
+  rpc AssignTicket(AssignTicketRequest) returns (TicketResponse) {}
+  rpc TransitionStatus(TransitionStatusRequest) returns (TicketResponse) {}
+  rpc UpdatePriority(UpdatePriorityRequest) returns (TicketResponse) {}
+  rpc UpdateType(UpdateTypeRequest) returns (TicketResponse) {}
+  rpc LockTicket(LockTicketRequest) returns (TicketResponse) {}
+
+  // Internal for gateway health
+  rpc CheckHealth(Empty) returns (Empty) {}
 }
 
 message Empty {}
-
-// enum TicketStatus {
-//   OPEN = 0;
-//   ASSIGNED = 1;
-//   IN_PROGRESS = 2;
-//   ON_HOLD = 3;
-//   CANCELLED = 4;
-//   RESOLVED = 5;
-//   CLOSED = 6;
-// }
-
-// enum TicketPriority {
-//   LOW = 0;
-//   MEDIUM = 1;
-//   HIGH = 2;
-// }
 
 message Ticket {
   string id = 1;
@@ -42,8 +32,10 @@ message Ticket {
   string assigneeUserId = 7; 
   string status = 8;
   string priority = 9;
-  string createdAt = 10;
-  string updatedAt = 11;
+  string type = 10;
+  bool locked = 11;
+  string createdAt = 12;
+  string updatedAt = 13;
 }
 
 message Comment {
@@ -61,21 +53,30 @@ message CreateTicketRequest {
   string title = 3;
   string description = 4;
   string priority = 5;
-  string createdByUserId = 6;
+  string type = 6;
+  string createdByUserId = 7;
 }
 
 message TicketResponse { Ticket ticket = 1; }
 
 message GetTicketRequest { string orgId = 1; string ticketId = 2; }
 
+message UserContext {
+  string userId = 1;
+  string role = 2;
+}
+
 message ListTicketsRequest {
   string orgId = 1;
   repeated string status = 2; 
   repeated string priority = 3; 
   string assigneeUserId = 4; 
-  string createdByUserId = 5;
+  // string createdByUserId = 5;
+  repeated string type = 5;
   int32 limit = 6; // pagination
   string cursor = 7; // pagination
+
+   UserContext actor = 8; // caller
 }
 
 message ListTicketsResponse {
@@ -96,7 +97,7 @@ message AssignTicketRequest {
   string orgId = 1;
   string ticketId = 2;
   string assigneeUserId = 3;
-  string actorUserId = 4; // who assigns (for audit)
+  string actorUserId = 4; 
 }
 
 message TransitionStatusRequest {
@@ -104,5 +105,28 @@ message TransitionStatusRequest {
   string ticketId = 2;
   string newStatus = 3; 
   string actorUserId = 4;
-  string reason = 5; // optional
+  string reason = 5;
+}
+
+message UpdatePriorityRequest {
+  string orgId = 1;
+  string ticketId = 2;
+  string newPriority = 3;
+  string actorUserId = 4;
+  string reason = 5;
+}
+
+message UpdateTypeRequest {
+  string orgId = 1;
+  string ticketId = 2;
+  string newType = 3;
+  string actorUserId = 4;
+  string reason = 5;
+}
+
+message LockTicketRequest {
+  string orgId = 1;
+  string ticketId = 2;
+  bool lock = 3; // true = lock, false = unlock
+  string actorUserId = 4;
 }

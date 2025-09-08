@@ -58,8 +58,7 @@ const statusConfig = {
   },
 };
 
-export function StatusBadge({ status, className }: StatusBadgeProps) {
-  debugger;
+export function StatusBadge({ status, className}: StatusBadgeProps) {
   const config = statusConfig[status];
   const Icon = config.icon;
 

@@ -1,10 +1,12 @@
 import { useSession } from '@/context/session-context';
 import { apiFetch } from '@/lib/api';
 import { User, UsersInOrgResponse } from '@/types';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
 interface UseOrgUsersResult {
   users: User[];
+  userMapById: Record<string, User>;
+  getUserById: (userId: string) => User | null;
   loading: boolean;
   error: string | null;
   refresh: () => Promise<void>;
@@ -16,6 +18,26 @@ export function useOrgUsers(): UseOrgUsersResult {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
+  const userMapById = useMemo(() => {
+    if (users.length === 0) {
+      return {};
+    }
+
+    const map: Record<string, User> = {};
+    users.forEach((user) => {
+      map[user.userId || user.id] = user; // Handle both userId and id
+    });
+
+    return map;
+  }, [users]);
+
+  const getUserById = useCallback(
+    (userId: string) => {
+      return userMapById[userId] || null;
+    },
+    [userMapById],
+  );
+
   const fetchUsers = async () => {
     if (!session) return;
     setLoading(true);
@@ -26,11 +48,8 @@ export function useOrgUsers(): UseOrgUsersResult {
         `/organizations/${session.currentOrg?.id}/users`,
       );
 
-      console.log('Users:', res);
-
       setUsers(res.users);
     } catch (error) {
-      console.error('useOrgUsers error:', error);
       setError(error.message);
     } finally {
       setLoading(false);
@@ -38,13 +57,22 @@ export function useOrgUsers(): UseOrgUsersResult {
   };
 
   useEffect(() => {
-    if (!sessionLoading) {
+    if (sessionLoading) return;
+    if (!session) return;
+
+    if (session?.currentOrg?.role === 'USER') {
+      const tempUser = { ...session.userInfo, userId: session.userInfo.id };
+      setUsers([tempUser]);
+      setLoading(false);
+    } else {
       fetchUsers();
     }
   }, [session, sessionLoading]);
 
   return {
     users,
+    userMapById,
+    getUserById,
     loading: sessionLoading || loading,
     error,
     refresh: async () => {

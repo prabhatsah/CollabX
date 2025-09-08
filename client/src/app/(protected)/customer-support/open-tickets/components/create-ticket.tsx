@@ -28,6 +28,7 @@ export function CreateTicketForm({ onSuccess }: { onSuccess?: () => void }) {
   const isMobile = useIsMobile();
   const [title, setTitle] = useState('');
   const [priority, setPriority] = useState('');
+  const [type, setType] = useState('');
   const [description, setDescription] = useState('');
   const [open, setOpen] = useState(false);
 
@@ -40,7 +41,7 @@ export function CreateTicketForm({ onSuccess }: { onSuccess?: () => void }) {
   const submitHandler = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!title || !priority || !description) {
+    if (!title || !priority || !type || !description) {
       toast.error('Missing fields', {
         description: 'Please enter all the fields',
       });
@@ -51,7 +52,7 @@ export function CreateTicketForm({ onSuccess }: { onSuccess?: () => void }) {
       const res = await apiFetch('/ticket/create', {
         method: 'POST',
         credentials: 'include',
-        body: JSON.stringify({ title, priority, description }),
+        body: JSON.stringify({ title, priority, type, description }),
       });
       toast.success('Ticket created', {
         description: 'Ticket created successfully',
@@ -60,7 +61,7 @@ export function CreateTicketForm({ onSuccess }: { onSuccess?: () => void }) {
       // Close drawer
       setOpen(false);
 
-      // cal reresh, sedn from the parent
+      // call refresh, send from the parent
       onSuccess?.();
 
       resetForm();
@@ -120,6 +121,24 @@ export function CreateTicketForm({ onSuccess }: { onSuccess?: () => void }) {
                       <SelectItem value="HIGH">HIGH</SelectItem>
                       <SelectItem value="MEDIUM">MEDIUM</SelectItem>
                       <SelectItem value="LOW">LOW</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+              <div className="grid grid-cols-1 gap-4">
+                <div className="flex flex-col gap-3">
+                  <Label htmlFor="Type">Type</Label>
+                  <Select
+                    value={type}
+                    onValueChange={(value) => setType(value)}
+                  >
+                    <SelectTrigger id="Type" className="w-full">
+                      <SelectValue placeholder="Select Type" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="INCIDENT">INCIDENT</SelectItem>
+                      <SelectItem value="BUG">BUG</SelectItem>
+                      <SelectItem value="FEATURE">FEATURE</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>

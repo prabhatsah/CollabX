@@ -48,7 +48,6 @@ export function LoginForm({
 
     try {
       const res: LoginResponse = await login(email, password);
-      console.log('Login res: ', res);
 
       await refreshSession(); //  fetch /me and set global session
 

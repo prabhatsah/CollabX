@@ -1,5 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { TicketPriority } from 'apps/support-ticket/prisma/generated/client';
+import {
+  TicketPriority,
+  TicketType,
+} from 'apps/support-ticket/prisma/generated/client';
 import { IsEnum, IsNotEmpty, IsString } from 'class-validator';
 
 export class CreateTicketDto {
@@ -29,6 +32,10 @@ export class CreateTicketDto {
   @ApiProperty({ enum: TicketPriority, example: TicketPriority.HIGH })
   @IsEnum(TicketPriority)
   priority: TicketPriority;
+
+  @ApiProperty({ enum: TicketType, example: TicketType.INCIDENT })
+  @IsEnum(TicketType)
+  type: TicketType;
 
   @ApiProperty({
     example: 'User_132343',

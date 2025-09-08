@@ -16,7 +16,7 @@ import { OrgRoleGuard } from '../common/guards/org-role.guard';
 import type { SessionUser } from '@app/common/interfaces/sesion-user.interface';
 
 @Controller('organizations')
-@UseGuards(OrgRoleGuard)
+@UseGuards(OrgRoleGuard) //Will allow only authenticated users to fetch ticket list
 export class UserOrgController {
   private readonly logger = new Logger(UserOrgController.name);
 
@@ -24,7 +24,7 @@ export class UserOrgController {
 
   @Get(':organizationId/users')
   @HttpCode(HttpStatus.OK)
-  @Roles('ADMIN')
+  @Roles('ADMIN', 'SUPPORT')
   async getUsersInOrganization(
     @Param('organizationId') organizationId: string,
     @CurrentUser() user: SessionUser,

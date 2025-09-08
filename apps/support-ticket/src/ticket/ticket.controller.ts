@@ -1,14 +1,16 @@
 import {
+  type AssignTicketRequest,
   type CreateTicketRequest,
-  type GetTicketRequest,
   type ListTicketsRequest,
+  LockTicketRequest,
   SUPPORT_TICKET_SERVICE_NAME,
+  type TransitionStatusRequest,
+  type UpdatePriorityRequest,
+  type UpdateTypeRequest,
 } from '@app/common/proto/support-ticket';
 import { Controller } from '@nestjs/common';
 import { TicketService } from './ticket.service';
 import { GrpcMethod } from '@nestjs/microservices';
-import { CurrentUser } from 'apps/api-gateway/src/common/decorators/current-user.decorator';
-import { type SessionUser } from '@app/common/interfaces';
 
 @Controller()
 export class TicketController {
@@ -17,23 +19,63 @@ export class TicketController {
   @GrpcMethod(SUPPORT_TICKET_SERVICE_NAME, 'CreateTicket')
   createTicket(request: CreateTicketRequest) {
     const res = this.ticketService.createTicket(request);
+
     return res;
   }
 
   @GrpcMethod(SUPPORT_TICKET_SERVICE_NAME, 'ListTickets')
   async listTickets(request: ListTicketsRequest) {
     console.log('request: ', request);
-
     const res = await this.ticketService.listTickets(request);
-    console.log('res1: ', res);
+    console.log('res: ', res);
     return res;
   }
 
-  @GrpcMethod(SUPPORT_TICKET_SERVICE_NAME, 'GetTicket')
-  getTicket(request: GetTicketRequest) {
-    console.log('request: ', request);
+  // @GrpcMethod(SUPPORT_TICKET_SERVICE_NAME, 'GetTicket')
+  // getTicket(request: GetTicketRequest) {
+  //   console.log('request: ', request);
 
-    const res = this.ticketService.getTicket(request);
+  //   const res = this.ticketService.getTicket(request);
+  //   return res;
+  // }
+
+  @GrpcMethod(SUPPORT_TICKET_SERVICE_NAME, 'AssignTicket')
+  assignTicket(request: AssignTicketRequest) {
+    // console.log('request: ', request);
+    const res = this.ticketService.assignTicket(request);
+    // console.log('res: ', res);
+    return res;
+  }
+
+  @GrpcMethod(SUPPORT_TICKET_SERVICE_NAME, 'LockTicket')
+  lockTicket(request: LockTicketRequest) {
+    // console.log('request: ', request);
+    const res = this.ticketService.lockTicket(request);
+    // console.log('res: ', res);
+    return res;
+  }
+
+  @GrpcMethod(SUPPORT_TICKET_SERVICE_NAME, 'TransitionStatus')
+  transitionStatus(request: TransitionStatusRequest) {
+    // console.log('request: ', request);
+    const res = this.ticketService.transitionStatus(request);
+    // console.log('res: ', res);
+    return res;
+  }
+
+  @GrpcMethod(SUPPORT_TICKET_SERVICE_NAME, 'UpdatePriority')
+  updatePriority(request: UpdatePriorityRequest) {
+    // console.log('request: ', request);
+    const res = this.ticketService.updatePriority(request);
+    // console.log('res: ', res);
+    return res;
+  }
+
+  @GrpcMethod(SUPPORT_TICKET_SERVICE_NAME, 'UpdateType')
+  updateType(request: UpdateTypeRequest) {
+    // console.log('request: ', request);
+    const res = this.ticketService.updateType(request);
+    // console.log('res: ', res);
     return res;
   }
 }

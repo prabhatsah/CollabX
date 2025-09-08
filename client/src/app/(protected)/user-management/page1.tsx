@@ -109,7 +109,7 @@ const mockUsers: OrgUser[] = [
 ];
 
 export default function UserManagementPage() {
-  const { users, isLoading } = useOrgUsers();
+  const { users } = useOrgUsers();
 
   //const [users, setUsers] = useState<OrgUser[]>(mockUsers);
   const [inviteDialogOpen, setInviteDialogOpen] = useState(false);

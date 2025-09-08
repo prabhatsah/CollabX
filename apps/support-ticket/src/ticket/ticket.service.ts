@@ -1,9 +1,14 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '../database/prisma.service';
 import {
+  AssignTicketRequest,
   CreateTicketRequest,
   GetTicketRequest,
   ListTicketsRequest,
+  LockTicketRequest,
+  TransitionStatusRequest,
+  UpdatePriorityRequest,
+  UpdateTypeRequest,
 } from '@app/common/proto/support-ticket';
 import { TicketEventsProducer } from '../kafka/events/ticket-events.producer';
 import { log } from '@grpc/grpc-js/build/src/logging';
@@ -11,6 +16,9 @@ import {
   TicketPriority,
   TicketStatus,
 } from 'apps/support-ticket/prisma/generated/client';
+import { RpcException } from '@nestjs/microservices';
+import { status } from '@grpc/grpc-js';
+import { UpdatePriorityDto } from 'apps/api-gateway/src/support-ticket/dto/update-priority.dto';
 
 @Injectable()
 export class TicketService {
@@ -25,8 +33,15 @@ export class TicketService {
     data: CreateTicketRequest,
     meta: { ip?: string; userAgent?: string },
   ) {
-    const { orgId, orgName, title, description, priority, createdByUserId } =
-      data;
+    const {
+      orgId,
+      orgName,
+      title,
+      description,
+      priority,
+      type,
+      createdByUserId,
+    } = data;
 
     const ticketNo = await this.generateTicketNumber(orgId, orgName);
 
@@ -41,6 +56,7 @@ export class TicketService {
         createdByUserId,
         status: 'OPEN',
         priority,
+        type,
       },
     });
 
@@ -60,19 +76,20 @@ export class TicketService {
   }
 
   async listTickets(request: ListTicketsRequest) {
+    console.log('ListTicketsRequest:', request);
+
     const {
       orgId,
       status,
       priority,
       assigneeUserId,
-      createdByUserId,
       limit = 10,
       cursor,
+      actor,
     } = request;
 
     const where: any = {
       orgId,
-      createdByUserId,
       ...(status && status.length > 0
         ? { status: { in: status as TicketStatus[] } }
         : {}),
@@ -81,6 +98,11 @@ export class TicketService {
         : {}),
       ...(assigneeUserId ? { assigneeUserId } : {}),
     };
+
+    // Allpy user level restrictions if role is USER
+    if (actor.role === 'USER') {
+      where.createdByUserId = actor.userId;
+    }
 
     const tickets = await this.prismaService.ticket.findMany({
       where,
@@ -107,15 +129,285 @@ export class TicketService {
         assigneeUserId: t.assigneeUserId,
         status: t.status,
         priority: t.priority,
+        locked: t.locked,
         createdAt: t.createdAt.toISOString(),
         updatedAt: t.updatedAt.toISOString(),
       })),
       nextCursor,
     };
   }
-  
 
-  // Helper functions
+  async assignTicket(request: AssignTicketRequest) {
+    const ticket = await this.prismaService.ticket.findFirst({
+      where: { id: request.ticketId, orgId: request.orgId },
+    });
+
+    if (!ticket) {
+      this.logger.error(`Assignment to ticket failed. Ticket not found`);
+
+      // await this.authEvents.loginFailed({
+      //   email: email,
+      //   message: 'Invalid credentials',
+      //   success: false,
+      //   ...meta,
+      // });
+
+      throw new RpcException({
+        code: status.NOT_FOUND,
+        message: 'Ticket not found',
+      });
+    }
+
+    if (ticket.locked && ticket.assigneeUserId !== request.assigneeUserId) {
+      this.logger.error(
+        `Assignment to ticket failed. Ticket locked by another user`,
+      );
+
+      // produce event
+
+      throw new RpcException({
+        code: status.PERMISSION_DENIED,
+        message: 'Ticket locked by another user',
+      });
+    }
+
+    // Update assignment
+    const res = await this.prismaService.ticket.update({
+      where: { id: request.ticketId },
+      data: { assigneeUserId: request.assigneeUserId, updatedAt: new Date() },
+    });
+
+    // Store history
+    await this.prismaService.ticketActivity.create({
+      data: {
+        ticketId: ticket.id,
+        orgId: ticket.orgId,
+        type: 'assigned',
+        actorUserId: request.actorUserId,
+        meta: { assigneeUserId: request.assigneeUserId },
+      },
+    });
+
+    // produce event
+
+    return { ticket: res };
+  }
+
+  async lockTicket(request: LockTicketRequest) {
+    const ticket = await this.prismaService.ticket.findFirst({
+      where: { id: request.ticketId, orgId: request.orgId },
+    });
+
+    if (!ticket) {
+      this.logger.error(`Lock updation failed. Ticket not found`);
+
+      // produce event
+
+      throw new RpcException({
+        code: status.NOT_FOUND,
+        message: 'Ticket not found',
+      });
+    }
+
+    if (ticket.assigneeUserId !== request.actorUserId) {
+      this.logger.error(`Lock updation failed. Ticket locked by another user`);
+
+      // produce event
+
+      throw new RpcException({
+        code: status.PERMISSION_DENIED,
+        message: 'Ticket locked by another user',
+      });
+    }
+
+    // Store old status
+    const oldLock = ticket.locked;
+
+    // Transition status
+    const res = await this.prismaService.ticket.update({
+      where: { id: request.ticketId },
+      data: { locked: request.lock, updatedAt: new Date() },
+    });
+
+    // Store history
+    await this.prismaService.ticketActivity.create({
+      data: {
+        ticketId: ticket.id,
+        orgId: ticket.orgId,
+        type: 'lock_changed',
+        actorUserId: request.actorUserId,
+        meta: { from: oldLock, to: request.lock },
+      },
+    });
+
+    // produce event
+
+    return { ticket: res };
+  }
+
+  async transitionStatus(request: TransitionStatusRequest) {
+    const ticket = await this.prismaService.ticket.findFirst({
+      where: { id: request.ticketId, orgId: request.orgId },
+    });
+
+    if (!ticket) {
+      this.logger.error(`Status transition failed. Ticket not found`);
+
+      // produce event
+
+      throw new RpcException({
+        code: status.NOT_FOUND,
+        message: 'Ticket not found',
+      });
+    }
+
+    if (!ticket.locked && ticket.assigneeUserId !== request.actorUserId) {
+      this.logger.error(
+        `Status transition failed. Ticket locked by another user`,
+      );
+
+      // produce event
+
+      throw new RpcException({
+        code: status.PERMISSION_DENIED,
+        message: 'Ticket locked by another user',
+      });
+    }
+
+    // Store old status
+    const oldStatus = ticket.status;
+
+    // Transition status
+    const res = await this.prismaService.ticket.update({
+      where: { id: request.ticketId },
+      data: { status: request.newStatus, updatedAt: new Date() },
+    });
+
+    // Store history
+    await this.prismaService.ticketActivity.create({
+      data: {
+        ticketId: ticket.id,
+        orgId: ticket.orgId,
+        type: 'status_changed',
+        actorUserId: request.actorUserId,
+        meta: { from: oldStatus, to: request.newStatus },
+      },
+    });
+
+    // produce event
+
+    return { ticket: res };
+  }
+
+  async updatePriority(request: UpdatePriorityRequest) {
+    const ticket = await this.prismaService.ticket.findFirst({
+      where: { id: request.ticketId, orgId: request.orgId },
+    });
+
+    if (!ticket) {
+      this.logger.error(`Priority updation failed. Ticket not found`);
+
+      // produce event
+
+      throw new RpcException({
+        code: status.NOT_FOUND,
+        message: 'Ticket not found',
+      });
+    }
+
+    if (!ticket.locked && ticket.assigneeUserId !== request.actorUserId) {
+      this.logger.error(
+        `Priority updation failed. Ticket locked by another user`,
+      );
+
+      // produce event
+
+      throw new RpcException({
+        code: status.PERMISSION_DENIED,
+        message: 'Ticket locked by another user',
+      });
+    }
+
+    // Store old status
+    const oldPriority = ticket.priority;
+
+    // Transition status
+    const res = await this.prismaService.ticket.update({
+      where: { id: request.ticketId },
+      data: { priority: request.newPriority, updatedAt: new Date() },
+    });
+
+    // Store history
+    await this.prismaService.ticketActivity.create({
+      data: {
+        ticketId: ticket.id,
+        orgId: ticket.orgId,
+        type: 'priority_changed',
+        actorUserId: request.actorUserId,
+        meta: { from: oldPriority, to: request.newPriority },
+      },
+    });
+
+    // produce event
+
+    return { ticket: res };
+  }
+
+  async updateType(request: UpdateTypeRequest) {
+    const ticket = await this.prismaService.ticket.findFirst({
+      where: { id: request.ticketId, orgId: request.orgId },
+    });
+
+    if (!ticket) {
+      this.logger.error(`Type updation failed. Ticket not found`);
+
+      // produce event
+
+      throw new RpcException({
+        code: status.NOT_FOUND,
+        message: 'Ticket not found',
+      });
+    }
+
+    if (!ticket.locked && ticket.assigneeUserId !== request.actorUserId) {
+      this.logger.error(`Type updation failed. Ticket locked by another user`);
+
+      // produce event
+
+      throw new RpcException({
+        code: status.PERMISSION_DENIED,
+        message: 'Ticket locked by another user',
+      });
+    }
+
+    // Store old status
+    const oldType = ticket.type;
+
+    // Transition status
+    const res = await this.prismaService.ticket.update({
+      where: { id: request.ticketId },
+      data: { type: request.newType, updatedAt: new Date() },
+    });
+
+    // Store history
+    await this.prismaService.ticketActivity.create({
+      data: {
+        ticketId: ticket.id,
+        orgId: ticket.orgId,
+        type: 'type_changed',
+        actorUserId: request.actorUserId,
+        meta: { from: oldType, to: request.newType },
+      },
+    });
+
+    // produce event
+
+    return { ticket: res };
+  }
+
+  //=======================================================================
+  //                   Helper functions
+  //=======================================================================
   async generateTicketNumber(orgId: string, orgName: string): Promise<string> {
     const now = new Date();
     const yy = now.getFullYear().toString().slice(-2);

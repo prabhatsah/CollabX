@@ -15,6 +15,7 @@ export interface Ticket {
   assigneeUserId: string;
   status: TicketStatus;
   priority: TicketPriority;
+  locked: boolean;
   createdAt: string;
   updatedAt: string;
   slaDeadline?: string;

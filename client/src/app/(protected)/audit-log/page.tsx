@@ -16,11 +16,12 @@ import ErrorPage from '@/components/error-style/error-page';
 import { useEffect } from 'react';
 import { useLoading } from '@/context/LoadingContext';
 import { useUserlookup } from '@/hooks/useUserLookup';
+import { useOrgUsers } from '@/hooks/useOrgUsers';
 
 export default function AuditLogPage() {
   const { auditLogs, loading, error } = useAuditlogs();
   const { setLoading } = useLoading();
-  const { getUserDetails } = useUserlookup();
+  const { getUserById } = useOrgUsers();
 
   // if (loading) return <BoxSpinner />;
   useEffect(() => {
@@ -32,7 +33,7 @@ export default function AuditLogPage() {
   }, [loading, setLoading]);
 
   if (error) return <ErrorPage />;
- 
+
   return (
     <div className="p-6 space-y-4 h-[100vh]">
       <header className="flex justify-between items-center">
@@ -64,10 +65,10 @@ export default function AuditLogPage() {
                   {log.payload.event}
                 </TableCell>
                 <TableCell>
-                  {getUserDetails(log.payload.userId)?.fullName ?? 'n/a'}
+                  {getUserById(log.payload.userId)?.fullName ?? 'n/a'}
                 </TableCell>
                 <TableCell>
-                  {getUserDetails(log.payload.userId)?.email ?? 'n/a'}
+                  {getUserById(log.payload.userId)?.email ?? 'n/a'}
                 </TableCell>
                 <TableCell>{log.payload.message}</TableCell>
                 <TableCell>{formatDate(log.createdAt)}</TableCell>

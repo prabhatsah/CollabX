@@ -1,4 +1,12 @@
-import { Body, Controller, HttpCode, HttpStatus, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  HttpCode,
+  HttpStatus,
+  Param,
+  Patch,
+  Post,
+} from '@nestjs/common';
 import { SupportTicketService } from './support-ticket.service';
 import { CreateTicketDto } from './dto/create-ticket.dto';
 import { ApiOperation, ApiResponse } from '@nestjs/swagger';
@@ -63,17 +71,19 @@ export class SupportTicketController {
     return ApiResponseDto.success(res, 'Ticket fetched sucessfully');
   }
 
-  @Post('assign')
+  @Patch(':ticketId/assign')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Assign user' })
   @ApiResponse({ status: 201, description: 'User assigned sucsessfully' })
   async assignTicket(
+    @Param('ticketId') ticketId: string,
     @Body() request: AssignTicketDto,
     @CurrentUser() user: SessionUser,
   ) {
-    // Attaching creator userId and orgId to the request
+    // Attaching creator actorUserId and orgId to the request
     request = {
       ...request,
+      ticketId,
       actorUserId: user.userInfo.id,
       orgId: user.currentOrg?.id || '',
     };
@@ -85,41 +95,45 @@ export class SupportTicketController {
     return ApiResponseDto.success(res, 'User assigned sucessfully');
   }
 
-  @Post('lock-unlock')
+  @Patch(':ticketId/lock')
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Lock-unlock ticket' })
-  @ApiResponse({ status: 201, description: 'Ticket locked successfully' })
-  async lockTicket(
+  @ApiOperation({ summary: 'Lock a ticket' })
+  @ApiResponse({ status: 200, description: 'Ticket locked successfully' })
+  async lockSpecificTicket(
+    @Param('ticketId') ticketId: string,
     @Body() request: LockUnlockTicketDto,
     @CurrentUser() user: SessionUser,
   ) {
-    // Attaching creator userId and orgId to the request
+    // Attaching creator actorUserId and orgId to the request
     request = {
       ...request,
+      ticketId,
       actorUserId: user.userInfo.id,
-      orgId: user.currentOrg?.id || '',
+      orgId: user.currentOrg?.id,
     };
 
     console.log('request: ', request);
 
     const res = await this.supportTicketService.lockTicket(request);
 
-    return ApiResponseDto.success(res, 'lock updated sucessfully');
+    return ApiResponseDto.success(res, 'Ticket locked successfully');
   }
 
-  @Post('transition-status')
+  @Patch(':ticketId/transition-status')
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Update Status' })
-  @ApiResponse({ status: 201, description: 'Status updated sucsessfully' })
+  @ApiOperation({ summary: 'Transition status' })
+  @ApiResponse({ status: 200, description: 'Status updated sucsessfully' })
   async transitionStatus(
+    @Param('ticketId') ticketId: string,
     @Body() request: TransitionStatusDto,
     @CurrentUser() user: SessionUser,
   ) {
-    // Attaching creator userId and orgId to the request
+    // Attaching creator actorUserId and orgId to the request
     request = {
       ...request,
+      ticketId,
       actorUserId: user.userInfo.id,
-      orgId: user.currentOrg?.id || '',
+      orgId: user.currentOrg?.id,
     };
 
     console.log('request: ', request);
@@ -129,19 +143,21 @@ export class SupportTicketController {
     return ApiResponseDto.success(res, 'Status updated sucessfully');
   }
 
-  @Post('update-priority')
+  @Patch(':ticketId/update-priority')
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Update Priority' })
-  @ApiResponse({ status: 201, description: 'Priority updated sucsessfully' })
+  @ApiOperation({ summary: 'Update priority' })
+  @ApiResponse({ status: 200, description: 'Priority updated sucsessfully' })
   async updatePriority(
+    @Param('ticketId') ticketId: string,
     @Body() request: UpdatePriorityDto,
     @CurrentUser() user: SessionUser,
   ) {
-    // Attaching creator userId and orgId to the request
+    // Attaching creator actorUserId and orgId to the request
     request = {
       ...request,
+      ticketId,
       actorUserId: user.userInfo.id,
-      orgId: user.currentOrg?.id || '',
+      orgId: user.currentOrg?.id,
     };
 
     console.log('request: ', request);
@@ -151,25 +167,93 @@ export class SupportTicketController {
     return ApiResponseDto.success(res, 'Priority updated sucessfully');
   }
 
-  @Post('update-type')
+  @Patch(':ticketId/update-type')
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Update Type' })
-  @ApiResponse({ status: 201, description: 'Type updated sucsessfully' })
+  @ApiOperation({ summary: 'Update type' })
+  @ApiResponse({ status: 200, description: 'Type updated sucsessfully' })
   async updateType(
+    @Param('ticketId') ticketId: string,
     @Body() request: UpdateTypeDto,
     @CurrentUser() user: SessionUser,
   ) {
-    // Attaching creator userId and orgId to the request
+    // Attaching creator actorUserId and orgId to the request
     request = {
       ...request,
+      ticketId,
       actorUserId: user.userInfo.id,
-      orgId: user.currentOrg?.id || '',
+      orgId: user.currentOrg?.id,
     };
 
     console.log('request: ', request);
 
     const res = await this.supportTicketService.updateType(request);
 
-    return ApiResponseDto.success(res, 'Priority updated sucessfully');
+    return ApiResponseDto.success(res, 'Type updated sucessfully');
   }
+
+  // @Post('transition-status')
+  // @HttpCode(HttpStatus.OK)
+  // @ApiOperation({ summary: 'Update Status' })
+  // @ApiResponse({ status: 201, description: 'Status updated sucsessfully' })
+  // async transitionStatus(
+  //   @Body() request: TransitionStatusDto,
+  //   @CurrentUser() user: SessionUser,
+  // ) {
+  //   // Attaching creator userId and orgId to the request
+  //   request = {
+  //     ...request,
+  //     actorUserId: user.userInfo.id,
+  //     orgId: user.currentOrg?.id || '',
+  //   };
+
+  //   console.log('request: ', request);
+
+  //   const res = await this.supportTicketService.transitionStatus(request);
+
+  //   return ApiResponseDto.success(res, 'Status updated sucessfully');
+  // }
+
+  // @Post('update-priority')
+  // @HttpCode(HttpStatus.OK)
+  // @ApiOperation({ summary: 'Update Priority' })
+  // @ApiResponse({ status: 201, description: 'Priority updated sucsessfully' })
+  // async updatePriority(
+  //   @Body() request: UpdatePriorityDto,
+  //   @CurrentUser() user: SessionUser,
+  // ) {
+  //   // Attaching creator userId and orgId to the request
+  //   request = {
+  //     ...request,
+  //     actorUserId: user.userInfo.id,
+  //     orgId: user.currentOrg?.id || '',
+  //   };
+
+  //   console.log('request: ', request);
+
+  //   const res = await this.supportTicketService.updatePriority(request);
+
+  //   return ApiResponseDto.success(res, 'Priority updated sucessfully');
+  // }
+
+  // @Post('update-type')
+  // @HttpCode(HttpStatus.OK)
+  // @ApiOperation({ summary: 'Update Type' })
+  // @ApiResponse({ status: 201, description: 'Type updated sucsessfully' })
+  // async updateType(
+  //   @Body() request: UpdateTypeDto,
+  //   @CurrentUser() user: SessionUser,
+  // ) {
+  //   // Attaching creator userId and orgId to the request
+  //   request = {
+  //     ...request,
+  //     actorUserId: user.userInfo.id,
+  //     orgId: user.currentOrg?.id || '',
+  //   };
+
+  //   console.log('request: ', request);
+
+  //   const res = await this.supportTicketService.updateType(request);
+
+  //   return ApiResponseDto.success(res, 'Priority updated sucessfully');
+  // }
 }

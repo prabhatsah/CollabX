@@ -23,6 +23,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { apiFetch } from '@/lib/api';
+import { Ticket } from '@/types';
 
 export function CreateTicketForm({ onSuccess }: { onSuccess?: () => void }) {
   const isMobile = useIsMobile();
@@ -49,13 +50,13 @@ export function CreateTicketForm({ onSuccess }: { onSuccess?: () => void }) {
     }
 
     try {
-      const res = await apiFetch('/ticket/create', {
+      const res: Ticket = await apiFetch('/ticket/create', {
         method: 'POST',
         credentials: 'include',
         body: JSON.stringify({ title, priority, type, description }),
       });
       toast.success('Ticket created', {
-        description: 'Ticket created successfully',
+        description: `Ticket created: ${res.ticketNo}`,
       });
 
       // Close drawer
@@ -66,6 +67,8 @@ export function CreateTicketForm({ onSuccess }: { onSuccess?: () => void }) {
 
       resetForm();
     } catch (error) {
+      console.log(error);
+
       toast.error('Ticket creation failed', {
         description: error?.message || 'Something went wrong',
       });

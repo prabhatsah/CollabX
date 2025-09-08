@@ -99,6 +99,9 @@ export class TicketService {
       ...(assigneeUserId ? { assigneeUserId } : {}),
     };
 
+    console.log('Where:', where);
+    console.log('request', request);
+
     // Allpy user level restrictions if role is USER
     if (actor.role === 'USER') {
       where.createdByUserId = actor.userId;
@@ -106,11 +109,12 @@ export class TicketService {
 
     const tickets = await this.prismaService.ticket.findMany({
       where,
-      take: limit + 1,
-      skip: cursor ? 1 : 0,
-      ...(cursor && { cursor: { id: cursor } }),
-      orderBy: { createdAt: 'desc' },
+      // take: limit + 1,
+      // skip: cursor ? 1 : 0,
+      // ...(cursor && { cursor: { id: cursor } }),
+      // orderBy: { createdAt: 'desc' },
     });
+    console.log('Tickets:', tickets);
 
     let nextCursor: string | null = null;
     if (tickets.length > limit) {
@@ -209,14 +213,17 @@ export class TicketService {
       });
     }
 
+    // Check ticket is assigned to actor
     if (ticket.assigneeUserId !== request.actorUserId) {
-      this.logger.error(`Lock updation failed. Ticket locked by another user`);
+      this.logger.error(
+        `Lock updation failed. You are not assigned to this ticket`,
+      );
 
       // produce event
 
       throw new RpcException({
         code: status.PERMISSION_DENIED,
-        message: 'Ticket locked by another user',
+        message: 'You are not assigned to this ticket',
       });
     }
 
@@ -261,18 +268,33 @@ export class TicketService {
       });
     }
 
-    if (!ticket.locked && ticket.assigneeUserId !== request.actorUserId) {
+    // Check ticket is assigned to actor
+    if (ticket.assigneeUserId !== request.actorUserId) {
       this.logger.error(
-        `Status transition failed. Ticket locked by another user`,
+        `Status transition failed. You are not assigned to this ticket`,
       );
 
       // produce event
 
       throw new RpcException({
         code: status.PERMISSION_DENIED,
-        message: 'Ticket locked by another user',
+        message: 'You are not assigned to this ticket',
       });
     }
+
+    // Check ticket is locked by another user
+    // if (ticket.locked && ticket.assigneeUserId !== request.actorUserId) {
+    //   this.logger.error(
+    //     `Status transition failed. Ticket locked by another user`,
+    //   );
+
+    //   // produce event
+
+    //   throw new RpcException({
+    //     code: status.PERMISSION_DENIED,
+    //     message: 'Ticket locked by another user',
+    //   });
+    // }
 
     // Store old status
     const oldStatus = ticket.status;
@@ -315,16 +337,30 @@ export class TicketService {
       });
     }
 
-    if (!ticket.locked && ticket.assigneeUserId !== request.actorUserId) {
+    // if (!ticket.locked && ticket.assigneeUserId !== request.actorUserId) {
+    //   this.logger.error(
+    //     `Priority updation failed. Ticket locked by another user`,
+    //   );
+
+    //   // produce event
+
+    //   throw new RpcException({
+    //     code: status.PERMISSION_DENIED,
+    //     message: 'Ticket locked by another user',
+    //   });
+    // }
+
+    // Check ticket is assigned to actor
+    if (ticket.assigneeUserId !== request.actorUserId) {
       this.logger.error(
-        `Priority updation failed. Ticket locked by another user`,
+        `Priority updation failed. You are not assigned to this ticket`,
       );
 
       // produce event
 
       throw new RpcException({
         code: status.PERMISSION_DENIED,
-        message: 'Ticket locked by another user',
+        message: 'You are not assigned to this ticket',
       });
     }
 
@@ -369,14 +405,28 @@ export class TicketService {
       });
     }
 
-    if (!ticket.locked && ticket.assigneeUserId !== request.actorUserId) {
-      this.logger.error(`Type updation failed. Ticket locked by another user`);
+    // if (!ticket.locked && ticket.assigneeUserId !== request.actorUserId) {
+    //   this.logger.error(`Type updation failed. Ticket locked by another user`);
+
+    //   // produce event
+
+    //   throw new RpcException({
+    //     code: status.PERMISSION_DENIED,
+    //     message: 'Ticket locked by another user',
+    //   });
+    // }
+
+    // Check ticket is assigned to actor
+    if (ticket.assigneeUserId !== request.actorUserId) {
+      this.logger.error(
+        `Type updation failed. Ticket assigned to another user`,
+      );
 
       // produce event
 
       throw new RpcException({
         code: status.PERMISSION_DENIED,
-        message: 'Ticket locked by another user',
+        message: 'Ticket assigned to another user',
       });
     }
 

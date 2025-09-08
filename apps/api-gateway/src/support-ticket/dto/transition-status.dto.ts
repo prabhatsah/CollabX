@@ -3,11 +3,6 @@ import { ApiProperty } from '@nestjs/swagger';
 import { IsEnum, IsNotEmpty, IsString } from 'class-validator';
 
 export class TransitionStatusDto {
-  @ApiProperty({ example: 'crgr56778543434', description: 'Ticket ID' })
-  @IsString()
-  @IsNotEmpty()
-  ticketId: string;
-
   @ApiProperty({ example: 'On Hold', description: 'New status' })
   @IsEnum(
     ['OPEN', 'IN_PROGRESS', 'ON_HOLD', 'CANCELLED', 'RESOLVED', 'CLOSED'],

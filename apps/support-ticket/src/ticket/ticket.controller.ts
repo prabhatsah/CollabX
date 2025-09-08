@@ -2,7 +2,7 @@ import {
   type AssignTicketRequest,
   type CreateTicketRequest,
   type ListTicketsRequest,
-  LockTicketRequest,
+  type LockTicketRequest,
   SUPPORT_TICKET_SERVICE_NAME,
   type TransitionStatusRequest,
   type UpdatePriorityRequest,

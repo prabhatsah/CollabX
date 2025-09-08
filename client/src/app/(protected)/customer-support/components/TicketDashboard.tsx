@@ -1,16 +1,5 @@
 'use client';
 
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
-
 import { useState } from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
@@ -37,7 +26,6 @@ import {
   Minus,
   ArrowUp,
   AlertTriangle,
-  Lock,
   LockKeyhole,
   LockKeyholeOpen,
 } from 'lucide-react';
@@ -61,6 +49,10 @@ import { Button } from '@/components/ui/button';
 import { DialogTitle } from '@radix-ui/react-dialog';
 import { useOrgUsers } from '@/hooks/useOrgUsers';
 import { cn } from '@/lib/utils';
+import { useSession } from '@/context/session-context';
+import { StatusBadge } from './StatusBadge';
+import { PriorityBadge } from './PriorityBadge';
+import ConfirmDialogBody from './ConfirmDialogBody';
 
 // interface Comment {
 //   id: string;
@@ -93,21 +85,21 @@ function Dashboard({
   onSuccess: () => void;
 }) {
   console.log('ticket in dashboard', ticket);
+  const { users, getUserById, loading, error, refresh } = useOrgUsers();
+  const { session } = useSession();
 
   const [status, setStatus] = useState(ticket.status);
   const [priority, setPriority] = useState(ticket.priority);
-
   const [assignee, setAssignee] = useState(ticket.assigneeUserId ?? '');
+  const [locked, setLocked] = useState(ticket.locked);
 
   const [newComment, setNewComment] = useState('');
 
-  const { users, getUserById, loading, error, refresh } = useOrgUsers();
-
   const [confirmDialog, setConfirmDialog] = useState<{
     isOpen: boolean;
-    type: 'status' | 'priority' | 'assignee' | null;
+    type: 'status' | 'priority' | 'assignee' | 'lock' | null;
     newValue: string;
-    oldValue: string;
+    oldValue: string | boolean;
     label: string;
   }>({
     isOpen: false,
@@ -138,14 +130,22 @@ function Dashboard({
   };
 
   const handleAssigneeChange = (newValue: string) => {
-    console.log('old assignee', assignee === '');
-
     setConfirmDialog({
       isOpen: true,
       type: 'assignee',
       newValue,
-      oldValue: assignee,
+      oldValue: locked,
       label: 'Assignee',
+    });
+  };
+
+  const handleLockChange = (newValue: boolean) => {
+    setConfirmDialog({
+      isOpen: true,
+      type: 'lock',
+      newValue,
+      oldValue: locked,
+      label: 'Lock',
     });
   };
 
@@ -156,8 +156,10 @@ function Dashboard({
       setPriority(confirmDialog.newValue);
     } else if (confirmDialog.type === 'assignee') {
       setAssignee(confirmDialog.newValue);
-
       updateAssignee(confirmDialog.newValue);
+    } else if (confirmDialog.type === 'lock') {
+      setLocked(confirmDialog.newValue);
+      updateLock(confirmDialog.newValue);
     }
 
     setConfirmDialog({
@@ -179,41 +181,6 @@ function Dashboard({
     });
   };
 
-  const getValueLabel = (type: string, value: string) => {
-    if (type === 'status') {
-      switch (value) {
-        case 'OPEN':
-          return 'Open';
-        case 'IN_PROGRESS':
-          return 'In Progress';
-        case 'ON_HOLD':
-          return 'On Hold';
-        case 'CANCELLED':
-          return 'Cancelled';
-        case 'RESOLVED':
-          return 'Resolved';
-        case 'CLOSED':
-          return 'Closed';
-        default:
-          return value;
-      }
-    } else if (type === 'priority') {
-      return value.charAt(0).toUpperCase() + value.slice(1);
-    } else if (type === 'assignee') {
-      switch (value) {
-        case 'jane-smith':
-          return 'Jane Smith';
-        case 'john-doe':
-          return 'John Doe';
-        case 'admin-bob':
-          return 'Admin Bob';
-        default:
-          return value;
-      }
-    }
-    return value;
-  };
-
   const updateAssignee = async (newAssigneeId: string) => {
     try {
       const res = await apiFetch('/ticket/assign', {
@@ -221,19 +188,45 @@ function Dashboard({
         credentials: 'include',
         body: JSON.stringify({
           ticketId: ticket.id,
-          assigneeUserId: newAssigneeId,
+          // assigneeUserId: newAssigneeId,
+          assigneeUserId: assignee,
         }),
       });
 
       console.log('Assignee update response:', res);
 
       toast.success('Assignee updated', {
-        description: `Ticket assigned to ${getUserById(newAssigneeId)?.fullName}`,
+        description: `Ticket assigned to ${getUserById(assignee)?.fullName}`,
       });
 
       onSuccess?.();
     } catch (error) {
       toast.error('User assign failed', {
+        description: error?.message || 'Something went wrong',
+      });
+    }
+  };
+
+  const updateLock = async () => {
+    debugger;
+    try {
+      const res = await apiFetch(`/ticket/${ticket.id}/lock`, {
+        method: 'PATCH',
+        credentials: 'include',
+        body: JSON.stringify({
+          lock: locked,
+        }),
+      });
+
+      console.log('Lock update response:', res);
+
+      toast.success('Lock updated', {
+        description: `Ticket is now ${locked ? 'locked' : 'unlocked'}`,
+      });
+
+      //onSuccess?.();
+    } catch (error) {
+      toast.error('Ticket lock failed', {
         description: error?.message || 'Something went wrong',
       });
     }
@@ -339,9 +332,15 @@ function Dashboard({
                   )}
                 >
                   {ticket.locked ? (
-                    <LockKeyhole size={16} />
+                    <LockKeyhole
+                      size={16}
+                      onClick={() => handleLockChange(false)}
+                    />
                   ) : (
-                    <LockKeyholeOpen size={16} />
+                    <LockKeyholeOpen
+                      size={16}
+                      onClick={() => handleLockChange(true)}
+                    />
                   )}
                 </div>
               </CardHeader>
@@ -375,116 +374,204 @@ function Dashboard({
                   <h3 className="font-medium text-card-foreground">Details</h3>
 
                   <div className="grid grid-cols-1 gap-4">
+                    {/* <div className="flex justify-between ">
+                      <Label className="text-sm text-muted-foreground">
+                        Status
+                      </Label>
+                      {session?.currentOrg?.role === 'USER' ||
+                      ticket?.assigneeUserId === session?.userInfo.id ? (
+                        <StatusBadge status={status} />
+                      ) : (
+                        <Select
+                          value={status}
+                          onValueChange={handleStatusChange}
+                          disabled={session?.currentOrg?.role === 'USER'}
+                        >
+                          <SelectTrigger className="mt-1">
+                            <div className="flex items-center gap-2 ">
+                              <SelectValue />
+                            </div>
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="OPEN">
+                              <div className="flex items-center gap-2">
+                                <Circle className="h-4 w-4 text-red-400" />
+                                Open
+                              </div>
+                            </SelectItem>
+                            <SelectItem value="IN_PROGRESS">
+                              <div className="flex items-center gap-2">
+                                <Clock className="h-4 w-4 text-blue-500" />
+                                In Progress
+                              </div>
+                            </SelectItem>
+                            <SelectItem value="ON_HOLD">
+                              <div className="flex items-center gap-2">
+                                <CircleAlert className="h-4 w-4 text-yellow-500" />
+                                On Hold
+                              </div>
+                            </SelectItem>
+                            <SelectItem value="CANCELLED">
+                              <div className="flex items-center gap-2">
+                                <Ban className="h-4 w-4 text-red-500" />
+                                Cancelled
+                              </div>
+                            </SelectItem>
+                            <SelectItem value="resolved">
+                              <div className="flex items-center gap-2">
+                                <CheckCircle2 className="h-4 w-4 text-green-500" />
+                                Resolved
+                              </div>
+                            </SelectItem>
+                            <SelectItem value="CLOSED">
+                              <div className="flex items-center gap-2">
+                                <CircleCheckBig className="h-4 w-4 text-green-500" />
+                                Closed
+                              </div>
+                            </SelectItem>
+                          </SelectContent>
+                        </Select>
+                      )}
+                    </div> */}
                     <div className="flex justify-between ">
                       <Label className="text-sm text-muted-foreground">
                         Status
                       </Label>
-                      <Select value={status} onValueChange={handleStatusChange}>
-                        <SelectTrigger className="mt-1">
-                          <div className="flex items-center gap-2 ">
-                            <SelectValue />
-                          </div>
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="OPEN">
-                            <div className="flex items-center gap-2">
-                              <Circle className="h-4 w-4 text-red-400" />
-                              Open
+                      {ticket?.assigneeUserId === session?.userInfo.id ? (
+                        <Select
+                          value={status}
+                          onValueChange={handleStatusChange}
+                          disabled={session?.currentOrg?.role === 'USER'}
+                        >
+                          <SelectTrigger className="mt-1">
+                            <div className="flex items-center gap-2 ">
+                              <SelectValue />
                             </div>
-                          </SelectItem>
-                          <SelectItem value="IN_PROGRESS">
-                            <div className="flex items-center gap-2">
-                              <Clock className="h-4 w-4 text-blue-500" />
-                              In Progress
-                            </div>
-                          </SelectItem>
-                          <SelectItem value="ON_HOLD">
-                            <div className="flex items-center gap-2">
-                              <CircleAlert className="h-4 w-4 text-yellow-500" />
-                              On Hold
-                            </div>
-                          </SelectItem>
-                          <SelectItem value="CANCELLED">
-                            <div className="flex items-center gap-2">
-                              <Ban className="h-4 w-4 text-red-500" />
-                              Cancelled
-                            </div>
-                          </SelectItem>
-                          <SelectItem value="resolved">
-                            <div className="flex items-center gap-2">
-                              <CheckCircle2 className="h-4 w-4 text-green-500" />
-                              Resolved
-                            </div>
-                          </SelectItem>
-                          <SelectItem value="CLOSED">
-                            <div className="flex items-center gap-2">
-                              <CircleCheckBig className="h-4 w-4 text-green-500" />
-                              Closed
-                            </div>
-                          </SelectItem>
-                        </SelectContent>
-                      </Select>
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="OPEN">
+                              <div className="flex items-center gap-2">
+                                <Circle className="h-4 w-4 text-red-400" />
+                                Open
+                              </div>
+                            </SelectItem>
+                            <SelectItem value="IN_PROGRESS">
+                              <div className="flex items-center gap-2">
+                                <Clock className="h-4 w-4 text-blue-500" />
+                                In Progress
+                              </div>
+                            </SelectItem>
+                            <SelectItem value="ON_HOLD">
+                              <div className="flex items-center gap-2">
+                                <CircleAlert className="h-4 w-4 text-yellow-500" />
+                                On Hold
+                              </div>
+                            </SelectItem>
+                            <SelectItem value="CANCELLED">
+                              <div className="flex items-center gap-2">
+                                <Ban className="h-4 w-4 text-red-500" />
+                                Cancelled
+                              </div>
+                            </SelectItem>
+                            <SelectItem value="resolved">
+                              <div className="flex items-center gap-2">
+                                <CheckCircle2 className="h-4 w-4 text-green-500" />
+                                Resolved
+                              </div>
+                            </SelectItem>
+                            <SelectItem value="CLOSED">
+                              <div className="flex items-center gap-2">
+                                <CircleCheckBig className="h-4 w-4 text-green-500" />
+                                Closed
+                              </div>
+                            </SelectItem>
+                          </SelectContent>
+                        </Select>
+                      ) : (
+                        <StatusBadge status={status} />
+                      )}
                     </div>
 
                     <div className="flex justify-between">
                       <Label className="text-sm text-muted-foreground">
                         Priority
                       </Label>
-                      <Select
-                        value={priority}
-                        onValueChange={handlePriorityChange}
-                      >
-                        <SelectTrigger className="mt-1">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="LOW">
-                            <div className="flex items-center gap-2">
-                              <Minus className="h-4 w-4 text-priority-low" />
-                              Low
-                            </div>
-                          </SelectItem>
-                          <SelectItem value="MEDIUM">
-                            <div className="flex items-center gap-2">
-                              <AlertTriangle className="h-4 w-4 text-priority-medium" />
-                              Medium
-                            </div>
-                          </SelectItem>
-                          <SelectItem value="HIGH">
-                            <div className="flex items-center gap-2">
-                              <ArrowUp className="h-4 w-4 text-priority-high" />
-                              High
-                            </div>
-                          </SelectItem>
-                        </SelectContent>
-                      </Select>
+                      {ticket?.assigneeUserId === session?.userInfo.id ? (
+                        <Select
+                          value={priority}
+                          onValueChange={handlePriorityChange}
+                        >
+                          <SelectTrigger className="mt-1">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="LOW">
+                              <div className="flex items-center gap-2">
+                                <Minus className="h-4 w-4 text-priority-low" />
+                                Low
+                              </div>
+                            </SelectItem>
+                            <SelectItem value="MEDIUM">
+                              <div className="flex items-center gap-2">
+                                <AlertTriangle className="h-4 w-4 text-priority-medium" />
+                                Medium
+                              </div>
+                            </SelectItem>
+                            <SelectItem value="HIGH">
+                              <div className="flex items-center gap-2">
+                                <ArrowUp className="h-4 w-4 text-priority-high" />
+                                High
+                              </div>
+                            </SelectItem>
+                          </SelectContent>
+                        </Select>
+                      ) : (
+                        <PriorityBadge priority={priority} />
+                      )}
                     </div>
 
-                    <div className="flex justify-between">
+                    <div className="flex justify-between text-sm">
                       <Label className="text-sm text-muted-foreground">
                         Assignee
                       </Label>
-                      <Select
-                        value={assignee}
-                        onValueChange={handleAssigneeChange}
-                      >
-                        <SelectTrigger className="mt-1 py-5">
-                          <SelectValue placeholder="Select Assignee" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {users.map((user) => (
-                            <SelectItem key={user.userId} value={user.userId}>
-                              <div className="flex items-center gap-3">
-                                <Avatar className="h-8 w-8">
-                                  <AvatarImage src="/abstract-geometric-shapes.png" />
-                                  <AvatarFallback>AB</AvatarFallback>
-                                </Avatar>
-                              </div>
-                              <div>{user.fullName}</div>
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+
+                      {session?.currentOrg?.role !== 'USER' ? (
+                        <Select
+                          value={assignee}
+                          onValueChange={handleAssigneeChange}
+                          disabled={session?.currentOrg?.role === 'USER'}
+                        >
+                          <SelectTrigger className="mt-1 py-5">
+                            <SelectValue placeholder="Select Assignee" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {users
+                              .filter(
+                                (user) =>
+                                  user.role === 'ADMIN' ||
+                                  user.role === 'SUPPORT',
+                              )
+                              .map((user) => (
+                                <SelectItem
+                                  key={user.userId}
+                                  value={user.userId}
+                                >
+                                  <div className="flex items-center gap-3">
+                                    <Avatar className="h-8 w-8">
+                                      <AvatarImage src="/abstract-geometric-shapes.png" />
+                                      <AvatarFallback>AB</AvatarFallback>
+                                    </Avatar>
+                                  </div>
+                                  <div>{user.fullName}</div>
+                                </SelectItem>
+                              ))}
+                          </SelectContent>
+                        </Select>
+                      ) : (
+                        <span className="text-card-foreground">
+                          {ticket.assigneeUserId ?? 'Not Assigned'}
+                        </span>
+                      )}
                     </div>
                   </div>
 
@@ -542,43 +629,6 @@ function Dashboard({
                 </h3>
               </CardHeader>
               <CardContent>
-                {/* <div className="space-y-4">
-                  {activities.map((activity, index) => (
-                    <div key={activity.id} className="flex gap-3">
-                      <div className="flex flex-col items-center">
-                        {getActivityIcon(activity.type)}
-                        {index < activities.length - 1 && (
-                          <div className="w-px h-8 bg-border mt-2" />
-                        )}
-                      </div>
-                      <div className="flex-1 min-w-0 pb-4">
-                        <div className="flex items-start justify-between gap-2">
-                          <p className="text-sm text-card-foreground">
-                            <span className="font-medium">
-                              {activity.content}
-                            </span>
-                            {activity.author && (
-                              <span className="text-muted-foreground">
-                                {' '}
-                                by {activity.author}
-                              </span>
-                            )}
-                          </p>
-                        </div>
-                        <p className="text-xs text-muted-foreground mt-1">
-                          {activity.timestamp}
-                        </p>
-                        {activity.details && (
-                          <div className="mt-2 p-3 bg-muted/50 rounded-md border border-border">
-                            <p className="text-sm text-card-foreground whitespace-pre-line">
-                              {activity.details}
-                            </p>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  ))}
-                </div> */}
                 <TicketActivity />
               </CardContent>
             </Card>
@@ -594,80 +644,6 @@ function Dashboard({
                 </h3>
               </CardHeader>
               <CardContent className="flex flex-col justify-between h-full">
-                {/* <div className="space-y-4 mb-6">
-                  {comments.map((comment) => (
-                    <div key={comment.id} className="flex gap-3">
-                      <Avatar className="h-8 w-8 flex-shrink-0">
-                        <AvatarImage
-                          src={comment.avatar || '/placeholder.svg'}
-                        />
-                        <AvatarFallback>
-                          {comment.author
-                            .split(' ')
-                            .map((n) => n[0])
-                            .join('')}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 mb-1">
-                          <p className="font-medium text-sm text-card-foreground">
-                            {comment.author}
-                          </p>
-                          <p className="text-xs text-muted-foreground">
-                            {comment.timestamp}
-                          </p>
-                        </div>
-                        <p className="text-sm text-card-foreground leading-relaxed mb-2">
-                          {comment.content}
-                        </p>
-                        {comment.images && (
-                          <div className="flex gap-2 mt-2">
-                            {comment.images.map((image, index) => (
-                              <div key={index} className="relative group">
-                                <img
-                                  src={image || '/placeholder.svg'}
-                                  alt={`Screenshot ${index + 1}`}
-                                  className="w-20 h-16 object-cover rounded border border-border hover:opacity-80 transition-opacity cursor-pointer"
-                                />
-                              </div>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-
-                <div className="space-y-3 pt-4 border-t border-border">
-                  <div className="flex gap-2">
-                    <Avatar className="h-8 w-8 flex-shrink-0">
-                      <AvatarImage src="/current-user.jpg" />
-                      <AvatarFallback>YU</AvatarFallback>
-                    </Avatar>
-                    <div className="flex-1">
-                      <Textarea
-                        placeholder="Write a comment..."
-                        value={newComment}
-                        onChange={(e) => setNewComment(e.target.value)}
-                        className="min-h-[80px] resize-none"
-                      />
-                    </div>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <div className="flex gap-2">
-                      <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                        <Paperclip className="h-4 w-4" />
-                      </Button>
-                      <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                        <ImageIcon className="h-4 w-4" />
-                      </Button>
-                    </div>
-                    <Button size="sm" className="gap-2">
-                      <Send className="h-4 w-4" />
-                      Send
-                    </Button>
-                  </div>
-                </div> */}
                 <CommentSection />
               </CardContent>
             </Card>
@@ -683,90 +659,10 @@ function Dashboard({
             <DialogHeader>
               <DialogTitle>Confirm Change</DialogTitle>
               <DialogDescription>
-                {confirmDialog.type == 'assignee' ? (
-                  confirmDialog.oldValue === '' ? (
-                    <div className="space-y-1">
-                      <p>Are you sure want to assign the following user:</p>
-                      <p>
-                        <span className="">Name:</span>{' '}
-                        <span className="font-bold">
-                          {getUserById(confirmDialog.newValue)?.fullName}
-                        </span>
-                      </p>
-                      <p>
-                        <span className="">Email:</span>{' '}
-                        <span className="font-bold">
-                          {getUserById(confirmDialog.newValue)?.email}
-                        </span>
-                      </p>
-                      <p>
-                        <span className="">Role:</span>{' '}
-                        <span className="font-bold">
-                          {getUserById(confirmDialog.newValue)?.role}
-                        </span>
-                      </p>
-                    </div>
-                  ) : (
-                    <div className="space-y-4">
-                      <p>Are you sure want to update the assign ?</p>
-                      <div>
-                        <p>Previous assign:</p>
-                        <p>
-                          <span className="">Name:</span>{' '}
-                          <span className="font-bold">
-                            {getUserById(confirmDialog.oldValue)?.fullName}
-                          </span>
-                        </p>
-                        <p>
-                          <span className="">Email:</span>{' '}
-                          <span className="font-bold">
-                            {getUserById(confirmDialog.oldValue)?.email}
-                          </span>
-                        </p>
-                        <p>
-                          <span className="">Role:</span>{' '}
-                          <span className="font-bold">
-                            {getUserById(confirmDialog.oldValue)?.role}
-                          </span>
-                        </p>
-                      </div>
-
-                      <div>
-                        <p>New assign:</p>
-                        <p>
-                          <span className="">Name:</span>{' '}
-                          <span className="font-bold">
-                            {getUserById(confirmDialog.newValue)?.fullName}
-                          </span>
-                        </p>
-                        <p>
-                          <span className="">Email:</span>{' '}
-                          <span className="font-bold">
-                            {getUserById(confirmDialog.newValue)?.email}
-                          </span>
-                        </p>
-                        <p>
-                          <span className="">Role:</span>{' '}
-                          <span className="font-bold">
-                            {getUserById(confirmDialog.newValue)?.role}
-                          </span>
-                        </p>
-                      </div>
-                    </div>
-                  )
-                ) : (
-                  `Change the
-                ${confirmDialog.label.toLowerCase()} from
-                ${getValueLabel(
-                  confirmDialog.type || '',
-                  confirmDialog.oldValue,
-                )}
-                to ${getValueLabel(
-                  confirmDialog.type || '',
-                  confirmDialog.newValue,
-                )}
-                ?`
-                )}
+                <ConfirmDialogBody
+                  confirmDialog={confirmDialog}
+                  getUserById={getUserById}
+                />
               </DialogDescription>
             </DialogHeader>
             <DialogFooter className="flex gap-2">

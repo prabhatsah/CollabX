@@ -6,16 +6,6 @@ import {
 import { IsEnum, IsNotEmpty, IsString } from 'class-validator';
 
 export class CreateTicketDto {
-  @ApiProperty({ example: 'org_12345', description: 'Organization ID' })
-  @IsString()
-  @IsNotEmpty()
-  orgId: string;
-
-  @ApiProperty({ example: 'org_name', description: 'Organization Name' })
-  @IsString()
-  @IsNotEmpty()
-  orgName: string;
-
   @ApiProperty({ example: 'Login bug', description: 'Ticket title' })
   @IsString()
   @IsNotEmpty()
@@ -36,12 +26,4 @@ export class CreateTicketDto {
   @ApiProperty({ enum: TicketType, example: TicketType.INCIDENT })
   @IsEnum(TicketType)
   type: TicketType;
-
-  @ApiProperty({
-    example: 'User_132343',
-    description: 'Creator Id',
-  })
-  @IsString()
-  @IsNotEmpty()
-  createdByUserId: string;
 }

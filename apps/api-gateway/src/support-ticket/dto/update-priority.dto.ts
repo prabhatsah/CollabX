@@ -3,11 +3,6 @@ import { ApiProperty } from '@nestjs/swagger';
 import { IsEnum, IsNotEmpty, IsString } from 'class-validator';
 
 export class UpdatePriorityDto {
-  @ApiProperty({ example: 'crgr56778543434', description: 'Ticket ID' })
-  @IsString()
-  @IsNotEmpty()
-  ticketId: string;
-
   @ApiProperty({ example: 'High', description: 'New priority' })
   @IsEnum(['HIGH', 'MEDIUM', 'LOW'], {
     message: 'Priority must be one of HIGH, MEDIUM, LOW',

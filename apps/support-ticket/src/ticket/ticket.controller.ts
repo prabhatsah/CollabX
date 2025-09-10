@@ -1,6 +1,7 @@
 import {
   type AssignTicketRequest,
   type CreateTicketRequest,
+  type ListTicketActivityRequest,
   type ListTicketsRequest,
   type LockTicketRequest,
   SUPPORT_TICKET_SERVICE_NAME,
@@ -20,6 +21,13 @@ export class TicketController {
   createTicket(request: CreateTicketRequest) {
     const res = this.ticketService.createTicket(request);
 
+    return res;
+  }
+
+  @GrpcMethod(SUPPORT_TICKET_SERVICE_NAME, 'ListTicketActivity')
+  async listTicketActivity(request: ListTicketActivityRequest) {
+    const res = await this.ticketService.listTicketActivity(request);
+    console.log('res: ', res);
     return res;
   }
 

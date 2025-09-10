@@ -4,6 +4,7 @@ import {
   AssignTicketRequest,
   CreateTicketRequest,
   GetTicketRequest,
+  ListTicketActivityRequest,
   ListTicketsRequest,
   LockTicketRequest,
   TransitionStatusRequest,
@@ -59,9 +60,20 @@ export class TicketService {
         type,
       },
     });
-
     console.log('ticket:', ticket);
 
+    // Store history
+    await this.prismaService.ticketActivity.create({
+      data: {
+        ticketId: ticket.id,
+        orgId: ticket.orgId,
+        type: 'created',
+        actorUserId: createdByUserId,
+        meta: { createdBy: createdByUserId },
+      },
+    });
+
+    //produce event
     await this.ticketEventsProducer.ticketCreationSuccess({
       ticketNo,
       userId: createdByUserId,
@@ -73,6 +85,86 @@ export class TicketService {
     });
 
     return { ticket };
+  }
+
+  async listTicketActivity(request: ListTicketActivityRequest) {
+    console.log('ListTicketActivityRequest:', request);
+
+    const { ticketId } = request;
+
+    const ticketActivityItem = await this.prismaService.ticketActivity.findMany(
+      {
+        where: {
+          ticketId,
+        },
+        orderBy: { createdAt: 'asc' },
+      },
+    );
+    console.log('ticketActivityItem:', ticketActivityItem);
+
+    const activities = ticketActivityItem.map((a) => {
+      const base = {
+        id: a.id,
+        actor: a.actorUserId,
+        type: a.type,
+        meta: { [a.type]: a.meta },
+        timestamp: a.createdAt,
+      };
+
+      // switch (a.type) {
+      //   case 'created':
+      //     return {
+      //       ...base,
+      //       type: 'created',
+      //       meta: { createdBy: a.meta?.createdBy || a.actorUserId },
+      //     };
+      //   case 'locked':
+      //     return {
+      //       ...base,
+      //       type: 'created',
+      //       meta: { locked: a.meta?.locked ?? true },
+      //     };
+      //   case 'assigned':
+      //     return {
+      //       ...base,
+      //       type: 'created',
+      //       meta: { assignee: a.meta?.assignee || '' },
+      //     };
+      //   case 'status_changed':
+      //     return {
+      //       ...base,
+      //       type: 'created',
+      //       meta: {
+      //         from: a.meta?.from || '',
+      //         to: a.meta?.to || '',
+      //       },
+      //     };
+      //   case 'priority_changed':
+      //     return {
+      //       ...base,
+      //       type: 'created',
+      //       meta: {
+      //         from: a.meta?.from || '',
+      //         to: a.meta?.to || '',
+      //       },
+      //     };
+      //   case 'comment_added':
+      //     return {
+      //       ...base,
+      //       type: 'created',
+      //       meta: { body: a.meta?.body || '' },
+      //     };
+      //   default:
+      //     console.warn('Unknown activity type:', a.type);
+      //     return base;
+      // }
+      return base;
+    });
+    console.log('Formatted activities:', JSON.stringify(activities));
+
+    return {
+      activities,
+    };
   }
 
   async listTickets(request: ListTicketsRequest) {
@@ -109,10 +201,10 @@ export class TicketService {
 
     const tickets = await this.prismaService.ticket.findMany({
       where,
-      // take: limit + 1,
-      // skip: cursor ? 1 : 0,
-      // ...(cursor && { cursor: { id: cursor } }),
-      // orderBy: { createdAt: 'desc' },
+      take: limit + 1,
+      skip: cursor ? 1 : 0,
+      ...(cursor && { cursor: { id: cursor } }),
+      orderBy: { createdAt: 'desc' },
     });
     console.log('Tickets:', tickets);
 
@@ -149,12 +241,7 @@ export class TicketService {
     if (!ticket) {
       this.logger.error(`Assignment to ticket failed. Ticket not found`);
 
-      // await this.authEvents.loginFailed({
-      //   email: email,
-      //   message: 'Invalid credentials',
-      //   success: false,
-      //   ...meta,
-      // });
+      // produce event
 
       throw new RpcException({
         code: status.NOT_FOUND,

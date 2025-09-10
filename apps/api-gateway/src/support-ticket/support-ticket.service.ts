@@ -42,6 +42,16 @@ export class SupportTicketService implements OnModuleInit {
     return res.ticket;
   }
 
+  async listTicketActivity(request: string) {
+    const res = await lastValueFrom(
+      this.supportTicketClient.listTicketActivity(request),
+    );
+    this.logger.debug(
+      `Ticket activity items fetched successfully: ${JSON.stringify(res)}`,
+    );
+    return res;
+  }
+
   async listTickets(request: ListTicketsDto) {
     const res = await lastValueFrom(
       this.supportTicketClient.listTickets(request),

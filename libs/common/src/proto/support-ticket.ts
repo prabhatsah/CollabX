@@ -10,6 +10,68 @@ import { Observable } from "rxjs";
 
 export const protobufPackage = "supportticket";
 
+export interface ListTicketActivityRequest {
+  ticketId: string;
+}
+
+export interface ListTicketActivityResponse {
+  activities: TicketActivity[];
+}
+
+/**
+ * oneof meta {
+ *     CreatedActivity created = 5;
+ *     LockedActivity locked = 6;
+ *     AssignedActivity assigned = 7;
+ *     StatusChangedActivity status_changed = 8;
+ *     PriorityChangedActivity priority_changed = 9;
+ *     CommentAddedActivity comment_added = 10;
+ *   }
+ * }
+ */
+export interface TicketActivity {
+  id: string;
+  actor: string;
+  type: string;
+  timestamp: string;
+  meta: Meta | undefined;
+}
+
+export interface Meta {
+  created?: CreatedActivity | undefined;
+  locked?: LockedActivity | undefined;
+  assigned?: AssignedActivity | undefined;
+  statusChanged?: StatusChangedActivity | undefined;
+  priorityChanged?: PriorityChangedActivity | undefined;
+  commentAdded?: CommentAddedActivity | undefined;
+}
+
+export interface CreatedActivity {
+  createdBy: string;
+}
+
+export interface LockedActivity {
+  locked: boolean;
+}
+
+export interface AssignedActivity {
+  assignee: string;
+}
+
+export interface StatusChangedActivity {
+  from: string;
+  to: string;
+}
+
+export interface PriorityChangedActivity {
+  from: string;
+  to: string;
+}
+
+export interface CommentAddedActivity {
+  body: string;
+}
+
 export interface Empty {
 }
 
@@ -143,6 +205,8 @@ export interface SupportTicketClient {
 
   listTickets(request: ListTicketsRequest): Observable<ListTicketsResponse>;
 
+  listTicketActivity(request: ListTicketActivityRequest): Observable<ListTicketActivityResponse>;
+
   /** Ticket Updates */
 
   addComment(request: AddCommentRequest): Observable<CommentResponse>;
@@ -173,6 +237,10 @@ export interface SupportTicketController {
     request: ListTicketsRequest,
   ): Promise<ListTicketsResponse> | Observable<ListTicketsResponse> | ListTicketsResponse;
 
+  listTicketActivity(
+    request: ListTicketActivityRequest,
+  ): Promise<ListTicketActivityResponse> | Observable<ListTicketActivityResponse> | ListTicketActivityResponse;
+
   /** Ticket Updates */
 
   addComment(request: AddCommentRequest): Promise<CommentResponse> | Observable<CommentResponse> | CommentResponse;
@@ -200,6 +268,7 @@ export function SupportTicketControllerMethods() {
       "createTicket",
       "getTicket",
       "listTickets",
+      "listTicketActivity",
       "addComment",
       "assignTicket",
       "transitionStatus",

@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Get,
   HttpCode,
   HttpStatus,
   Param,
@@ -46,6 +47,24 @@ export class SupportTicketController {
 
     const res = await this.supportTicketService.createTicket(request);
     return ApiResponseDto.success(res, 'Ticket created sucessfully');
+  }
+
+  @Get(':ticketId/ticketActivityItem')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'List ticket activity items' })
+  @ApiResponse({
+    status: 200,
+    description: 'Ticket activity items fetched sucsessfully',
+  })
+  async listTicketActivity(@Param('ticketId') ticketId: string) {
+    console.log('TicketId:', ticketId);
+
+    const res = await this.supportTicketService.listTicketActivity(ticketId);
+
+    return ApiResponseDto.success(
+      res,
+      'Ticket activity items fetched sucessfully',
+    );
   }
 
   @Post('list')

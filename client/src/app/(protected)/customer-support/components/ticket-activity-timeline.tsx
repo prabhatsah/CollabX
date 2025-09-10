@@ -9,14 +9,22 @@ import {
   Flag,
   MessageSquare,
 } from 'lucide-react';
+import { useOrgUsers } from '@/hooks/useOrgUsers';
 
 export type TicketActivityItem =
   | {
       id: string;
       type: 'created';
       actor: string;
-      timestamp: string; // ISO string
-      meta?: { createdBy?: string };
+      timestamp: string;
+      meta?: { createdBy: string };
+    }
+  | {
+      id: string;
+      type: 'locked';
+      actor: string;
+      timestamp: string;
+      meta?: { locked: boolean };
     }
   | {
       id: string;
@@ -83,9 +91,13 @@ function formatTime(iso: string) {
 }
 
 function Description({ item }: { item: TicketActivityItem }) {
+  const { getUserById } = useOrgUsers();
+  debugger;
   switch (item.type) {
     case 'created': {
-      const createdBy = item.meta?.createdBy ?? item.actor;
+      const createdBy = getUserById(
+        item.meta?.createdBy ?? item.actor,
+      )?.fullName;
       return (
         <p className="text-sm leading-6 text-muted-foreground">
           <span className="text-foreground">Ticket created</span>{' '}

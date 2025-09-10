@@ -629,7 +629,7 @@ function Dashboard({
                 </h3>
               </CardHeader>
               <CardContent>
-                <TicketActivity />
+                <TicketActivity ticketId={ticket.id} />
               </CardContent>
             </Card>
           </div>

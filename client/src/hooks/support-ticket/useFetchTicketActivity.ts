@@ -33,14 +33,11 @@ export function UseTicketActivityItemResult(
     if (!session) return;
     setLoading(true);
     setError(null);
-    console.log('ticketId1:', ticketId);
-    console.log('endpoint', `/ticket/${ticketId}/ticketActivityItem`);
 
     try {
       const res: TicketActivityApiResponse = await apiFetch(
         `/ticket/${ticketId}/ticketActivityItem`,
       );
-      console.log('Ticket activity res:', res);
 
       setTicketActivityItem(res.data.activities);
     } catch (error) {

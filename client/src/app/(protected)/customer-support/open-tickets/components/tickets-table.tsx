@@ -57,7 +57,9 @@ import { Ticket } from '@/types';
 import { PriorityBadge } from '../../components/PriorityBadge';
 import { StatusBadge } from '../../components/StatusBadge';
 import TicketDashboard from '../../components/TicketDashboard';
-import { useOrgUsers } from '@/hooks/useOrgUsers';
+//import {  } from '@/hooks/';
+import { useUsers } from '@/hooks/useUsers';
+import { LockBadge } from '../../components/LockBadge';
 
 function NormalRow({ row }: { row: Row<Ticket> }) {
   return (
@@ -81,7 +83,8 @@ export function OpenTicketTable({
   data: Ticket[];
   onRefresh?: () => void;
 }) {
-  const { loading: usersLoading, getUserById } = useOrgUsers();
+  // const { loading: usersLoading, getUserById } = ();
+  const { loading: usersLoading, getUserById } = useUsers();
   const [data, setData] = React.useState<Ticket[]>(() => initialData ?? []);
   const [rowSelection, setRowSelection] = React.useState({});
   const [columnVisibility, setColumnVisibility] =
@@ -101,6 +104,7 @@ export function OpenTicketTable({
       header: 'Ticket',
       cell: ({ row }) => (
         <TicketDashboard ticket={row.original} onSuccess={onRefresh} />
+        // <h1>Helo</h1>
       ),
       enableHiding: false,
     },
@@ -146,6 +150,11 @@ export function OpenTicketTable({
             '...'}
         </div>
       ),
+    },
+    {
+      accessorKey: 'lock',
+      header: 'Lock',
+      cell: ({ row }) => <LockBadge lock={row.original.locked} />,
     },
   ];
 

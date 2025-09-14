@@ -8,18 +8,10 @@ export class TransitionStatusDto {
     ['OPEN', 'IN_PROGRESS', 'ON_HOLD', 'CANCELLED', 'RESOLVED', 'CLOSED'],
     {
       message:
-        'Status must be one of OPEN, IN_PROGRESS, ON_HOLD, CANCELLED,RESOLVED,CLOSED, Closed',
+        'Status must be one of OPEN, IN_PROGRESS, ON_HOLD, CANCELLED, RESOLVED, CLOSED',
     },
   )
   @IsString()
   @IsNotEmpty()
   newStatus: string;
-
-  @ApiProperty({
-    example: 'This ticket needs to be put on hold',
-    description: 'Reason for status change',
-  })
-  @IsString()
-  @IsNotEmpty()
-  reason: string;
 }

@@ -10,12 +10,4 @@ export class UpdateTypeDto {
   @IsString()
   @IsNotEmpty()
   newType: string;
-
-  @ApiProperty({
-    example: 'This ticket is of Incident type',
-    description: 'Reason for type change',
-  })
-  @IsString()
-  @IsNotEmpty()
-  reason: string;
 }

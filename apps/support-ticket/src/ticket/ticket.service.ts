@@ -60,7 +60,6 @@ export class TicketService {
         type,
       },
     });
-    console.log('ticket:', ticket);
 
     // Store history
     await this.prismaService.ticketActivity.create({
@@ -88,9 +87,18 @@ export class TicketService {
   }
 
   async listTicketActivity(request: ListTicketActivityRequest) {
-    console.log('ListTicketActivityRequest:', request);
-
     const { ticketId } = request;
+
+    if (!ticketId) {
+      this.logger.error(`Ticket id not available`);
+
+      // produce event
+
+      throw new RpcException({
+        code: status.NOT_FOUND,
+        message: 'Ticket id not found',
+      });
+    }
 
     const ticketActivityItem = await this.prismaService.ticketActivity.findMany(
       {
@@ -100,7 +108,6 @@ export class TicketService {
         orderBy: { createdAt: 'asc' },
       },
     );
-    console.log('ticketActivityItem:', ticketActivityItem);
 
     const activities = ticketActivityItem.map((a) => {
       const base = {
@@ -160,7 +167,6 @@ export class TicketService {
       // }
       return base;
     });
-    console.log('Formatted activities:', JSON.stringify(activities));
 
     return {
       activities,
@@ -168,8 +174,6 @@ export class TicketService {
   }
 
   async listTickets(request: ListTicketsRequest) {
-    console.log('ListTicketsRequest:', request);
-
     const {
       orgId,
       status,
@@ -191,9 +195,6 @@ export class TicketService {
       ...(assigneeUserId ? { assigneeUserId } : {}),
     };
 
-    console.log('Where:', where);
-    console.log('request', request);
-
     // Allpy user level restrictions if role is USER
     if (actor.role === 'USER') {
       where.createdByUserId = actor.userId;
@@ -206,7 +207,6 @@ export class TicketService {
       ...(cursor && { cursor: { id: cursor } }),
       orderBy: { createdAt: 'desc' },
     });
-    console.log('Tickets:', tickets);
 
     let nextCursor: string | null = null;
     if (tickets.length > limit) {
@@ -249,16 +249,16 @@ export class TicketService {
       });
     }
 
-    if (ticket.locked && ticket.assigneeUserId !== request.assigneeUserId) {
+    if (ticket.locked) {
       this.logger.error(
-        `Assignment to ticket failed. Ticket locked by another user`,
+        `Assignment to ticket failed. Ticket locked by someone`,
       );
 
       // produce event
 
       throw new RpcException({
         code: status.PERMISSION_DENIED,
-        message: 'Ticket locked by another user',
+        message: 'Ticket locked by someone.',
       });
     }
 
@@ -275,7 +275,7 @@ export class TicketService {
         orgId: ticket.orgId,
         type: 'assigned',
         actorUserId: request.actorUserId,
-        meta: { assigneeUserId: request.assigneeUserId },
+        meta: { assignee: request.assigneeUserId },
       },
     });
 
@@ -328,9 +328,9 @@ export class TicketService {
       data: {
         ticketId: ticket.id,
         orgId: ticket.orgId,
-        type: 'lock_changed',
+        type: 'locked',
         actorUserId: request.actorUserId,
-        meta: { from: oldLock, to: request.lock },
+        meta: { locked: request.lock },
       },
     });
 
@@ -358,14 +358,26 @@ export class TicketService {
     // Check ticket is assigned to actor
     if (ticket.assigneeUserId !== request.actorUserId) {
       this.logger.error(
-        `Status transition failed. You are not assigned to this ticket`,
+        `Status transition failed. You are not assigned to this ticket!`,
       );
 
       // produce event
 
       throw new RpcException({
         code: status.PERMISSION_DENIED,
-        message: 'You are not assigned to this ticket',
+        message: 'You are not assigned to this ticket!',
+      });
+    }
+
+    // Check ticket is locked or not
+    if (!ticket.locked) {
+      this.logger.error(`Lock the ticket before proceeding!`);
+
+      // produce event
+
+      throw new RpcException({
+        code: status.PERMISSION_DENIED,
+        message: 'Lock the ticket before proceeding!',
       });
     }
 
@@ -397,7 +409,7 @@ export class TicketService {
       data: {
         ticketId: ticket.id,
         orgId: ticket.orgId,
-        type: 'status_changed',
+        type: 'statusChanged',
         actorUserId: request.actorUserId,
         meta: { from: oldStatus, to: request.newStatus },
       },
@@ -451,6 +463,18 @@ export class TicketService {
       });
     }
 
+    // Check ticket is locked or not
+    if (!ticket.locked) {
+      this.logger.error(`Lock the ticket before proceeding!`);
+
+      // produce event
+
+      throw new RpcException({
+        code: status.PERMISSION_DENIED,
+        message: 'Lock the ticket before proceeding!',
+      });
+    }
+
     // Store old status
     const oldPriority = ticket.priority;
 
@@ -465,7 +489,7 @@ export class TicketService {
       data: {
         ticketId: ticket.id,
         orgId: ticket.orgId,
-        type: 'priority_changed',
+        type: 'priorityChanged',
         actorUserId: request.actorUserId,
         meta: { from: oldPriority, to: request.newPriority },
       },
@@ -531,7 +555,7 @@ export class TicketService {
       data: {
         ticketId: ticket.id,
         orgId: ticket.orgId,
-        type: 'type_changed',
+        type: 'typeChanged',
         actorUserId: request.actorUserId,
         meta: { from: oldType, to: request.newType },
       },
@@ -550,8 +574,6 @@ export class TicketService {
     const yy = now.getFullYear().toString().slice(-2);
     const mm = String(now.getMonth() + 1).padStart(2, '0');
     const yearMonth = `${yy}${mm}`;
-
-    console.log('Org', orgId, orgName);
 
     const prefix = orgName.substring(0, 3).toUpperCase();
 

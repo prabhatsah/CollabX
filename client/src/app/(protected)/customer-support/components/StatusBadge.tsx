@@ -42,7 +42,7 @@ const statusConfig = {
   },
   CANCELLED: {
     label: 'Cancelled',
-    color: 'bg-status-closed/10 text-status-closed border-status-closed/20',
+    color: 'bg-status-open/10 text-status-open border-status-open/20',
     icon: X,
   },
   RESOLVED: {
@@ -58,7 +58,7 @@ const statusConfig = {
   },
 };
 
-export function StatusBadge({ status, className}: StatusBadgeProps) {
+export function StatusBadge({ status, className }: StatusBadgeProps) {
   const config = statusConfig[status];
   const Icon = config.icon;
 

@@ -38,3 +38,15 @@ export function roleHelper(role: Role): {
 
 export const isAuthPage = () =>
   ['/login', '/signup', '/forgot-password'].includes(window.location.pathname);
+
+// get falback for avatar, like JM for Jamie Maridona
+export const getInitials = (fullName: string): string => {
+  if (!fullName) return '';
+
+  const parts = fullName.trim().split(/\s+/); // split by spaces
+  if (parts.length === 1) {
+    return parts[0][0].toUpperCase(); // single name → first letter
+  }
+
+  return parts[0][0].toUpperCase() + parts[parts.length - 1][0].toUpperCase(); // first + last
+};

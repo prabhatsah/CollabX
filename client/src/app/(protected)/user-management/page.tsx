@@ -45,11 +45,10 @@ import { removeUserFromOrg } from '@/lib/api/users/removeUserFromOrg';
 import { User } from '@/types';
 import { BoxSpinner } from '@/components/loading-style/box-spinner';
 import ErrorPage from '@/components/error-style/error-page';
-import { useOrgUsers } from '@/hooks/useOrgUsers';
-
+import { useUsers } from '@/hooks/useUsers';
 
 export default function UserManagementPage() {
-  const { users, loading, error, refresh } = useOrgUsers();
+  const { users, loading, error, refresh } = useUsers();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [inviteEmail, setInviteEmail] = useState('');
   const [inviteRole, setInviteRole] = useState<User['role']>('USER');

@@ -47,35 +47,21 @@ import { toast } from 'sonner';
 import { apiFetch } from '@/lib/api';
 import { Button } from '@/components/ui/button';
 import { DialogTitle } from '@radix-ui/react-dialog';
-import { useOrgUsers } from '@/hooks/useOrgUsers';
-import { cn } from '@/lib/utils';
+import { useUsers } from '@/hooks/useUsers';
+import { cn, getInitials } from '@/lib/utils';
 import { useSession } from '@/context/session-context';
 import { StatusBadge } from './StatusBadge';
 import { PriorityBadge } from './PriorityBadge';
 import ConfirmDialogBody from './ConfirmDialogBody';
 
-// interface Comment {
-//   id: string;
-//   author: string;
-//   avatar: string;
-//   content: string;
-//   timestamp: string;
-//   images?: string[];
-// }
-
-// interface ActivityItem {
-//   id: string;
-//   type:
-//     | 'created'
-//     | 'assigned'
-//     | 'status_changed'
-//     | 'priority_changed'
-//     | 'comment';
-//   author: string;
-//   content: string;
-//   timestamp: string;
-//   details?: string;
-// }
+const STATUS_TRANSITIONS: Record<string, string[]> = {
+  OPEN: ['IN_PROGRESS', 'ON_HOLD', 'CANCELLED'],
+  IN_PROGRESS: ['ON_HOLD', 'RESOLVED', 'CANCELLED'],
+  ON_HOLD: ['IN_PROGRESS', 'CANCELLED'],
+  RESOLVED: ['CLOSED'],
+  CANCELLED: [],
+  CLOSED: [],
+};
 
 function Dashboard({
   ticket,
@@ -85,8 +71,9 @@ function Dashboard({
   onSuccess: () => void;
 }) {
   console.log('ticket in dashboard', ticket);
-  const { users, getUserById, loading, error, refresh } = useOrgUsers();
+  const { users, getUserById, loading, error, refresh } = useUsers();
   const { session } = useSession();
+  console.log('users fetched in ticket dashboard:', users);
 
   const [status, setStatus] = useState(ticket.status);
   const [priority, setPriority] = useState(ticket.priority);
@@ -134,7 +121,7 @@ function Dashboard({
       isOpen: true,
       type: 'assignee',
       newValue,
-      oldValue: locked,
+      oldValue: assignee,
       label: 'Assignee',
     });
   };
@@ -151,14 +138,12 @@ function Dashboard({
 
   const handleConfirmChange = () => {
     if (confirmDialog.type === 'status') {
-      setStatus(confirmDialog.newValue);
+      updateStatus(confirmDialog.newValue);
     } else if (confirmDialog.type === 'priority') {
-      setPriority(confirmDialog.newValue);
+      updatePriority(confirmDialog.newValue);
     } else if (confirmDialog.type === 'assignee') {
-      setAssignee(confirmDialog.newValue);
       updateAssignee(confirmDialog.newValue);
     } else if (confirmDialog.type === 'lock') {
-      setLocked(confirmDialog.newValue);
       updateLock(confirmDialog.newValue);
     }
 
@@ -181,50 +166,93 @@ function Dashboard({
     });
   };
 
-  const updateAssignee = async (newAssigneeId: string) => {
+  const updateStatus = async (newValue: string) => {
     try {
-      const res = await apiFetch('/ticket/assign', {
-        method: 'POST',
+      const res = await apiFetch(`/ticket/${ticket.id}/transition-status`, {
+        method: 'PATCH',
         credentials: 'include',
         body: JSON.stringify({
-          ticketId: ticket.id,
-          // assigneeUserId: newAssigneeId,
-          assigneeUserId: assignee,
+          newStatus: newValue,
         }),
       });
 
-      console.log('Assignee update response:', res);
+      setStatus(newValue);
 
-      toast.success('Assignee updated', {
-        description: `Ticket assigned to ${getUserById(assignee)?.fullName}`,
+      toast.success(res.message, {
+        description: `Ticket status changed to ${res.data.ticket.status}`,
       });
 
       onSuccess?.();
     } catch (error) {
-      toast.error('User assign failed', {
+      toast.error('Status updation failed', {
         description: error?.message || 'Something went wrong',
       });
     }
   };
 
-  const updateLock = async () => {
-    debugger;
+  const updatePriority = async (newValue: string) => {
+    try {
+      const res = await apiFetch(`/ticket/${ticket.id}/update-priority`, {
+        method: 'PATCH',
+        credentials: 'include',
+        body: JSON.stringify({
+          newPriority: newValue,
+        }),
+      });
+
+      setPriority(newValue);
+
+      toast.success(res.message, {
+        description: `Priority changed to ${res.data.ticket.priority}`,
+      });
+
+      onSuccess?.();
+    } catch (error) {
+      toast.error('Priority updation failed', {
+        description: error?.message || 'Something went wrong',
+      });
+    }
+  };
+
+  const updateAssignee = async (newValue: string) => {
+    try {
+      const res = await apiFetch(`/ticket/${ticket.id}/assign`, {
+        method: 'PATCH',
+        credentials: 'include',
+        body: JSON.stringify({
+          assigneeUserId: newValue,
+        }),
+      });
+
+      setAssignee(newValue);
+
+      toast.success(res.message, {
+        description: `Ticket assigned to ${getUserById(res.data.ticket.assigneeUserId)?.fullName}`,
+      });
+
+      onSuccess?.();
+    } catch (error) {
+      toast.error('User assign failed!', {
+        description: error?.message || 'Something went wrong',
+      });
+    }
+  };
+
+  const updateLock = async (newValue: boolean) => {
     try {
       const res = await apiFetch(`/ticket/${ticket.id}/lock`, {
         method: 'PATCH',
         credentials: 'include',
         body: JSON.stringify({
-          lock: locked,
+          lock: newValue,
         }),
       });
 
-      console.log('Lock update response:', res);
+      setLocked(newValue);
 
-      toast.success('Lock updated', {
-        description: `Ticket is now ${locked ? 'locked' : 'unlocked'}`,
-      });
+      toast.success(`${newValue ? 'Lock acquired' : 'Lock released'}`);
 
-      //onSuccess?.();
+      onSuccess?.();
     } catch (error) {
       toast.error('Ticket lock failed', {
         description: error?.message || 'Something went wrong',
@@ -234,73 +262,6 @@ function Dashboard({
 
   if (loading) return <BoxSpinner />;
   if (error) return <ErrorPage />;
-
-  // const comments: Comment[] = [
-  //   {
-  //     id: '1',
-  //     author: 'Sarah Johnson',
-  //     avatar: '/diverse-woman-portrait.png',
-  //     content:
-  //       'This is such an amazing project! The attention to detail in the UI design is incredible.',
-  //     timestamp: '2h ago',
-  //   },
-  //   {
-  //     id: '2',
-  //     author: 'Michael Chen',
-  //     avatar: '/thoughtful-man.png',
-  //     content: 'Great work on the implementation! Here are some screenshots:',
-  //     timestamp: '4h ago',
-  //     images: ['/mobile-app-screenshot.png', '/code-editor-screenshot.jpg'],
-  //   },
-  //   {
-  //     id: '3',
-  //     author: 'Emily Rodriguez',
-  //     avatar: '/woman-developer.png',
-  //     content:
-  //       'The dark theme looks fantastic! Could you share more details about the color palette?',
-  //     timestamp: '6h ago',
-  //   },
-  // ];
-
-  // const activities: ActivityItem[] = [
-  //   {
-  //     id: '1',
-  //     type: 'created',
-  //     author: 'John Doe',
-  //     content: 'Ticket created',
-  //     timestamp: '01 Sept 2025, 17:44',
-  //   },
-  //   {
-  //     id: '2',
-  //     type: 'assigned',
-  //     author: 'Admin Bob',
-  //     content: 'Assigned to Jane Smith',
-  //     timestamp: '02 Sept 2025, 17:44',
-  //   },
-  //   {
-  //     id: '3',
-  //     type: 'status_changed',
-  //     author: 'Jane Smith',
-  //     content: 'Status changed from Open to In Progress',
-  //     timestamp: '03 Sept 2025, 17:44',
-  //   },
-  //   {
-  //     id: '4',
-  //     type: 'priority_changed',
-  //     author: 'Jane Smith',
-  //     content: 'Priority changed from Medium to High',
-  //     timestamp: '04 Sept 2025, 17:44',
-  //   },
-  //   {
-  //     id: '5',
-  //     type: 'comment',
-  //     author: 'John Doe',
-  //     content: 'Comment added',
-  //     timestamp: '05 Sept 2025, 17:44',
-  //     details:
-  //       "I've added more context about the steps to reproduce the bug. It seems to occur after clicking the 'Save' button twice in quick succession.\n\nEnvironment: macOS 14.5, Chrome 127.",
-  //   },
-  // ];
 
   return (
     <div className="bg-background p-4 w-full min-h-screen">
@@ -328,19 +289,14 @@ function Dashboard({
                 </div>
                 <div
                   className={cn(
-                    `border p-2 rounded-md cursor-pointer ${ticket.locked ? 'border-destructive text-destructive' : 'border-success text-success'}`,
+                    `border p-2 rounded-md cursor-pointer ${ticket.locked ? 'bg-destructive/10 text-destructive border-destructive/20' : 'bg-success/10 text-success border-success/20'}`,
                   )}
+                  onClick={() => handleLockChange(ticket.locked ? false : true)}
                 >
                   {ticket.locked ? (
-                    <LockKeyhole
-                      size={16}
-                      onClick={() => handleLockChange(false)}
-                    />
+                    <LockKeyhole size={16} />
                   ) : (
-                    <LockKeyholeOpen
-                      size={16}
-                      onClick={() => handleLockChange(true)}
-                    />
+                    <LockKeyholeOpen size={16} />
                   )}
                 </div>
               </CardHeader>
@@ -354,7 +310,11 @@ function Dashboard({
                   <div className="flex items-center gap-3">
                     <Avatar className="h-8 w-8">
                       <AvatarImage src="/abstract-geometric-shapes.png" />
-                      <AvatarFallback>AB</AvatarFallback>
+                      <AvatarFallback>
+                        {getInitials(
+                          getUserById(ticket.createdByUserId)?.fullName,
+                        )}
+                      </AvatarFallback>
                     </Avatar>
                     <div>
                       <p className="font-medium text-card-foreground">
@@ -374,65 +334,6 @@ function Dashboard({
                   <h3 className="font-medium text-card-foreground">Details</h3>
 
                   <div className="grid grid-cols-1 gap-4">
-                    {/* <div className="flex justify-between ">
-                      <Label className="text-sm text-muted-foreground">
-                        Status
-                      </Label>
-                      {session?.currentOrg?.role === 'USER' ||
-                      ticket?.assigneeUserId === session?.userInfo.id ? (
-                        <StatusBadge status={status} />
-                      ) : (
-                        <Select
-                          value={status}
-                          onValueChange={handleStatusChange}
-                          disabled={session?.currentOrg?.role === 'USER'}
-                        >
-                          <SelectTrigger className="mt-1">
-                            <div className="flex items-center gap-2 ">
-                              <SelectValue />
-                            </div>
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="OPEN">
-                              <div className="flex items-center gap-2">
-                                <Circle className="h-4 w-4 text-red-400" />
-                                Open
-                              </div>
-                            </SelectItem>
-                            <SelectItem value="IN_PROGRESS">
-                              <div className="flex items-center gap-2">
-                                <Clock className="h-4 w-4 text-blue-500" />
-                                In Progress
-                              </div>
-                            </SelectItem>
-                            <SelectItem value="ON_HOLD">
-                              <div className="flex items-center gap-2">
-                                <CircleAlert className="h-4 w-4 text-yellow-500" />
-                                On Hold
-                              </div>
-                            </SelectItem>
-                            <SelectItem value="CANCELLED">
-                              <div className="flex items-center gap-2">
-                                <Ban className="h-4 w-4 text-red-500" />
-                                Cancelled
-                              </div>
-                            </SelectItem>
-                            <SelectItem value="resolved">
-                              <div className="flex items-center gap-2">
-                                <CheckCircle2 className="h-4 w-4 text-green-500" />
-                                Resolved
-                              </div>
-                            </SelectItem>
-                            <SelectItem value="CLOSED">
-                              <div className="flex items-center gap-2">
-                                <CircleCheckBig className="h-4 w-4 text-green-500" />
-                                Closed
-                              </div>
-                            </SelectItem>
-                          </SelectContent>
-                        </Select>
-                      )}
-                    </div> */}
                     <div className="flex justify-between ">
                       <Label className="text-sm text-muted-foreground">
                         Status
@@ -445,10 +346,63 @@ function Dashboard({
                         >
                           <SelectTrigger className="mt-1">
                             <div className="flex items-center gap-2 ">
-                              <SelectValue />
+                              <SelectValue placeholder="Select status" />
                             </div>
                           </SelectTrigger>
                           <SelectContent>
+                            {/* Current status disabled, so it's not selectable again */}
+                            <SelectItem value={status} disabled>
+                              <div className="flex items-center gap-2 opacity-70">
+                                {status === 'OPEN' && (
+                                  <Circle className="h-4 w-4 text-red-400" />
+                                )}
+                                {status === 'IN_PROGRESS' && (
+                                  <Clock className="h-4 w-4 text-blue-500" />
+                                )}
+                                {status === 'ON_HOLD' && (
+                                  <CircleAlert className="h-4 w-4 text-yellow-500" />
+                                )}
+                                {status === 'CANCELLED' && (
+                                  <Ban className="h-4 w-4 text-red-500" />
+                                )}
+                                {status === 'RESOLVED' && (
+                                  <CheckCircle2 className="h-4 w-4 text-green-500" />
+                                )}
+                                {status === 'CLOSED' && (
+                                  <CircleCheckBig className="h-4 w-4 text-green-500" />
+                                )}
+                                {status}
+                              </div>
+                            </SelectItem>
+
+                            {/* Next possible transitions */}
+                            {STATUS_TRANSITIONS[status]?.map((nextStatus) => (
+                              <SelectItem key={nextStatus} value={nextStatus}>
+                                <div className="flex items-center gap-2">
+                                  {nextStatus === 'OPEN' && (
+                                    <Circle className="h-4 w-4 text-red-400" />
+                                  )}
+                                  {nextStatus === 'IN_PROGRESS' && (
+                                    <Clock className="h-4 w-4 text-blue-500" />
+                                  )}
+                                  {nextStatus === 'ON_HOLD' && (
+                                    <CircleAlert className="h-4 w-4 text-yellow-500" />
+                                  )}
+                                  {nextStatus === 'CANCELLED' && (
+                                    <Ban className="h-4 w-4 text-red-500" />
+                                  )}
+                                  {nextStatus === 'RESOLVED' && (
+                                    <CheckCircle2 className="h-4 w-4 text-green-500" />
+                                  )}
+                                  {nextStatus === 'CLOSED' && (
+                                    <CircleCheckBig className="h-4 w-4 text-green-500" />
+                                  )}
+                                  {nextStatus}
+                                </div>
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                          {/* <SelectContent>
                             <SelectItem value="OPEN">
                               <div className="flex items-center gap-2">
                                 <Circle className="h-4 w-4 text-red-400" />
@@ -473,7 +427,7 @@ function Dashboard({
                                 Cancelled
                               </div>
                             </SelectItem>
-                            <SelectItem value="resolved">
+                            <SelectItem value="RESOLVED">
                               <div className="flex items-center gap-2">
                                 <CheckCircle2 className="h-4 w-4 text-green-500" />
                                 Resolved
@@ -485,7 +439,7 @@ function Dashboard({
                                 Closed
                               </div>
                             </SelectItem>
-                          </SelectContent>
+                          </SelectContent> */}
                         </Select>
                       ) : (
                         <StatusBadge status={status} />
@@ -559,7 +513,9 @@ function Dashboard({
                                   <div className="flex items-center gap-3">
                                     <Avatar className="h-8 w-8">
                                       <AvatarImage src="/abstract-geometric-shapes.png" />
-                                      <AvatarFallback>AB</AvatarFallback>
+                                      <AvatarFallback>
+                                        {getInitials(user.fullName)}
+                                      </AvatarFallback>
                                     </Avatar>
                                   </div>
                                   <div>{user.fullName}</div>
@@ -569,7 +525,8 @@ function Dashboard({
                         </Select>
                       ) : (
                         <span className="text-card-foreground">
-                          {ticket.assigneeUserId ?? 'Not Assigned'}
+                          {getUserById(ticket.assigneeUserId)?.fullName ??
+                            'Not Assigned'}
                         </span>
                       )}
                     </div>

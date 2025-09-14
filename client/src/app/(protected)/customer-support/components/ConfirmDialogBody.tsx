@@ -37,10 +37,11 @@ const ConfirmDialogBody = ({ confirmDialog, getUserById }) => {
   };
 
   if (confirmDialog.type == 'assignee') {
+    
     if (confirmDialog.oldValue === '') {
       return (
         <div className="space-y-1">
-          <p>Are you sure want to assign the following user:</p>
+          <p>Are you sure want to assign this ticket to:</p>
           <p>
             <span className="">Name:</span>{' '}
             <span className="font-bold">

@@ -27,15 +27,12 @@ export class TicketController {
   @GrpcMethod(SUPPORT_TICKET_SERVICE_NAME, 'ListTicketActivity')
   async listTicketActivity(request: ListTicketActivityRequest) {
     const res = await this.ticketService.listTicketActivity(request);
-    console.log('res: ', res);
     return res;
   }
 
   @GrpcMethod(SUPPORT_TICKET_SERVICE_NAME, 'ListTickets')
   async listTickets(request: ListTicketsRequest) {
-    console.log('request: ', request);
     const res = await this.ticketService.listTickets(request);
-    console.log('res: ', res);
     return res;
   }
 
@@ -67,15 +64,12 @@ export class TicketController {
   transitionStatus(request: TransitionStatusRequest) {
     // console.log('request: ', request);
     const res = this.ticketService.transitionStatus(request);
-    // console.log('res: ', res);
     return res;
   }
 
   @GrpcMethod(SUPPORT_TICKET_SERVICE_NAME, 'UpdatePriority')
   updatePriority(request: UpdatePriorityRequest) {
-    // console.log('request: ', request);
     const res = this.ticketService.updatePriority(request);
-    // console.log('res: ', res);
     return res;
   }
 

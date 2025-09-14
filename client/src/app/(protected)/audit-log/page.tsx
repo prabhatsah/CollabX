@@ -15,13 +15,12 @@ import NoRecordsFound from '@/components/no-records';
 import ErrorPage from '@/components/error-style/error-page';
 import { useEffect } from 'react';
 import { useLoading } from '@/context/LoadingContext';
-import { useUserlookup } from '@/hooks/useUserLookup';
-import { useOrgUsers } from '@/hooks/useOrgUsers';
+import { useUsers } from '@/hooks/useUsers';
 
 export default function AuditLogPage() {
   const { auditLogs, loading, error } = useAuditlogs();
   const { setLoading } = useLoading();
-  const { getUserById } = useOrgUsers();
+  const { getUserById } = useUsers();
 
   // if (loading) return <BoxSpinner />;
   useEffect(() => {

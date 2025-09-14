@@ -10,12 +10,4 @@ export class UpdatePriorityDto {
   @IsString()
   @IsNotEmpty()
   newPriority: string;
-
-  @ApiProperty({
-    example: 'This ticket is of high priority',
-    description: 'Reason for priority change',
-  })
-  @IsString()
-  @IsNotEmpty()
-  reason: string;
 }

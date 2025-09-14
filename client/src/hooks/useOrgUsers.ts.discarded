@@ -47,6 +47,7 @@ export function useOrgUsers(): UseOrgUsersResult {
       const res: UsersInOrgResponse = await apiFetch(
         `/organizations/${session.currentOrg?.id}/users`,
       );
+      console.log('Users:', res);
 
       setUsers(res.users);
     } catch (error) {
@@ -60,13 +61,14 @@ export function useOrgUsers(): UseOrgUsersResult {
     if (sessionLoading) return;
     if (!session) return;
 
-    if (session?.currentOrg?.role === 'USER') {
-      const tempUser = { ...session.userInfo, userId: session.userInfo.id };
-      setUsers([tempUser]);
-      setLoading(false);
-    } else {
-      fetchUsers();
-    }
+    // if (session?.currentOrg?.role === 'USER') {
+    //   const tempUser = { ...session.userInfo, userId: session.userInfo.id };
+    //   setUsers([tempUser]);
+    //   setLoading(false);
+    // } else {
+    //   fetchUsers();
+    // }
+    fetchUsers();
   }, [session, sessionLoading]);
 
   return {

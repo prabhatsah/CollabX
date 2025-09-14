@@ -23,7 +23,7 @@ export async function apiFetch<T>(
     },
     credentials: 'include', // Important for secure cookie auth
   });
-  console.log('res in apifetch:', endpoint, ', res:', res);
+  console.log('Apifetch called with endpoint:', endpoint);
 
   if (res.status === 401 && typeof window !== 'undefined') {
     if (!sessionExpired) {

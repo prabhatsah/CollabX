@@ -56,7 +56,7 @@ import {
   Eye,
 } from 'lucide-react';
 import { toast } from 'sonner';
-import { useOrgUsers } from '@/hooks/useOrgUsers';
+import { useUsers } from '@/hooks/useUsers';
 
 type UserRole = 'Admin' | 'Agent' | 'Viewer';
 
@@ -109,7 +109,7 @@ const mockUsers: OrgUser[] = [
 ];
 
 export default function UserManagementPage() {
-  const { users } = useOrgUsers();
+  const { users } = useUsers();
 
   //const [users, setUsers] = useState<OrgUser[]>(mockUsers);
   const [inviteDialogOpen, setInviteDialogOpen] = useState(false);

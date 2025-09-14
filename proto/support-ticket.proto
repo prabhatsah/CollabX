@@ -22,7 +22,7 @@ service SupportTicket {
 }
 
 message ListTicketActivityRequest {
-  string ticket_id = 1; 
+  string ticketId = 1; 
 }
 message ListTicketActivityResponse {
   repeated TicketActivity activities = 1;
@@ -54,9 +54,9 @@ message Meta {
     CreatedActivity created = 1;
     LockedActivity locked = 2;
     AssignedActivity assigned = 3;
-    StatusChangedActivity status_changed = 4;
-    PriorityChangedActivity priority_changed = 5;
-    CommentAddedActivity comment_added = 6;
+    StatusChangedActivity statusChanged = 4;
+    PriorityChangedActivity priorityChanged = 5;
+    CommentAddedActivity commentAdded = 6;
   }
 }
 
@@ -171,7 +171,6 @@ message TransitionStatusRequest {
   string ticketId = 2;
   string newStatus = 3; 
   string actorUserId = 4;
-  string reason = 5;
 }
 
 message UpdatePriorityRequest {
@@ -179,7 +178,6 @@ message UpdatePriorityRequest {
   string ticketId = 2;
   string newPriority = 3;
   string actorUserId = 4;
-  string reason = 5;
 }
 
 message UpdateTypeRequest {
@@ -187,7 +185,6 @@ message UpdateTypeRequest {
   string ticketId = 2;
   string newType = 3;
   string actorUserId = 4;
-  string reason = 5;
 }
 
 message LockTicketRequest {

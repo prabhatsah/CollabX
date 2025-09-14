@@ -24,21 +24,25 @@ export class OrgRoleGuard implements CanActivate {
     const user = req.user as SessionUser;
 
     if (!user) {
-      throw new ForbiddenException('No authenticated user found');
+      throw new ForbiddenException('No authenticated user found!');
     }
 
     const orgId = req.params['organizationId']; // param from route
 
-    if (!user.currentOrg || user.currentOrg.id !== orgId) {
-      throw new ForbiddenException('Access denied: Wrong organization');
+    // Only check orgId if it exists in route
+    if (orgId) {
+      if (!user.currentOrg || user.currentOrg.id !== orgId) {
+        throw new ForbiddenException('Access denied: Wrong organization');
+      }
     }
 
     const userRole = user.currentOrg.role?.toUpperCase();
     const required = requiredRoles.map((r) => r.toUpperCase());
+    console.log('userRole: ', userRole, ', required: ', required);
 
     if (!required.includes(userRole)) {
       throw new ForbiddenException(
-        `Requires role: ${required.join(', ')} for this org`,
+        `You are not authorised. Only ${required.join(', ')} can assign.`,
       );
     }
 

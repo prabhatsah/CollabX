@@ -9,7 +9,7 @@ import { OpenTicketTable } from './components/tickets-table';
 
 const Page = () => {
   const { tickets, loading, error, refresh } = useListTickets();
-  console.log('tickets: ', tickets);
+  console.log("Tickets fetched in open ticket's page.tsx:", tickets);
 
   if (loading) return <BoxSpinner />;
   if (error) return <ErrorPage />;

@@ -167,7 +167,6 @@ export interface TransitionStatusRequest {
   ticketId: string;
   newStatus: string;
   actorUserId: string;
-  reason: string;
 }
 
 export interface UpdatePriorityRequest {
@@ -175,7 +174,6 @@ export interface UpdatePriorityRequest {
   ticketId: string;
   newPriority: string;
   actorUserId: string;
-  reason: string;
 }
 
 export interface UpdateTypeRequest {
@@ -183,7 +181,6 @@ export interface UpdateTypeRequest {
   ticketId: string;
   newType: string;
   actorUserId: string;
-  reason: string;
 }
 
 export interface LockTicketRequest {

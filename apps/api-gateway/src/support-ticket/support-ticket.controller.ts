@@ -7,6 +7,7 @@ import {
   Param,
   Patch,
   Post,
+  UseGuards,
 } from '@nestjs/common';
 import { SupportTicketService } from './support-ticket.service';
 import { CreateTicketDto } from './dto/create-ticket.dto';
@@ -24,6 +25,8 @@ import {
 import { UpdatePriorityDto } from './dto/update-priority.dto';
 import { UpdateTypeDto } from './dto/update-type.dto';
 import { LockUnlockTicketDto } from './dto/lock-unlock.dto';
+import { OrgRoleGuard } from '../common/guards/org-role.guard';
+import { Roles } from '../common/decorators/roles.decorator';
 
 @Controller('ticket')
 export class SupportTicketController {
@@ -57,8 +60,6 @@ export class SupportTicketController {
     description: 'Ticket activity items fetched sucsessfully',
   })
   async listTicketActivity(@Param('ticketId') ticketId: string) {
-    console.log('TicketId:', ticketId);
-
     const res = await this.supportTicketService.listTicketActivity(ticketId);
 
     return ApiResponseDto.success(
@@ -92,6 +93,8 @@ export class SupportTicketController {
 
   @Patch(':ticketId/assign')
   @HttpCode(HttpStatus.OK)
+  @Roles('ADMIN', 'SUPPORT')
+  @UseGuards(OrgRoleGuard)
   @ApiOperation({ summary: 'Assign user' })
   @ApiResponse({ status: 201, description: 'User assigned sucsessfully' })
   async assignTicket(
@@ -106,8 +109,6 @@ export class SupportTicketController {
       actorUserId: user.userInfo.id,
       orgId: user.currentOrg?.id || '',
     };
-
-    console.log('request: ', request);
 
     const res = await this.supportTicketService.assignTicket(request);
 
@@ -131,8 +132,6 @@ export class SupportTicketController {
       orgId: user.currentOrg?.id,
     };
 
-    console.log('request: ', request);
-
     const res = await this.supportTicketService.lockTicket(request);
 
     return ApiResponseDto.success(res, 'Ticket locked successfully');
@@ -154,8 +153,6 @@ export class SupportTicketController {
       actorUserId: user.userInfo.id,
       orgId: user.currentOrg?.id,
     };
-
-    console.log('request: ', request);
 
     const res = await this.supportTicketService.transitionStatus(request);
 
@@ -179,8 +176,6 @@ export class SupportTicketController {
       orgId: user.currentOrg?.id,
     };
 
-    console.log('request: ', request);
-
     const res = await this.supportTicketService.updatePriority(request);
 
     return ApiResponseDto.success(res, 'Priority updated sucessfully');
@@ -202,8 +197,6 @@ export class SupportTicketController {
       actorUserId: user.userInfo.id,
       orgId: user.currentOrg?.id,
     };
-
-    console.log('request: ', request);
 
     const res = await this.supportTicketService.updateType(request);
 

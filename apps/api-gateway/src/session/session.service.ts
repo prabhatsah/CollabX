@@ -1,4 +1,4 @@
-import { Inject, Injectable, Logger } from '@nestjs/common';
+import { forwardRef, Inject, Injectable, Logger } from '@nestjs/common';
 import { UserOrgService } from '../user-org/user-org.service';
 import { AuthService } from '../auth/auth.service';
 import { VerifyTokenRequest } from '@app/common';
@@ -13,6 +13,7 @@ export class SessionService {
   private readonly logger = new Logger(SessionService.name);
 
   constructor(
+    @Inject(forwardRef(() => UserOrgService))
     private readonly userOrgService: UserOrgService,
     private readonly authService: AuthService,
     @Inject('REDIS_CLIENT') private readonly redis: Redis,
@@ -60,7 +61,11 @@ export class SessionService {
     return await this.updateCurrentOrg(authUserId, orgId);
   }
 
-  async updateCurrentOrg(userId: string, orgId: string) {
+  async updateCurrentOrg(
+    userId: string,
+    orgId: string,
+    updateDefaultOrg: boolean,
+  ) {
     const redisKey = this.getRedisKey(userId);
 
     const cached = await this.redis.get(redisKey);
@@ -83,6 +88,9 @@ export class SessionService {
     }
 
     session.currentOrg = newCurrentOrg;
+
+    // Don't update defaultOrg when only switching org
+    if (updateDefaultOrg) session.defaultOrg = newCurrentOrg;
 
     await this.redis.set(redisKey, JSON.stringify(session), 'EX', 60 * 15);
 

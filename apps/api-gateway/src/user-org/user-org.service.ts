@@ -5,6 +5,7 @@ import {
   GetSessionRequest,
   GetUsersInOrgRequest,
   HealthCheckRequest,
+  UpdateDefaultOrgRequest,
   USER_ORG_SERVICE_NAME,
   UserOrgServiceClient,
 } from '@app/common/proto/user-org';
@@ -66,6 +67,16 @@ export class UserOrgService implements OnModuleInit {
     );
 
     return response;
+  }
+
+  async updateDefaultOrg(request: UpdateDefaultOrgRequest) {
+    this.logger.log(`Updating user default Org: ${request.organizationId}`);
+
+    const response = await lastValueFrom(
+      this.userOrgServiceClient.updateDefaultOrg(request),
+    );
+
+    return ApiResponseDto.success(response, 'Default organization changed');
   }
 
   async checkHealth() {

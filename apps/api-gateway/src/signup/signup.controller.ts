@@ -18,6 +18,8 @@ export class SignupController {
   @Post()
   @HttpCode(HttpStatus.CREATED)
   signup(@Body() dto: CompleteSignupDto) {
+    console.log('------------------------ Signup  called -----------------');
+
     return this.signupService.signup(dto);
   }
 }

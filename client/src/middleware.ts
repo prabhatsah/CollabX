@@ -12,5 +12,11 @@ export function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/home1', '/user-management/:path*'], // Protected routes
+  matcher: [
+    '/home',
+    '/profile',
+    '/customer-support/:path*',
+    '/user-management/:path*',
+    '/audit-log/:path*',
+  ], // Protected routes
 };

@@ -10,6 +10,15 @@ import { Observable } from "rxjs";
 
 export const protobufPackage = "userorg";
 
+export interface UpdateDefaultOrgRequest {
+  userId: string;
+  organizationId: string;
+}
+
+export interface UpdateDefaultOrgResponse {
+  success: boolean;
+}
+
 export interface GetUserByAuthIdRequest {
   authUserId: string;
 }
@@ -25,6 +34,7 @@ export interface User {
   authUserId: string;
   fullName: string;
   email: string;
+  defaultOrgId: string;
   /** user may belong to multiple orgs */
   memberships: Membership[];
 }
@@ -45,6 +55,7 @@ export interface GetSessionResponse {
   userInfo: UserInfo | undefined;
   organizations: OrgSummary[];
   currentOrg: OrgSummary | undefined;
+  defaultOrg: OrgSummary | undefined;
 }
 
 export interface UserInfo {
@@ -141,6 +152,10 @@ export interface UserOrgServiceClient {
   /** Fetch one user’s complete details */
 
   getUserByAuthId(request: GetUserByAuthIdRequest): Observable<GetUserByAuthIdResponse>;
+
+  /** Update user's default organization */
+
+  updateDefaultOrg(request: UpdateDefaultOrgRequest): Observable<UpdateDefaultOrgResponse>;
 }
 
 export interface UserOrgServiceController {
@@ -179,6 +194,12 @@ export interface UserOrgServiceController {
   getUserByAuthId(
     request: GetUserByAuthIdRequest,
   ): Promise<GetUserByAuthIdResponse> | Observable<GetUserByAuthIdResponse> | GetUserByAuthIdResponse;
+
+  /** Update user's default organization */
+
+  updateDefaultOrg(
+    request: UpdateDefaultOrgRequest,
+  ): Promise<UpdateDefaultOrgResponse> | Observable<UpdateDefaultOrgResponse> | UpdateDefaultOrgResponse;
 }
 
 export function UserOrgServiceControllerMethods() {
@@ -190,6 +211,7 @@ export function UserOrgServiceControllerMethods() {
       "checkHealth",
       "getSession",
       "getUserByAuthId",
+      "updateDefaultOrg",
     ];
     for (const method of grpcMethods) {
       const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);

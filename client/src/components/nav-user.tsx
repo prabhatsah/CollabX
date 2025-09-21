@@ -52,6 +52,10 @@ export function NavUser({
     }
   }
 
+  const handleProfileClick = () => {
+    router.push('/profile');
+  };
+
   return (
     <SidebarMenu>
       <SidebarMenuItem>
@@ -98,13 +102,9 @@ export function NavUser({
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
-              <DropdownMenuItem>
+              <DropdownMenuItem onSelect={handleProfileClick}>
                 <IconUserCircle />
-                Account
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <IconNotification />
-                Notifications
+                Profile
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />

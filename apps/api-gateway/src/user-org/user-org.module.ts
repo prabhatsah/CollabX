@@ -1,9 +1,10 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { PROTO_PATHS, SERVICE_NAMES } from '@app/common';
 import { UserOrgController } from './user-org.controller';
 import { UserOrgService } from './user-org.service';
+import { SessionModule } from '../session/session.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { UserOrgService } from './user-org.service';
         }),
       },
     ]),
+    forwardRef(() => SessionModule),
   ],
   controllers: [UserOrgController],
   providers: [UserOrgService],

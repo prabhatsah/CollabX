@@ -4,6 +4,7 @@ import {
   USER_ORG_SERVICE_NAME,
   type CreateUserAndOrgRequest,
   type GetSessionRequest,
+  type UpdateDefaultOrgRequest,
 } from '@app/common/proto/user-org';
 import { Controller } from '@nestjs/common';
 import { GrpcMethod } from '@nestjs/microservices';
@@ -26,5 +27,10 @@ export class UserController {
   @GrpcMethod(USER_ORG_SERVICE_NAME, 'GetUserByAuthId')
   async getUserByAuthId(request: GetUserByAuthIdRequest) {
     return this.userService.getUserByAuthId(request);
+  }
+
+  @GrpcMethod(USER_ORG_SERVICE_NAME, 'UpdateDefaultOrg')
+  async updateDefaultOrg(request: UpdateDefaultOrgRequest) {
+    return this.userService.updateDefaultOrg(request);
   }
 }

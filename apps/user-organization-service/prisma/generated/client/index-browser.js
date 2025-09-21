@@ -128,7 +128,8 @@ exports.Prisma.UserScalarFieldEnum = {
   profileImage: 'profileImage',
   status: 'status',
   createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
+  updatedAt: 'updatedAt',
+  defaultOrgId: 'defaultOrgId'
 };
 
 exports.Prisma.OrganizationScalarFieldEnum = {

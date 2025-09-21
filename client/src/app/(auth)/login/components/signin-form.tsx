@@ -26,15 +26,15 @@ export function LoginForm({
   className,
   ...props
 }: React.ComponentProps<'div'>) {
-  const { refreshSession, setSelectedOrg } = useSession();
+  const { refreshSession } = useSession();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const router = useRouter();
 
-  const [orgOptions, setOrgOptions] = useState<OrgSummary[]>([]);
-  const [pendingUser, setPendingUser] = useState<SessionData | null>(null);
-  const [modalOpen, setModalOpen] = useState(false);
+  // const [orgOptions, setOrgOptions] = useState<OrgSummary[]>([]);
+  // const [pendingUser, setPendingUser] = useState<SessionData | null>(null);
+  // const [modalOpen, setModalOpen] = useState(false);
 
   const submitHandler = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -75,13 +75,13 @@ export function LoginForm({
     }
   };
 
-  const handleOrgSelect = async (org: OrgSummary) => {
-    if (pendingUser) {
-      await setSelectedOrg(org.id); //properly persist org switch on server and update session
-      setModalOpen(false);
-      router.push('/home');
-    }
-  };
+  // const handleOrgSelect = async (org: OrgSummary) => {
+  //   if (pendingUser) {
+  //     await setSelectedOrg(org.id); //properly persist org switch on server and update session
+  //     setModalOpen(false);
+  //     router.push('/home');
+  //   }
+  // };
 
   return (
     <>
@@ -139,12 +139,12 @@ export function LoginForm({
         </Card>
       </div>
 
-      <OrgSelectorModal
+      {/* <OrgSelectorModal
         isOpen={modalOpen}
         organizations={orgOptions}
         onSelect={handleOrgSelect}
         onClose={() => setModalOpen(false)}
-      />
+      /> */}
     </>
   );
 }

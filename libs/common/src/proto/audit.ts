@@ -11,6 +11,7 @@ import { Observable } from "rxjs";
 export const protobufPackage = "audit";
 
 export interface GetLogsRequest {
+  orgId: string;
   limit: number;
 }
 

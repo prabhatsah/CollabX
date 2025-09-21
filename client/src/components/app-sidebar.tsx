@@ -137,11 +137,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             },
           ]
         : []),
-      {
-        title: 'Settings',
-        url: '#',
-        icon: IconSettings,
-      },
     ],
   };
 
@@ -172,7 +167,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         </SidebarMenu>
       </SidebarHeader>
 
-      <SidebarContent className="flex flex-col justify-between overflow-hidden">
+      <SidebarContent className="flex flex-col justify-between overflow-hidden ">
         <div>
           <NavSecondary items={data.nav} currentPath={pathname} />
           <NavMain items={data.navMain} currentPath={pathname} />

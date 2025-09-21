@@ -29,13 +29,9 @@ export class JwtTokenService {
 
   //Generate tokens without organization context (for multi-org selection)
 
-  async generateTokens(
-    authUserId: string,
-    // email: string,
-  ): Promise<GeneratedTokens> {
+  async generateTokens(authUserId: string): Promise<GeneratedTokens> {
     const payload: TokenPayload = {
       sub: authUserId,
-      // email,
       type: 'access',
     };
 
@@ -43,7 +39,6 @@ export class JwtTokenService {
 
     const refreshPayload: TokenPayload = {
       sub: authUserId,
-      //email,
       type: 'refresh',
     };
 

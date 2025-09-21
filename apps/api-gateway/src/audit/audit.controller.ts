@@ -8,6 +8,8 @@ import {
 } from '@nestjs/common';
 import { AuditService } from './audit.service';
 import { ApiResponseDto } from '@app/common/dto/response.dto';
+import { CurrentUser } from '../common/decorators/current-user.decorator';
+import { type SessionUser } from '@app/common/interfaces';
 
 @Controller('audit')
 export class AuditController {
@@ -15,8 +17,12 @@ export class AuditController {
 
   @Get('logs')
   @HttpCode(HttpStatus.OK)
-  async getlogs(@Query('limit') limit?: number) {
-    const res = await this.auditService.getlogs({ limit });
+  async getlogs(
+    @Query('limit') limit?: number,
+    @CurrentUser() user: SessionUser,
+  ) {
+    const orgId = user.currentOrg?.id;
+    const res = await this.auditService.getlogs({ limit, orgId });
     return ApiResponseDto.success(res, 'Logs fetched sucessfully');
   }
 

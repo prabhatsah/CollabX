@@ -14,13 +14,15 @@ model User {
     id           String     @id @default(cuid())
     authUserId   String     @unique
     email        String     @unique
-    fullName     String?
+    fullName     String
     profileImage String?
     status       UserStatus @default(ACTIVE)
     createdAt    DateTime   @default(now())
     updatedAt    DateTime   @updatedAt
+    defaultOrgId String?
 
     // Relations
+    defaultOrg  Organization?  @relation("UserDefaultOrg", fields: [defaultOrgId], references: [id])
     memberships Membership[]
     createdOrgs Organization[] @relation("OrganizationCreator")
     invitations Invitation[]
@@ -37,10 +39,11 @@ model Organization {
     updatedAt   DateTime @updatedAt
 
     // Relations
-    createdById String
-    createdBy   User         @relation("OrganizationCreator", fields: [createdById], references: [id])
-    memberships Membership[]
-    invitations Invitation[]
+    createdById         String
+    createdBy           User         @relation("OrganizationCreator", fields: [createdById], references: [id])
+    memberships         Membership[]
+    invitations         Invitation[]
+    usersWithDefaultOrg User[]       @relation("UserDefaultOrg")
 
     @@map("organizations")
 }

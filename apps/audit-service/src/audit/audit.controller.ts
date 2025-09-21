@@ -14,7 +14,6 @@ export class AuditController {
   @GrpcMethod(AUDIT_SERVICE_NAME, 'GetLogs')
   async getLogs(request: GetLogsRequest) {
     const res = await this.auditService.getLogs(request);
-
     return res;
   }
 

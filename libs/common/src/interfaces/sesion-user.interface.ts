@@ -45,4 +45,9 @@ export interface SessionUser {
     name: string;
     role: 'ADMIN' | 'SUPPORT' | 'USER';
   };
+  defaultOrg?: {
+    id: string;
+    name: string;
+    role: 'ADMIN' | 'SUPPORT' | 'USER';
+  };
 }

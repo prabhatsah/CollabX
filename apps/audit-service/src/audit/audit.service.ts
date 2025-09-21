@@ -13,22 +13,24 @@ export class AuditService {
       data: {
         eventType: eventType,
         payload: payload,
+        userId: payload.userId,
+        orgId: payload.orgId,
       },
     });
-
-    console.log(`Log create response:`, res);
 
     this.logger.log(`Event log saved in database for topic: ${eventType}`);
   }
 
   async getLogs(request: GetLogsRequest) {
-    const { limit } = request;
+    const { limit, orgId } = request;
 
     const auditLogs = await this.prismaService.auditLog.findMany({
+      where: {
+        orgId,
+      },
       take: limit > 0 ? limit : 100, // fallback to 10 if no limit passed
       orderBy: { createdAt: 'desc' },
     });
-    console.log('auditLogs:', auditLogs);
 
     return { auditLogs: auditLogs };
   }

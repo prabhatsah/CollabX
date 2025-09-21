@@ -21,6 +21,18 @@ service UserOrgService {
     // Fetch one user’s complete details
     rpc GetUserByAuthId(GetUserByAuthIdRequest) returns (GetUserByAuthIdResponse) {}
 
+    // Update user's default organization
+    rpc UpdateDefaultOrg (UpdateDefaultOrgRequest) returns (UpdateDefaultOrgResponse) {}
+
+}
+
+message UpdateDefaultOrgRequest {
+  string userId = 1;
+  string organizationId = 2;
+}
+
+message UpdateDefaultOrgResponse {
+  bool success = 1;
 }
 
 message GetUserByAuthIdRequest {
@@ -36,7 +48,8 @@ message User {
   string authUserId = 2;    // FK from auth-service
   string fullName = 3;
   string email = 4;
-  repeated Membership memberships = 5;  // user may belong to multiple orgs
+  string defaultOrgId = 5;
+  repeated Membership memberships = 6;  // user may belong to multiple orgs
 }
 
 // Org membership details
@@ -56,6 +69,7 @@ message GetSessionResponse {
     UserInfo userInfo = 1;
     repeated OrgSummary organizations = 2;
     OrgSummary currentOrg = 3;
+    OrgSummary defaultOrg = 4;
 }
 
 message UserInfo {

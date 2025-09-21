@@ -25,7 +25,7 @@ export function NavSecondary({
   currentPath: string;
 } & React.ComponentPropsWithoutRef<typeof SidebarGroup>) {
   return (
-    <SidebarGroup {...props} className="mb-[-15px]">
+    <SidebarGroup {...props} className="">
       <SidebarGroupContent>
         <SidebarMenu>
           {items.map((item) => (

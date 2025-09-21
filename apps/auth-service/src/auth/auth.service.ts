@@ -106,9 +106,9 @@ export class AuthService implements OnModuleInit {
     const userInfo = await this.getUserByAuthUserId({
       authUserId: authUser.id,
     });
-
     await this.authEvents.loginSuccess({
       userId: userInfo.user?.userId,
+      orgId: userInfo.user?.defaultOrgId,
       // email: authUser.email,
       // fullName: userInfo.user?.fullName,
       // organizations: userInfo.user?.memberships,

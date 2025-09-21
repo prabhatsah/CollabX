@@ -3,6 +3,7 @@ import {
   GetSessionRequest,
   GetUserByAuthIdRequest,
   OrgSummary,
+  UpdateDefaultOrgRequest,
 } from '@app/common/proto/user-org';
 import { Injectable, Logger } from '@nestjs/common';
 import { OrganizationService } from '../organizations/organization.service';
@@ -10,7 +11,6 @@ import { MembershipService } from '../memberships/membership.service';
 import { PrismaService } from '../database/prisma.service';
 import { RpcException } from '@nestjs/microservices';
 import { status } from '@grpc/grpc-js';
-import { log } from 'console';
 
 @Injectable()
 export class UserService {
@@ -35,7 +35,7 @@ export class UserService {
             fullName,
           },
         });
-        this.logger.log(`Step 1/3: User created: ${newUser.id}`);
+        this.logger.log(`Step 1/4: User created: ${newUser.id}`);
 
         // Delegate Organization creation to OrganizationsService
         const newOrganization =
@@ -43,14 +43,23 @@ export class UserService {
             { createdBy: newUser.id, organizationName },
             tx,
           );
-        this.logger.log(`Step 2/3: Org created: ${newOrganization.id}`);
+        this.logger.log(`Step 2/4: Org created: ${newOrganization.id}`);
 
         // Delegate Membership creation to MembershipsService
         const newMembership = await this.membershipService.createMembership(
           { userId: newUser.id, organizationId: newOrganization.id },
           tx,
         );
-        this.logger.log(`Step 2/3: Org created: ${newMembership.id}`);
+        this.logger.log(`Step 3/4: Membership establised: ${newMembership.id}`);
+
+        // Update the user’s defaultOrgId
+        await tx.user.update({
+          where: { id: newUser.id },
+          data: { defaultOrgId: newOrganization.id },
+        });
+        this.logger.log(
+          `Step 4/4: Default org set for user ${newUser.id} -> ${newOrganization.id}`,
+        );
 
         return {
           userId: newUser.id,
@@ -94,6 +103,7 @@ export class UserService {
           },
         },
       });
+      console.log('User info in session:', user);
 
       if (!user) {
         this.logger.log(`User not found: ${authUserId}`);
@@ -114,10 +124,20 @@ export class UserService {
       );
 
       // pick first org as currentOrg (or implement your own logic)
-      const currentOrg: OrgSummary | null =
-        organizations.length > 0 ? organizations[0] : null;
+      // const currentOrg: OrgSummary | null =
+      //   organizations.length > 0 ? organizations[0] : null;
 
-      this.logger.log(`User session fetched: ${user.email}`);
+      const matchedMembership = user.memberships.find(
+        (membership) => membership.organization.id === user.defaultOrgId,
+      );
+      const defaultOrg: OrgSummary = matchedMembership
+        ? {
+            id: matchedMembership.organization.id,
+            name: matchedMembership.organization.name,
+            role: matchedMembership.role,
+          }
+        : {};
+      const currentOrg: OrgSummary = defaultOrg;
 
       const session = {
         userInfo: {
@@ -128,9 +148,10 @@ export class UserService {
         },
         organizations,
         currentOrg,
+        defaultOrg,
       };
 
-      console.log('Session:', session);
+      this.logger.log(`User session fetched:`, JSON.stringify(session));
 
       return session;
     } catch (error) {
@@ -172,6 +193,7 @@ export class UserService {
         authUserId: userDetails?.authUserId,
         fullName: userDetails?.fullName,
         email: userDetails?.email,
+        defaultOrgId: userDetails?.defaultOrgId,
         memberships: organizations,
       };
 
@@ -182,5 +204,57 @@ export class UserService {
       this.logger.error(`Transaction failed for ${authUserId}.`, error);
       throw error;
     }
+  }
+
+  async updateDefaultOrg(request: UpdateDefaultOrgRequest) {
+    const { userId, organizationId } = request;
+    this.logger.log(
+      `Updating default org for userId: ${userId} -> ${organizationId}`,
+    );
+
+    const user = await this.prismaService.user.findUnique({
+      where: { id: userId },
+      include: { memberships: true },
+    });
+
+    if (!user) {
+      this.logger.log(`User with userId ${userId} not found`);
+
+      throw new RpcException({
+        code: status.NOT_FOUND,
+        message: 'User not found',
+      });
+    }
+
+    // Ensure user is member of the target org
+    const isMember = user.memberships.some(
+      (m) => m.organizationId === organizationId,
+    );
+
+    if (!isMember) {
+      this.logger.log(
+        `User ${userId} is not a member of organization ${organizationId}`,
+      );
+
+      throw new RpcException({
+        code: status.NOT_FOUND,
+        message: 'User is not a member of organization',
+      });
+    }
+
+    // Update default org
+    const updatedUser = await this.prismaService.user.update({
+      where: { id: user.id },
+      data: { defaultOrgId: organizationId },
+    });
+
+    this.logger.log(
+      `Default org updated for user ${userId} -> ${organizationId}`,
+    );
+
+    return {
+      success: true,
+      defaultOrgId: updatedUser.defaultOrgId,
+    };
   }
 }

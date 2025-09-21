@@ -4,6 +4,7 @@ import {
   OnModuleDestroy,
   OnModuleInit,
 } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { Consumer, EachMessagePayload, Kafka } from 'kafkajs';
 
 @Injectable()
@@ -19,10 +20,14 @@ export class KafkaService implements OnModuleInit, OnModuleDestroy {
     (event: any) => Promise<void>
   >();
 
-  constructor() {
+  constructor(private readonly configService: ConfigService) {
+    // this.kafka = new Kafka({
+    //   clientId: 'audit-service',
+    //   brokers: [process.env.KAFKA_BROKER || 'localhost:29092'],
+    // });
     this.kafka = new Kafka({
-      clientId: 'audit-service',
-      brokers: [process.env.KAFKA_BROKER || 'localhost:29092'],
+      clientId: this.configService.get<string>('AUDIT_KAFKA_CLIENT_ID'),
+      brokers: [this.configService.get<string>('KAFKA_BROKER') || ''],
     });
 
     this.consumer = this.kafka.consumer({ groupId: 'audit-service-group' });

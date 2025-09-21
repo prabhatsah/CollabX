@@ -65,13 +65,13 @@ const STATUS_TRANSITIONS: Record<string, string[]> = {
 
 function Dashboard({
   ticket,
-  onSuccess,
+  onUpdate,
 }: {
   ticket: Ticket;
-  onSuccess: () => void;
+  onUpdate: (t: Ticket) => void;
 }) {
   console.log('ticket in dashboard', ticket);
-  const { users, getUserById, loading, error, refresh } = useUsers();
+  const { users, getUserById, loading, error } = useUsers();
   const { session } = useSession();
   console.log('users fetched in ticket dashboard:', users);
 
@@ -176,13 +176,14 @@ function Dashboard({
         }),
       });
 
+      const updatedTicket = { ...ticket, status: newValue };
+      onUpdate(updatedTicket); // update parent table
+
       setStatus(newValue);
 
       toast.success(res.message, {
         description: `Ticket status changed to ${res.data.ticket.status}`,
       });
-
-      onSuccess?.();
     } catch (error) {
       toast.error('Status updation failed', {
         description: error?.message || 'Something went wrong',
@@ -200,13 +201,16 @@ function Dashboard({
         }),
       });
 
+      const updatedTicket = { ...ticket, priority: newValue };
+      onUpdate(updatedTicket); // update parent table
+
       setPriority(newValue);
 
       toast.success(res.message, {
         description: `Priority changed to ${res.data.ticket.priority}`,
       });
 
-      onSuccess?.();
+      //onSuccess?.();
     } catch (error) {
       toast.error('Priority updation failed', {
         description: error?.message || 'Something went wrong',
@@ -224,13 +228,16 @@ function Dashboard({
         }),
       });
 
+      const updatedTicket = { ...ticket, assigneeUserId: newValue };
+      onUpdate(updatedTicket); // update parent table
+
       setAssignee(newValue);
 
       toast.success(res.message, {
         description: `Ticket assigned to ${getUserById(res.data.ticket.assigneeUserId)?.fullName}`,
       });
 
-      onSuccess?.();
+      //onSuccess?.();
     } catch (error) {
       toast.error('User assign failed!', {
         description: error?.message || 'Something went wrong',
@@ -248,11 +255,14 @@ function Dashboard({
         }),
       });
 
+      const updatedTicket = { ...ticket, locked: newValue };
+      onUpdate(updatedTicket); // update parent table
+
       setLocked(newValue);
 
       toast.success(`${newValue ? 'Lock acquired' : 'Lock released'}`);
 
-      onSuccess?.();
+      //onSuccess?.();
     } catch (error) {
       toast.error('Ticket lock failed', {
         description: error?.message || 'Something went wrong',
@@ -637,16 +647,18 @@ function Dashboard({
 
 export default function TicketDashboard({
   ticket,
-  onSuccess,
+  onUpdate,
+  open,
+  onClose,
 }: {
   ticket: Ticket;
-  onSuccess: () => void;
+  onUpdate: (t: Ticket) => void;
+  open: boolean;
+  onClose: () => void;
 }) {
-  const [isOpen, setIsOpen] = useState(false);
-
   return (
     <div className="">
-      <Dialog open={isOpen} onOpenChange={setIsOpen}>
+      <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
         <DialogTrigger asChild>
           <span className="cursor-pointer ">{ticket.ticketNo}</span>
         </DialogTrigger>
@@ -660,7 +672,7 @@ export default function TicketDashboard({
           }}
         >
           <div className="h-full w-full overflow-auto">
-            <Dashboard ticket={ticket} onSuccess={onSuccess} />
+            <Dashboard ticket={ticket} onUpdate={onUpdate} />
           </div>
         </DialogContent>
       </Dialog>

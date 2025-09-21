@@ -15,6 +15,7 @@ export interface OrgSummary {
 
 export interface SessionData {
   userInfo: SessionUser;
-  currentOrg: OrgSummary | null; // null if not selected yet
+  currentOrg: OrgSummary;
+  defaultOrg: OrgSummary;
   organizations: OrgSummary[];
 }

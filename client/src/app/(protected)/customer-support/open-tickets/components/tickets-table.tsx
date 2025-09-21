@@ -83,9 +83,9 @@ export function OpenTicketTable({
   data: Ticket[];
   onRefresh?: () => void;
 }) {
-  // const { loading: usersLoading, getUserById } = ();
   const { loading: usersLoading, getUserById } = useUsers();
   const [data, setData] = React.useState<Ticket[]>(() => initialData ?? []);
+  const [openTicket, setOpenTicket] = React.useState<Ticket | null>(null);
   const [rowSelection, setRowSelection] = React.useState({});
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({});
@@ -98,13 +98,29 @@ export function OpenTicketTable({
     pageSize: 10,
   });
 
+  // helper to update a single ticket without reloading the whole table
+  const updateTicketInTable = (updatedTicket: Ticket) => {
+    setData((prev) =>
+      prev.map((t) => (t.id === updatedTicket.id ? updatedTicket : t)),
+    );
+    setOpenTicket((prev) =>
+      prev?.id === updatedTicket.id ? updatedTicket : prev,
+    );
+  };
+
   const columns: ColumnDef<Ticket>[] = [
     {
       accessorKey: 'ticketNo',
       header: 'Ticket',
       cell: ({ row }) => (
-        <TicketDashboard ticket={row.original} onSuccess={onRefresh} />
-        // <h1>Helo</h1>
+        // <TicketDashboard ticket={row.original} onSuccess={onRefresh} />
+        //<TicketDashboard ticket={row.original} onUpdate={updateTicketInTable} />
+        <span
+          className="cursor-pointer text-blue-600 underline"
+          onClick={() => setOpenTicket(row.original)}
+        >
+          {row.original.ticketNo}
+        </span>
       ),
       enableHiding: false,
     },
@@ -186,85 +202,97 @@ export function OpenTicketTable({
   const dataIds: UniqueIdentifier[] = data.map((item) => item.id);
 
   return (
-    <div className="flex flex-col gap-2">
-      {/* filters + actions */}
-      <div className="flex justify-end w-full">
-        <div className="flex items-center gap-2">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="sm">
-                <IconLayoutColumns />
-                <span className="hidden lg:inline">Filters</span>
-                <span className="lg:hidden">Filters</span>
-                <IconChevronDown />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-56">
-              {table
-                .getAllColumns()
-                .filter(
-                  (column) =>
-                    typeof column.accessorFn !== 'undefined' &&
-                    column.getCanHide(),
-                )
-                .map((column) => (
-                  <DropdownMenuCheckboxItem
-                    key={column.id}
-                    className="capitalize"
-                    checked={column.getIsVisible()}
-                    onCheckedChange={(value) =>
-                      column.toggleVisibility(!!value)
-                    }
-                  >
-                    {column.id}
-                  </DropdownMenuCheckboxItem>
-                ))}
-            </DropdownMenuContent>
-          </DropdownMenu>
-          <CreateTicketForm onSuccess={onRefresh} />
+    <>
+      <div className="flex flex-col gap-2">
+        {/* filters + actions */}
+        <div className="flex justify-end w-full">
+          <div className="flex items-center gap-2">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="sm">
+                  <IconLayoutColumns />
+                  <span className="hidden lg:inline">Filters</span>
+                  <span className="lg:hidden">Filters</span>
+                  <IconChevronDown />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56">
+                {table
+                  .getAllColumns()
+                  .filter(
+                    (column) =>
+                      typeof column.accessorFn !== 'undefined' &&
+                      column.getCanHide(),
+                  )
+                  .map((column) => (
+                    <DropdownMenuCheckboxItem
+                      key={column.id}
+                      className="capitalize"
+                      checked={column.getIsVisible()}
+                      onCheckedChange={(value) =>
+                        column.toggleVisibility(!!value)
+                      }
+                    >
+                      {column.id}
+                    </DropdownMenuCheckboxItem>
+                  ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
+            <CreateTicketForm onSuccess={onRefresh} />
+          </div>
         </div>
+
+        {/* table */}
+        <div className="overflow-hidden rounded-lg border">
+          <Table>
+            <TableHeader className="bg-muted sticky top-0 z-10">
+              {table.getHeaderGroups().map((headerGroup) => (
+                <TableRow key={headerGroup.id}>
+                  {headerGroup.headers.map((header) => (
+                    <TableHead key={header.id} colSpan={header.colSpan}>
+                      {header.isPlaceholder
+                        ? null
+                        : flexRender(
+                            header.column.columnDef.header,
+                            header.getContext(),
+                          )}
+                    </TableHead>
+                  ))}
+                </TableRow>
+              ))}
+            </TableHeader>
+            <TableBody>
+              {table.getRowModel().rows.length ? (
+                table
+                  .getRowModel()
+                  .rows.map((row) => <NormalRow key={row.id} row={row} />)
+              ) : (
+                <TableRow>
+                  <TableCell
+                    colSpan={columns.length}
+                    className="h-24 text-center"
+                  >
+                    No results.
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </div>
+
+        {/* pagination */}
+        {/* ... keep your pagination footer code ... */}
       </div>
 
-      {/* table */}
-      <div className="overflow-hidden rounded-lg border">
-        <Table>
-          <TableHeader className="bg-muted sticky top-0 z-10">
-            {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id}>
-                {headerGroup.headers.map((header) => (
-                  <TableHead key={header.id} colSpan={header.colSpan}>
-                    {header.isPlaceholder
-                      ? null
-                      : flexRender(
-                          header.column.columnDef.header,
-                          header.getContext(),
-                        )}
-                  </TableHead>
-                ))}
-              </TableRow>
-            ))}
-          </TableHeader>
-          <TableBody>
-            {table.getRowModel().rows.length ? (
-              table
-                .getRowModel()
-                .rows.map((row) => <NormalRow key={row.id} row={row} />)
-            ) : (
-              <TableRow>
-                <TableCell
-                  colSpan={columns.length}
-                  className="h-24 text-center"
-                >
-                  No results.
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
-      </div>
-
-      {/* pagination */}
-      {/* ... keep your pagination footer code ... */}
-    </div>
+      {/* Controlled Ticket Dashboard */}
+      {openTicket && (
+        <TicketDashboard
+          ticket={openTicket}
+          open={!!openTicket}
+          onClose={() => setOpenTicket(null)}
+          onUpdate={updateTicketInTable}
+        />
+      )}
+    </>
   );
 }

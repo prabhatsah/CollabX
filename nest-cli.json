@@ -51,6 +51,15 @@
         "tsConfigPath": "libs/common/tsconfig.lib.json"
       }
     },
+    "mail-service": {
+      "type": "application",
+      "root": "apps/mail-service",
+      "entryFile": "src/main",
+      "sourceRoot": "./",
+      "compilerOptions": {
+        "tsConfigPath": "apps/mail-service/tsconfig.app.json"
+      }
+    },
     "support-ticket": {
       "type": "application",
       "root": "apps/support-ticket",

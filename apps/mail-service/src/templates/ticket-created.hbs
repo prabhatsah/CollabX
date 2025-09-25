@@ -1,0 +1,89 @@
+{{!-- <html>
+  <body>
+    <h1>Ticket created 🎉</h1>
+    <p>Thanks for creating the ticket
+      <b>{{ticketNo}}</b></p>
+  </body>
+</html> --}}
+
+<html lang='en'>
+  <head>
+    <meta charset='UTF-8' />
+    <meta name='viewport' content='width=device-width, initial-scale=1.0' />
+    <title>Ticket Created</title>
+  </head>
+  <body
+    style='font-family: Arial, sans-serif; background-color: #f4f6f8; margin: 0; padding: 0;'
+  >
+    <table
+      role='presentation'
+      style='width: 100%; border-collapse: collapse; background-color: #f4f6f8;'
+    >
+      <tr>
+        <td align='center' style='padding: 40px 20px;'>
+          <!-- Main container -->
+          <table
+            role='presentation'
+            style='max-width: 600px; width: 100%; background: #ffffff; border-radius: 6px; overflow: hidden; box-shadow: 0 2px 6px rgba(0,0,0,0.1);'
+          >
+            <!-- Header -->
+            <tr>
+              <td
+                style='background-color: #0d6efd; padding: 20px; text-align: center; color: #ffffff; font-size: 20px; font-weight: bold;'
+              >
+                Support Ticket Created
+              </td>
+            </tr>
+            <!-- Body -->
+            <tr>
+              <td
+                style='padding: 30px; color: #333333; font-size: 15px; line-height: 1.6;'
+              >
+                <p>Hi {{user}},</p>
+                <p>We’ve received your request and created a new support ticket
+                  for you.</p>
+                <p><strong>Ticket No:</strong>
+                  {{ticketNo}}<br />
+                  <strong>Title:</strong>
+                  {{title}}<br />
+                  <strong>Priority:</strong>
+                  {{priority}}<br />
+                  <strong>Status:</strong>
+                  {{status}}<br />
+                  <strong>Type:</strong>
+                  {{type}}<br />
+                  <strong>Created at:</strong>
+                  {{createdAt}}</p>
+                <p>Our support team will review your request and get back to you
+                  as soon as possible.
+                </p>
+              </td>
+            </tr>
+            <!-- CTA -->
+            <tr>
+              <td style='padding: 0 30px 30px 30px; text-align: center;'>
+                <a
+                  href='{{ticketUrl}}'
+                  style='display: inline-block; padding: 12px 20px; background-color: #0d6efd; color: #ffffff; text-decoration: none; border-radius: 4px; font-weight: bold;'
+                >
+                  View Ticket
+                </a>
+              </td>
+            </tr>
+            <!-- Footer -->
+            <tr>
+              <td
+                style='background-color: #f1f3f5; padding: 20px; font-size: 13px; color: #666666; text-align: center;'
+              >
+                &copy;
+                {{year}}
+                CollabX Support<br />
+                This is an automated message, please do not reply.
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>

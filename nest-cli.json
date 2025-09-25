@@ -57,7 +57,13 @@
       "entryFile": "src/main",
       "sourceRoot": "./",
       "compilerOptions": {
-        "tsConfigPath": "apps/mail-service/tsconfig.app.json"
+        "tsConfigPath": "apps/mail-service/tsconfig.app.json",
+        "assets": [
+          {
+            "include": "**/*.hbs",
+            "outDir": "dist"
+          }
+        ]
       }
     },
     "support-ticket": {

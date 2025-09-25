@@ -121,6 +121,7 @@ message CreateTicketRequest {
   string priority = 5;
   string type = 6;
   string createdByUserId = 7;
+  string userEmail = 8;
 }
 
 message TicketResponse { Ticket ticket = 1; }

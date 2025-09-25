@@ -42,6 +42,7 @@ export class TicketService {
       priority,
       type,
       createdByUserId,
+      userEmail,
     } = data;
 
     const ticketNo = await this.generateTicketNumber(orgId, orgName);
@@ -76,8 +77,13 @@ export class TicketService {
     await this.ticketEventsProducer.ticketCreationSuccess({
       ticketNo,
       userId: createdByUserId,
+      email: userEmail,
       orgId: orgId,
       title: ticket.title,
+      priority: ticket.priority,
+      type: ticket.type,
+      createdAt: ticket.createdAt,
+      status: ticket.status,
       message: 'Ticket created',
       success: true,
       ...meta,

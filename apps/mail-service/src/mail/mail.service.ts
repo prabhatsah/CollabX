@@ -2,24 +2,35 @@ import * as nodemailer from 'nodemailer';
 import * as fs from 'fs';
 import * as handlebars from 'handlebars';
 import { ConfigService } from '@nestjs/config';
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
+import path from 'path';
+import { Ticket } from '@app/common/proto/support-ticket';
 
 @Injectable()
 export class MailService {
   private transporter: nodemailer.Transporter;
+  private readonly logger = new Logger(MailService.name);
 
   constructor(private readonly configService: ConfigService) {
     this.transporter = nodemailer.createTransport({
       service: 'gmail',
       auth: {
         user: this.configService.get<string>('GMAIL_USER'),
-        pass: this.configService.get<string>('GMAIL_PASSWORD'),
+        pass: this.configService.get<string>('GMAIL_PASSKEY'),
       },
     });
   }
 
   private compileTemplate(templateName: string, context: any) {
-    const filePath = `./src/templates/${templateName}.hbs`;
+    //const filePath = `./src/templates/${templateName}.hbs`;
+    const filePath = path.join(
+      process.cwd(),
+      'apps',
+      'mail-service',
+      'src',
+      'templates',
+      `${templateName}.hbs`,
+    );
     const source = fs.readFileSync(filePath, 'utf-8');
     const compiled = handlebars.compile(source);
     return compiled(context);
@@ -34,21 +45,26 @@ export class MailService {
     });
   }
 
-  async sendTicketCreatedMail(data: {
-    email: string;
-    ticketNo: string;
-    title: string;
-  }) {
+  async sendTicketCreatedMail(data: Ticket) {
     console.log('data in mail service:', data);
     const html = this.compileTemplate('ticket-created', {
+      user: data.userId,
       ticketNo: data.ticketNo,
       title: data.title,
+      priority: data.priority,
+      type: data.type,
+      status: data.status,
+      createdAt: data.createdAt,
+      ticketUrl: `https://www.google.com`,
+      year: new Date().getFullYear(),
     });
+
     await this.transporter.sendMail({
       to: data.email,
-      subject: `Ticket ${data.ticketNo} Created`,
+      subject: `Ticket Created: ${data.ticketNo}`,
       html,
     });
+    this.logger.log(`Mail send to ${data.email}`);
   }
 
   async sendInviteMail(data: {

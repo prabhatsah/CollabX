@@ -108,6 +108,7 @@ export interface CreateTicketRequest {
   priority: string;
   type: string;
   createdByUserId: string;
+  userEmail: string;
 }
 
 export interface TicketResponse {

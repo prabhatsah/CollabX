@@ -46,6 +46,7 @@ export class SupportTicketController {
       createdByUserId: user.userInfo.id,
       orgId: user.currentOrg?.id || '',
       orgName: user.currentOrg?.name || '',
+      userEmail: user.userInfo.email,
     };
 
     const res = await this.supportTicketService.createTicket(request);

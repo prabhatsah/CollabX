@@ -10,6 +10,25 @@ import { Observable } from "rxjs";
 
 export const protobufPackage = "userorg";
 
+export interface InviteUserRequest {
+  orgId: string;
+  email: string;
+  /** USER / SUPPORT etc. */
+  role: string;
+  invitedByUserId: string;
+}
+
+export interface InviteUserResponse {
+  id: string;
+  email: string;
+  role: string;
+  status: string;
+  token: string;
+  orgId: string;
+  invitedByUserId: string;
+  expiredAt: string;
+}
+
 export interface UpdateDefaultOrgRequest {
   userId: string;
   organizationId: string;
@@ -156,6 +175,10 @@ export interface UserOrgServiceClient {
   /** Update user's default organization */
 
   updateDefaultOrg(request: UpdateDefaultOrgRequest): Observable<UpdateDefaultOrgResponse>;
+
+  /** Invite user */
+
+  inviteUser(request: InviteUserRequest): Observable<InviteUserResponse>;
 }
 
 export interface UserOrgServiceController {
@@ -200,6 +223,12 @@ export interface UserOrgServiceController {
   updateDefaultOrg(
     request: UpdateDefaultOrgRequest,
   ): Promise<UpdateDefaultOrgResponse> | Observable<UpdateDefaultOrgResponse> | UpdateDefaultOrgResponse;
+
+  /** Invite user */
+
+  inviteUser(
+    request: InviteUserRequest,
+  ): Promise<InviteUserResponse> | Observable<InviteUserResponse> | InviteUserResponse;
 }
 
 export function UserOrgServiceControllerMethods() {
@@ -212,6 +241,7 @@ export function UserOrgServiceControllerMethods() {
       "getSession",
       "getUserByAuthId",
       "updateDefaultOrg",
+      "inviteUser",
     ];
     for (const method of grpcMethods) {
       const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);

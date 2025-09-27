@@ -24,6 +24,26 @@ service UserOrgService {
     // Update user's default organization
     rpc UpdateDefaultOrg (UpdateDefaultOrgRequest) returns (UpdateDefaultOrgResponse) {}
 
+    // Invite user
+    rpc InviteUser(InviteUserRequest) returns (InviteUserResponse);
+}
+
+message InviteUserRequest {
+  string orgId = 1;
+  string email = 2;
+  string role = 3; // USER / SUPPORT etc.
+  string invitedByUserId = 4;
+}
+
+message InviteUserResponse {
+  string id = 1;
+  string email = 2;
+  string role = 3;
+  string status = 4;
+  string token = 5;
+  string orgId = 6;
+  string invitedByUserId = 7;
+  string expiredAt = 8;
 }
 
 message UpdateDefaultOrgRequest {

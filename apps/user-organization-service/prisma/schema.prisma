@@ -67,22 +67,22 @@ model Membership {
 }
 
 model Invitation {
-    id         String           @id @default(cuid())
-    email      String
-    role       MembershipRole   @default(USER)
-    status     InvitationStatus @default(PENDING)
-    token      String           @unique
-    expiresAt  DateTime
-    sentAt     DateTime         @default(now())
-    acceptedAt DateTime?
-    createdAt  DateTime         @default(now())
-    updatedAt  DateTime         @updatedAt
-
-    // Relations
+    id             String           @id @default(cuid())
+    email          String
+    role           MembershipRole   @default(USER)
     organizationId String
     invitedById    String?
-    organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-    invitedBy      User?        @relation(fields: [invitedById], references: [id])
+    status         InvitationStatus @default(PENDING)
+    token          String           @unique
+    expiresAt      DateTime
+    sentAt         DateTime         @default(now())
+    acceptedAt     DateTime?
+    createdAt      DateTime         @default(now())
+    updatedAt      DateTime         @updatedAt
+
+    // Relations
+    organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+    invitedBy    User?        @relation(fields: [invitedById], references: [id])
 
     @@map("invitations")
 }

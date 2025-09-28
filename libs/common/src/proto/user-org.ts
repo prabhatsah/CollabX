@@ -10,6 +10,17 @@ import { Observable } from "rxjs";
 
 export const protobufPackage = "userorg";
 
+export interface AcceptInvitationRequest {
+  token: string;
+  fullName: string;
+  password: string;
+}
+
+export interface AcceptInvitationResponse {
+  success: boolean;
+  message: string;
+}
+
 export interface InviteUserRequest {
   orgId: string;
   email: string;
@@ -179,6 +190,10 @@ export interface UserOrgServiceClient {
   /** Invite user */
 
   inviteUser(request: InviteUserRequest): Observable<InviteUserResponse>;
+
+  /** Accept invitation */
+
+  acceptInvitation(request: AcceptInvitationRequest): Observable<AcceptInvitationResponse>;
 }
 
 export interface UserOrgServiceController {
@@ -229,6 +244,12 @@ export interface UserOrgServiceController {
   inviteUser(
     request: InviteUserRequest,
   ): Promise<InviteUserResponse> | Observable<InviteUserResponse> | InviteUserResponse;
+
+  /** Accept invitation */
+
+  acceptInvitation(
+    request: AcceptInvitationRequest,
+  ): Promise<AcceptInvitationResponse> | Observable<AcceptInvitationResponse> | AcceptInvitationResponse;
 }
 
 export function UserOrgServiceControllerMethods() {
@@ -242,6 +263,7 @@ export function UserOrgServiceControllerMethods() {
       "getUserByAuthId",
       "updateDefaultOrg",
       "inviteUser",
+      "acceptInvitation",
     ];
     for (const method of grpcMethods) {
       const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);

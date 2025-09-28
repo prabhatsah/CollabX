@@ -21,8 +21,12 @@ export class MailConsumer implements OnModuleInit {
       },
     );
 
-    await this.kafkaService.subscribe('invite', async (event) => {
-      await this.mailService.sendInviteMail(event);
+    await this.kafkaService.subscribe('invitation.created', async (event) => {
+      await this.mailService.sendInvitationMail(event);
+    });
+
+    await this.kafkaService.subscribe('invitation.accepted', async (event) => {
+      await this.mailService.sendInvitationAcceptanceMail(event);
     });
 
     // start consuming after subscriptions are registered

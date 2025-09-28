@@ -19,11 +19,11 @@ export class AuthController {
 
   constructor(private readonly authService: AuthService) {}
 
-  @Post('signup')
-  @HttpCode(HttpStatus.CREATED)
-  createAuthUser(@Body() request: CreateAuthUserRequest) {
-    return this.authService.createAuthUser(request);
-  }
+  // @Post('signup')
+  // @HttpCode(HttpStatus.CREATED)
+  // createAuthUser(@Body() request: CreateAuthUserRequest) {
+  //   return this.authService.createAuthUser(request);
+  // }
 
   @Post('login')
   @HttpCode(HttpStatus.ACCEPTED)

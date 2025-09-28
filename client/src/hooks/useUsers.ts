@@ -4,8 +4,6 @@ import { User, UsersInOrgResponse } from '@/types';
 import { useQuery } from '@tanstack/react-query';
 
 async function fetchUsers(orgId: string): Promise<User[]> {
-  console.log('Calling api');
-
   const res: UsersInOrgResponse = await apiFetch(
     `/organizations/${orgId}/users`,
   );

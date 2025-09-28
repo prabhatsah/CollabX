@@ -157,15 +157,15 @@ exports.Prisma.InvitationScalarFieldEnum = {
   id: 'id',
   email: 'email',
   role: 'role',
+  organizationId: 'organizationId',
+  invitedById: 'invitedById',
   status: 'status',
   token: 'token',
   expiresAt: 'expiresAt',
   sentAt: 'sentAt',
   acceptedAt: 'acceptedAt',
   createdAt: 'createdAt',
-  updatedAt: 'updatedAt',
-  organizationId: 'organizationId',
-  invitedById: 'invitedById'
+  updatedAt: 'updatedAt'
 };
 
 exports.Prisma.SortOrder = {

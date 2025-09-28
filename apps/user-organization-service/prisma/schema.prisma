@@ -50,7 +50,7 @@ model Organization {
 
 model Membership {
     id        String           @id @default(cuid())
-    role      MembershipRole   @default(ADMIN)
+    role      MembershipRole
     status    MembershipStatus @default(ACTIVE)
     joinedAt  DateTime         @default(now())
     createdAt DateTime         @default(now())

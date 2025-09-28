@@ -47,7 +47,10 @@ export class UserService {
 
         // Delegate Membership creation to MembershipsService
         const newMembership = await this.membershipService.createMembership(
-          { userId: newUser.id, organizationId: newOrganization.id },
+          {
+            userId: newUser.id,
+            organizationId: newOrganization.id,
+          },
           tx,
         );
         this.logger.log(`Step 3/4: Membership establised: ${newMembership.id}`);

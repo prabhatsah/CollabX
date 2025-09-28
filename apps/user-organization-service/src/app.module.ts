@@ -5,6 +5,7 @@ import { ConfigModule } from '@nestjs/config';
 import { HealthModule } from './health/health.module';
 import { UserModule } from './users/users.module';
 import { InvitationModule } from './invitation/invitation.module';
+import { KafkaModule } from './kafka/kafka.module';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { InvitationModule } from './invitation/invitation.module';
     HealthModule,
     UserModule,
     InvitationModule,
+    KafkaModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -26,6 +26,20 @@ service UserOrgService {
 
     // Invite user
     rpc InviteUser(InviteUserRequest) returns (InviteUserResponse);
+
+    // Accept invitation
+    rpc AcceptInvitation(AcceptInvitationRequest) returns (AcceptInvitationResponse);
+}
+
+message AcceptInvitationRequest{
+  string token = 1;
+  string fullName = 2;
+  string password = 3; 
+}
+
+message AcceptInvitationResponse{
+  bool success = 1;
+  string message = 2;
 }
 
 message InviteUserRequest {

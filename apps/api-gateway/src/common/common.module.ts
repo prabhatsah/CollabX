@@ -14,6 +14,7 @@ export class CommonModule {
         { path: 'auth/(.*)', method: RequestMethod.ALL },
         { path: 'signup', method: RequestMethod.POST },
         { path: 'healthCheck', method: RequestMethod.GET },
+        { path: 'accept-invitation', method: RequestMethod.POST },
       )
       .forRoutes('*'); // everything else is protected
   }

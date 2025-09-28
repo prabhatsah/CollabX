@@ -46,9 +46,11 @@ import { User } from '@/types';
 import { BoxSpinner } from '@/components/loading-style/box-spinner';
 import ErrorPage from '@/components/error-style/error-page';
 import { useUsers } from '@/hooks/useUsers';
+import { apiFetch } from '@/lib/api';
+import { description } from '@/components/chart-area-interactive';
 
 export default function UserManagementPage() {
-  const { users, loading, error, refresh } = useUsers();
+  const { users, loading, error, refetch } = useUsers();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [inviteEmail, setInviteEmail] = useState('');
   const [inviteRole, setInviteRole] = useState<User['role']>('USER');
@@ -57,22 +59,29 @@ export default function UserManagementPage() {
   async function handleInvite(e: React.FormEvent) {
     e.preventDefault();
     try {
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/invite`,
-        {
-          method: 'POST',
-          credentials: 'include',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email: inviteEmail, role: inviteRole }),
-        },
-      );
-      if (!res.ok) throw new Error('Invite failed');
-      toast.success('Invitation sent');
+      setLoading(true);
+      const res = await apiFetch(`/invitation`, {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: inviteEmail, role: inviteRole }),
+      });
+
+      if (!res.success) throw new Error('Invite failed');
+
+      toast.success('Invitation sent', {
+        description: `Invitation sent to ${inviteEmail}`,
+      });
+
+      refetch();
+
       setInviteEmail('');
       setInviteRole('USER');
       setDialogOpen(false);
     } catch (err: any) {
       toast.error('Invite failed', { description: err.message });
+    } finally {
+      setLoading(false);
     }
   }
 
@@ -85,7 +94,7 @@ export default function UserManagementPage() {
         setTimeout(resolve, 1000);
       });
 
-      await refresh();
+      await refetch();
 
       toast.success(`${res.message}`, {
         description: `Changed to ${newRole}`,
@@ -146,9 +155,10 @@ export default function UserManagementPage() {
                   required
                   value={inviteEmail}
                   onChange={(e) => setInviteEmail(e.target.value)}
+                  placeholder="Email"
                 />
               </div>
-              <div className="space-y-2">
+              <div className="space-y-2 w-full">
                 <Label htmlFor="invite-role">Role</Label>
                 <Select
                   onValueChange={(v) => setInviteRole(v as User['role'])}
@@ -158,15 +168,9 @@ export default function UserManagementPage() {
                     <SelectValue placeholder="Select role" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="ADMIN">
-                      <Shield className="mr-2" /> Admin
-                    </SelectItem>
-                    <SelectItem value="AGENT">
-                      <Shield className="mr-2" /> Agent
-                    </SelectItem>
-                    <SelectItem value="USER">
-                      <Eye className="mr-2" /> Viewer
-                    </SelectItem>
+                    <SelectItem value="ADMIN"> Admin</SelectItem>
+                    <SelectItem value="SUPPORT"> Support</SelectItem>
+                    <SelectItem value="USER"> User</SelectItem>
                   </SelectContent>
                 </Select>
               </div>

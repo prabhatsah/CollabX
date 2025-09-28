@@ -25,7 +25,6 @@ export function SignupForm({
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
   const router = useRouter();
 
@@ -111,19 +110,6 @@ export function SignupForm({
                     id="password"
                     type="password"
                     placeholder="Password"
-                    required
-                  />
-                </div>
-                <div className="grid gap-3">
-                  <div className="flex items-center">
-                    <Label htmlFor="password">Confirm Password</Label>
-                  </div>
-                  <Input
-                    value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
-                    id="confirmPassword"
-                    type="password"
-                    placeholder="Confirm Password"
                     required
                   />
                 </div>

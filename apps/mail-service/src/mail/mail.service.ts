@@ -67,15 +67,28 @@ export class MailService {
     this.logger.log(`Mail send to ${data.email}`);
   }
 
-  async sendInviteMail(data: {
+  async sendInvitationMail(data: {
     email: string;
     orgName: string;
     inviteLink: string;
   }) {
-    const html = this.compileTemplate('invite', data);
+    const html = this.compileTemplate('invitationCreation', data);
     await this.transporter.sendMail({
       to: data.email,
       subject: `Invitation to join ${data.orgName}`,
+      html,
+    });
+  }
+
+  async sendInvitationAcceptanceMail(data: {
+    email: string;
+    orgName: string;
+    inviteLink: string;
+  }) {
+    const html = this.compileTemplate('invitationAcceptance', data);
+    await this.transporter.sendMail({
+      to: data.email,
+      subject: `Confirmation on joining ${data.orgName}`,
       html,
     });
   }

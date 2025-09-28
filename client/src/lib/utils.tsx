@@ -37,7 +37,9 @@ export function roleHelper(role: Role): {
 }
 
 export const isAuthPage = () =>
-  ['/login', '/signup', '/forgot-password'].includes(window.location.pathname);
+  ['/login', '/signup', '/forgot-password', '/user-invitation'].includes(
+    window.location.pathname,
+  );
 
 // get falback for avatar, like JM for Jamie Maridona
 export const getInitials = (fullName: string): string => {

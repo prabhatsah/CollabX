@@ -21,6 +21,7 @@ export class MembershipService {
       data: {
         userId,
         organizationId,
+        role: 'ADMIN',
       },
     });
 

@@ -86,6 +86,7 @@ export class AuthService implements OnModuleInit {
     meta: { ip?: string; userAgent?: string },
   ) {
     const { email, password } = request;
+    console.log('Password:--------------', password);
 
     const authUser = await this.validateCredentials(email, password, meta);
 
@@ -164,7 +165,7 @@ export class AuthService implements OnModuleInit {
 
       throw new RpcException({
         code: status.PERMISSION_DENIED,
-        message: 'Invalid credentials',
+        message: 'Invalid email',
       });
     }
 
@@ -177,7 +178,7 @@ export class AuthService implements OnModuleInit {
 
       await this.authEvents.loginFailed({
         email,
-        message: 'Invalid credentials',
+        message: 'Invalid password',
         success: false,
         ...meta,
       });

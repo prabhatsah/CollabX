@@ -29,6 +29,20 @@ export async function signup(
   return res;
 }
 
+export async function invitationSignup(
+  token: string,
+  fullName: string,
+  password: string,
+) {
+  const res = await apiFetch('/accept-invitation', {
+    method: 'POST',
+    body: JSON.stringify({ token, fullName, password }),
+    credentials: 'include', // allow cookies to be sent/received
+  });
+
+  return res;
+}
+
 export async function logout() {
   const res = await apiFetch('/session/logout', {
     method: 'POST',

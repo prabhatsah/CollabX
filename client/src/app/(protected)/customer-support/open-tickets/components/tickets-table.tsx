@@ -1,23 +1,6 @@
 'use client';
 
 import * as React from 'react';
-import {
-  closestCenter,
-  DndContext,
-  KeyboardSensor,
-  MouseSensor,
-  TouchSensor,
-  useSensor,
-  useSensors,
-  type DragEndEvent,
-  type UniqueIdentifier,
-} from '@dnd-kit/core';
-import { restrictToVerticalAxis } from '@dnd-kit/modifiers';
-import {
-  arrayMove,
-  SortableContext,
-  verticalListSortingStrategy,
-} from '@dnd-kit/sortable';
 import { IconChevronDown, IconLayoutColumns } from '@tabler/icons-react';
 import {
   ColumnDef,
@@ -56,10 +39,11 @@ import { CreateTicketForm } from './create-ticket';
 import { Ticket } from '@/types';
 import { PriorityBadge } from '../../components/PriorityBadge';
 import { StatusBadge } from '../../components/StatusBadge';
-import TicketDashboard from '../../components/TicketDashboard';
+import TicketDashboard from '../../components/TicketDashboard.tsx.discarded';
 //import {  } from '@/hooks/';
 import { useUsers } from '@/hooks/useUsers';
 import { LockBadge } from '../../components/LockBadge';
+import Link from 'next/link';
 
 function NormalRow({ row }: { row: Row<Ticket> }) {
   return (
@@ -77,14 +61,14 @@ function NormalRow({ row }: { row: Row<Ticket> }) {
 }
 
 export function OpenTicketTable({
-  data: initialData,
+  tickets,
   onRefresh,
 }: {
-  data: Ticket[];
+  tickets: Ticket[];
   onRefresh?: () => void;
 }) {
   const { loading: usersLoading, getUserById } = useUsers();
-  const [data, setData] = React.useState<Ticket[]>(() => initialData ?? []);
+  const [data, setData] = React.useState<Ticket[]>(() => tickets ?? []);
   const [openTicket, setOpenTicket] = React.useState<Ticket | null>(null);
   const [rowSelection, setRowSelection] = React.useState({});
   const [columnVisibility, setColumnVisibility] =
@@ -115,12 +99,19 @@ export function OpenTicketTable({
       cell: ({ row }) => (
         // <TicketDashboard ticket={row.original} onSuccess={onRefresh} />
         //<TicketDashboard ticket={row.original} onUpdate={updateTicketInTable} />
-        <span
-          className="cursor-pointer text-blue-600 underline"
-          onClick={() => setOpenTicket(row.original)}
+        // <span
+        //   className="cursor-pointer  underline"
+        //   onClick={() => setOpenTicket(row.original)}
+        // >
+        //   {row.original.ticketNo}
+        // </span>
+        <Link
+          href={`/customer-support/open-tickets/${row.original.id}`} // 👈 route to the new page
+          className="cursor-pointer underline"
+          scroll={false}
         >
           {row.original.ticketNo}
-        </span>
+        </Link>
       ),
       enableHiding: false,
     },
@@ -199,7 +190,7 @@ export function OpenTicketTable({
     getFacetedUniqueValues: getFacetedUniqueValues(),
   });
 
-  const dataIds: UniqueIdentifier[] = data.map((item) => item.id);
+  // const dataIds: UniqueIdentifier[] = data.map((item) => item.id);
 
   return (
     <>
@@ -285,14 +276,15 @@ export function OpenTicketTable({
       </div>
 
       {/* Controlled Ticket Dashboard */}
-      {openTicket && (
+      {/* {openTicket && (
         <TicketDashboard
+          key={openTicket.id}
           ticket={openTicket}
           open={!!openTicket}
           onClose={() => setOpenTicket(null)}
           onUpdate={updateTicketInTable}
         />
-      )}
+      )} */}
     </>
   );
 }

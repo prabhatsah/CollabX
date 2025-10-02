@@ -3,7 +3,6 @@ import { PrismaService } from '../database/prisma.service';
 import {
   AssignTicketRequest,
   CreateTicketRequest,
-  GetTicketRequest,
   ListTicketActivityRequest,
   ListTicketsRequest,
   LockTicketRequest,
@@ -12,14 +11,12 @@ import {
   UpdateTypeRequest,
 } from '@app/common/proto/support-ticket';
 import { TicketEventsProducer } from '../kafka/events/ticket-events.producer';
-import { log } from '@grpc/grpc-js/build/src/logging';
 import {
   TicketPriority,
   TicketStatus,
 } from 'apps/support-ticket/prisma/generated/client';
 import { RpcException } from '@nestjs/microservices';
 import { status } from '@grpc/grpc-js';
-import { UpdatePriorityDto } from 'apps/api-gateway/src/support-ticket/dto/update-priority.dto';
 
 @Injectable()
 export class TicketService {
@@ -32,7 +29,7 @@ export class TicketService {
 
   async createTicket(
     data: CreateTicketRequest,
-    meta: { ip?: string; userAgent?: string },
+    // meta: { ip?: string; userAgent?: string },
   ) {
     const {
       orgId,
@@ -43,11 +40,14 @@ export class TicketService {
       type,
       createdByUserId,
       userEmail,
+      userName,
     } = data;
 
     const ticketNo = await this.generateTicketNumber(orgId, orgName);
 
-    this.logger.log(`Ticket creation request with ticketNo: ${ticketNo}`);
+    this.logger.log(
+      `Ticket creation request with ticketNo: ${ticketNo}, userName: ${userName}`,
+    );
 
     const ticket = await this.prismaService.ticket.create({
       data: {
@@ -76,17 +76,15 @@ export class TicketService {
     //produce event
     await this.ticketEventsProducer.ticketCreationSuccess({
       ticketNo,
-      userId: createdByUserId,
+      userName,
       email: userEmail,
-      orgId: orgId,
+      organizationName: orgName,
       title: ticket.title,
       priority: ticket.priority,
       type: ticket.type,
       createdAt: ticket.createdAt,
       status: ticket.status,
       message: 'Ticket created',
-      success: true,
-      ...meta,
     });
 
     return { ticket };
@@ -190,7 +188,7 @@ export class TicketService {
       actor,
     } = request;
 
-    const where: any = {
+    const where: Record<string, string> = {
       orgId,
       ...(status && status.length > 0
         ? { status: { in: status as TicketStatus[] } }
@@ -201,8 +199,8 @@ export class TicketService {
       ...(assigneeUserId ? { assigneeUserId } : {}),
     };
 
-    // Allpy user level restrictions if role is USER
-    if (actor.role === 'USER') {
+    // Apply user level restrictions if role is USER
+    if (actor?.role === 'USER') {
       where.createdByUserId = actor.userId;
     }
 
@@ -321,7 +319,7 @@ export class TicketService {
     }
 
     // Store old status
-    const oldLock = ticket.locked;
+    // const oldLock = ticket.locked;
 
     // Transition status
     const res = await this.prismaService.ticket.update({

@@ -22,7 +22,8 @@ service UserOrgService {
     rpc GetUserByAuthId(GetUserByAuthIdRequest) returns (GetUserByAuthIdResponse) {}
 
     // Update user's default organization
-    rpc UpdateDefaultOrg (UpdateDefaultOrgRequest) returns (UpdateDefaultOrgResponse) {}
+    rpc UpdateDefaultOrg (UpdateDefaultOrgRequest) returns 
+    (UpdateDefaultOrgResponse) {}
 
     // Invite user
     rpc InviteUser(InviteUserRequest) returns (InviteUserResponse);
@@ -43,10 +44,11 @@ message AcceptInvitationResponse{
 }
 
 message InviteUserRequest {
-  string orgId = 1;
+  string organizationId = 1;
   string email = 2;
-  string role = 3; // USER / SUPPORT etc.
-  string invitedByUserId = 4;
+  string role = 3;
+  string invitedById = 4;
+  string organizationName = 5;
 }
 
 message InviteUserResponse {
@@ -55,9 +57,10 @@ message InviteUserResponse {
   string role = 3;
   string status = 4;
   string token = 5;
-  string orgId = 6;
-  string invitedByUserId = 7;
-  string expiredAt = 8;
+  string organizationId = 6;
+  string invitedById = 7;
+  string expiresAt = 8;
+  string acceptedAt = 9;
 }
 
 message UpdateDefaultOrgRequest {

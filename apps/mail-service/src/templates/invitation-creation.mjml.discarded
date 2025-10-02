@@ -1,0 +1,85 @@
+```mjml
+<mjml>
+  <mj-body background-color="#f7f9fc" padding-top="20px">
+    <!-- Header with Logo -->
+    <mj-section background-color="#114f65" padding="20px" border-radius="10px">
+      <mj-column align="left">
+        <mj-image src="{{ company_logo }}" alt="CollabX Logo" width="120px" />
+      </mj-column>
+    </mj-section>
+
+    <!-- Main Invitation Section -->
+    <mj-section background-color="#ffffff" padding="40px" border-radius="8px">
+      <mj-column>
+        <mj-text font-size="16px" color="#333">
+          You’ve been invited to join <strong>{{ organizationName }}</strong
+          >.
+        </mj-text>
+
+        <mj-table font-size="16px" color="#333" align="center">
+          <tr>
+            <td style="padding: 6px 12px"><strong>Organization:</strong></td>
+            <td style="padding: 6px 12px">{{ organizationName }}</td>
+          </tr>
+          <tr>
+            <td style="padding: 6px 12px"><strong>Role:</strong></td>
+            <td style="padding: 6px 12px">{{ role }}</td>
+          </tr>
+          <tr>
+            <td style="padding: 6px 12px"><strong>Invited at:</strong></td>
+            <td style="padding: 6px 12px">{{ invitedAt }}</td>
+          </tr>
+          <tr>
+            <td style="padding: 6px 12px"><strong>Expired at:</strong></td>
+            <td style="padding: 6px 12px">{{ expiresAt }}</td>
+          </tr>
+          <tr>
+            <td style="padding: 6px 12px"><strong>Token:</strong></td>
+            <td
+              style="
+                padding: 6px 12px;
+                color: #004aad;
+                font-weight: bold;
+                border: 1px dashed #004aad;
+                border-radius: 6px;
+                background-color: #f0f4ff;
+                text-align: center;
+              "
+            >
+              {{ token }}
+            </td>
+          </tr>
+        </mj-table>
+
+        <!-- CTA Button -->
+        <mj-button
+          background-color="#154F60"
+          color="#ffffff"
+          href="{{url}}"
+          border-radius="6px"
+          padding="20px"
+        >
+          Complete Signup
+        </mj-button>
+
+        <mj-text font-size="16px" color="#333">
+          Thanks,<br /><br />
+          <strong>{{ company_name }} Administrator</strong>
+        </mj-text>
+      </mj-column>
+    </mj-section>
+
+    <!-- Footer -->
+    <mj-section>
+      <mj-column>
+        <mj-text font-size="12px" color="#424141ff" align="center">
+          © {{ current_year }} {{ company_name }}. All rights reserved.
+        </mj-text>
+        <mj-text font-size="12px" color="#999" align="center">
+          This is a system generated email, do not reply.
+        </mj-text>
+      </mj-column>
+    </mj-section>
+  </mj-body>
+</mjml>
+```

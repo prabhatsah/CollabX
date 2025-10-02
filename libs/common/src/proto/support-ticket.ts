@@ -109,6 +109,7 @@ export interface CreateTicketRequest {
   type: string;
   createdByUserId: string;
   userEmail: string;
+  userName: string;
 }
 
 export interface TicketResponse {

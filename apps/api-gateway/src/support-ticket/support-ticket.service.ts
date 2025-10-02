@@ -1,5 +1,6 @@
 import {
   AssignTicketRequest,
+  CreateTicketRequest,
   LockTicketRequest,
   SUPPORT_TICKET_SERVICE_NAME,
   SupportTicketClient,
@@ -9,12 +10,7 @@ import {
 } from '@app/common/proto/support-ticket';
 import { Inject, Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { type ClientGrpc } from '@nestjs/microservices';
-import { CreateTicketDto } from './dto/create-ticket.dto';
 import { lastValueFrom } from 'rxjs';
-import { ListTicketsDto } from './dto/list-tickets.dto';
-import { TransitionStatusDto } from './dto/transition-status.dto';
-import { UpdatePriorityDto } from './dto/update-priority.dto';
-import { UpdateTypeDto } from './dto/update-type.dto';
 
 @Injectable()
 export class SupportTicketService implements OnModuleInit {
@@ -32,7 +28,7 @@ export class SupportTicketService implements OnModuleInit {
     );
   }
 
-  async createTicket(request: CreateTicketDto) {
+  async createTicket(request: CreateTicketRequest) {
     const res = await lastValueFrom(
       this.supportTicketClient.createTicket(request),
     );
@@ -46,7 +42,7 @@ export class SupportTicketService implements OnModuleInit {
     const res = await lastValueFrom(
       this.supportTicketClient.listTicketActivity({ ticketId: request }),
     );
-    
+
     return res;
   }
 

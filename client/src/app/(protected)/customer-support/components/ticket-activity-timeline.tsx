@@ -198,8 +198,6 @@ export const TicketActivityTimeline: FC<TicketActivityTimelineProps> = ({
   items,
   className,
 }) => {
-  const { getUserById } = useUsers();
-
   const sorted = useMemo(
     () =>
       [...items].sort(

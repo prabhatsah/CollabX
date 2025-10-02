@@ -10,9 +10,9 @@ export class MailConsumer implements OnModuleInit {
   ) {}
 
   async onModuleInit() {
-    await this.kafkaService.subscribe('signup', async (event) => {
-      await this.mailService.sendSignupMail(event);
-    });
+    // await this.kafkaService.subscribe('signup', async (event) => {
+    //   await this.mailService.sendSignupMail(event);
+    // });
 
     await this.kafkaService.subscribe(
       'ticket.create.success',
@@ -26,7 +26,7 @@ export class MailConsumer implements OnModuleInit {
     });
 
     await this.kafkaService.subscribe('invitation.accepted', async (event) => {
-      await this.mailService.sendInvitationAcceptanceMail(event);
+      await this.mailService.sendInvitationAcceptMail(event);
     });
 
     // start consuming after subscriptions are registered

@@ -22,11 +22,11 @@ export interface AcceptInvitationResponse {
 }
 
 export interface InviteUserRequest {
-  orgId: string;
+  organizationId: string;
   email: string;
-  /** USER / SUPPORT etc. */
   role: string;
-  invitedByUserId: string;
+  invitedById: string;
+  organizationName: string;
 }
 
 export interface InviteUserResponse {
@@ -35,9 +35,10 @@ export interface InviteUserResponse {
   role: string;
   status: string;
   token: string;
-  orgId: string;
-  invitedByUserId: string;
-  expiredAt: string;
+  organizationId: string;
+  invitedById: string;
+  expiresAt: string;
+  acceptedAt: string;
 }
 
 export interface UpdateDefaultOrgRequest {

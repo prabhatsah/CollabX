@@ -33,8 +33,9 @@ export class InvitationController {
   ) {
     const req = {
       ...dto,
-      invitedByUserId: user.userInfo.id,
-      orgId: user.currentOrg?.id,
+      invitedById: user.userInfo.id,
+      organizationId: user.currentOrg?.id,
+      organizationName: user.currentOrg?.name,
     };
 
     const res = await this.invitationService.inviteUser(req);
@@ -44,6 +45,10 @@ export class InvitationController {
   @Post('accept-invitation')
   @HttpCode(HttpStatus.OK)
   async acceptInvitation(@Body() dto: AcceptInvitationRequestDto) {
+    const req = {
+      ...dto,
+      organizationName: user.currentOrg?.name,
+    };
     const res = await this.invitationService.acceptInvitation(dto);
     return ApiResponseDto.success(res, 'Invitation accepted');
   }

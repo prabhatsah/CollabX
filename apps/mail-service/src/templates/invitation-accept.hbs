@@ -2,7 +2,7 @@
   <head>
     <meta charset='UTF-8' />
     <meta name='viewport' content='width=device-width, initial-scale=1.0' />
-    <title>Ticket Created</title>
+    <title>Welcome</title>
   </head>
   <body
     style='font-family: Arial, sans-serif; background-color: #f4f6f8; margin: 0; padding: 0;'
@@ -23,7 +23,7 @@
               <td
                 style='background-color: #114f65; padding: 20px; text-align: center; color: #ffffff; font-size: 20px; font-weight: bold;'
               >
-                Support Ticket Created
+                Welcome Onboard
               </td>
             </tr>
             <!-- Body -->
@@ -32,54 +32,24 @@
                 style='padding: 30px; color: #333333; font-size: 15px; line-height: 1.6;'
               >
                 <p>Hi {{userName}},</p>
-                <p>We’ve received your request and created a new support ticket
-                  for you.</p>
+                <p>We would like to welcome you to our organization.</p>
                 <table>
-                  <tr>
-                    <td style='padding: 0px 12px'><strong>Ticket No:</strong></td>
-                    <td style='='>{{ticketNo}}</td>
-                  </tr>
-                  <tr>
-                    <td style='padding: 0px 12px'><strong>Title:</strong></td>
-                    <td style=''>{{title}}</td>
-                  </tr>
-                  <tr>
-                    <td style='padding: 0px 12px'><strong
-                      >Priority:</strong></td>
-                    <td style=''>{{priority}}</td>
-                  </tr>
-                  <tr>
-                    <td style='padding: 0px 12px'><strong>Status:</strong></td>
-                    <td style=''>{{status}}</td>
-                  </tr>
-                  <tr>
-                    <td style='padding: 0px 12px'><strong>Type:</strong></td>
-                    <td style=''>{{type}}</td>
-                  </tr>
                   <tr>
                     <td style='padding: 0px 12px'><strong
                       >Organization:</strong></td>
                     <td style=''>{{organizationName}}</td>
                   </tr>
                   <tr>
-                    <td style='padding: 0px 12px'><strong>Created at:</strong></td>
-                    <td style=''>{{createdAt}}</td>
+                    <td style='padding: 0px 12px'><strong>Role:</strong></td>
+                    <td style='='>{{role}}</td>
                   </tr>
+                  <tr>
+                    <td style='padding: 0px 12px'><strong>Joined at:</strong></td>
+                    <td style=''>{{joinedAt}}</td>
+                  </tr>
+
                 </table>
-                {{!-- <p><strong>Ticket No:</strong>
-                  {{ticketNo}}<br />
-                  <strong>Title:</strong>
-                  {{title}}<br />
-                  <strong>Priority:</strong>
-                  {{priority}}<br />
-                  <strong>Status:</strong>
-                  {{status}}<br />
-                  <strong>Type:</strong>
-                  {{type}}<br />
-                  <strong>Created at:</strong>
-                  {{createdAt}}</p> --}}
-                <p>Our support team will review your request and get back to you
-                  as soon as possible.
+                <p>You can now use your login to explore the portal.
                 </p>
               </td>
             </tr>
@@ -90,7 +60,7 @@
                   href='{{ticketUrl}}'
                   style='display: inline-block; padding: 12px 20px; background-color: #114f65; color: #ffffff; text-decoration: none; border-radius: 4px; font-weight: bold;'
                 >
-                  Login to Dashboard
+                  Explore
                 </a>
               </td>
             </tr>

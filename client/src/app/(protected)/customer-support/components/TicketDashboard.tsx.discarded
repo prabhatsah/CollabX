@@ -620,6 +620,8 @@ function Dashboard({
 export default function TicketDashboard({
   ticket,
   onUpdate,
+  open,
+  onClose,
 }: {
   ticket: Ticket;
   onUpdate: (t: Ticket) => void;

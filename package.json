@@ -32,6 +32,7 @@
   "dependencies": {
     "@grpc/grpc-js": "^1.13.4",
     "@grpc/proto-loader": "^0.8.0",
+    "@nestjs-modules/mailer": "^2.0.2",
     "@nestjs/common": "^11.0.1",
     "@nestjs/config": "^4.0.2",
     "@nestjs/core": "^11.0.1",
@@ -49,6 +50,7 @@
     "ioredis": "^5.7.0",
     "jsonwebtoken": "^9.0.2",
     "kafkajs": "^2.2.4",
+    "mjml": "^4.16.1",
     "nodemailer": "^7.0.6",
     "protobufjs": "^7.5.4",
     "redis": "^5.8.1",

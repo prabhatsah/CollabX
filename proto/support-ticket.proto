@@ -122,6 +122,7 @@ message CreateTicketRequest {
   string type = 6;
   string createdByUserId = 7;
   string userEmail = 8;
+  string userName = 9;
 }
 
 message TicketResponse { Ticket ticket = 1; }

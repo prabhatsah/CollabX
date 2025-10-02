@@ -21,7 +21,7 @@ const Page = () => {
           <SectionCards />
         </div>
         <div className=" py-2">
-          <OpenTicketTable data={tickets} onRefresh={refresh} />
+          <OpenTicketTable tickets={tickets} onRefresh={refresh} />
         </div>
       </div>
     </div>

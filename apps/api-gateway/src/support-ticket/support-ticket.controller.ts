@@ -17,11 +17,11 @@ import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { ApiResponseDto } from '@app/common/dto/response.dto';
 // import { ListTicketsDto } from './dto/list-tickets.dto';
 import { AssignTicketDto } from './dto/ticket-assign.dto';
-import { type ListTicketsRequest } from '@app/common/proto/support-ticket';
 import {
-  TransitionStatusDto,
-  UpdateTicketStatusDto,
-} from './dto/transition-status.dto';
+  CreateTicketRequest,
+  type ListTicketsRequest,
+} from '@app/common/proto/support-ticket';
+import { TransitionStatusDto } from './dto/transition-status.dto';
 import { UpdatePriorityDto } from './dto/update-priority.dto';
 import { UpdateTypeDto } from './dto/update-type.dto';
 import { LockUnlockTicketDto } from './dto/lock-unlock.dto';
@@ -41,15 +41,16 @@ export class SupportTicketController {
     @CurrentUser() user: SessionUser,
   ) {
     // Attaching creator userId and orgId to the request
-    request = {
+    const serviceReq: CreateTicketRequest = {
       ...request,
       createdByUserId: user.userInfo.id,
+      userName: user.userInfo.fullName,
       orgId: user.currentOrg?.id || '',
       orgName: user.currentOrg?.name || '',
       userEmail: user.userInfo.email,
     };
 
-    const res = await this.supportTicketService.createTicket(request);
+    const res = await this.supportTicketService.createTicket(serviceReq);
     return ApiResponseDto.success(res, 'Ticket created sucessfully');
   }
 

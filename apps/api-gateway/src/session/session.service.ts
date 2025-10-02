@@ -24,13 +24,13 @@ export class SessionService {
   }
 
   async getSession(request: { accessToken: string }) {
-    // Step 1: Verify access token
+    // Verify access token
     const authRes = await this.authService.verifyToken(request);
     this.logger.log(`Access token valid: ${authRes.valid}`);
 
     const redisKey = this.getRedisKey(authRes.authUserId);
 
-    // Step 2: Check if session cached
+    // Check if session cached
     const cached = await this.redis.get(redisKey);
     if (cached) {
       this.logger.log(`Serving session from Redis for ${authRes.authUserId}`);
@@ -40,7 +40,7 @@ export class SessionService {
       );
     }
 
-    // Step 3: Fetch from user-org service
+    // Fetch from user-org service
     const userSession = await this.userOrgService.getSession({
       authUserId: authRes.authUserId,
     });

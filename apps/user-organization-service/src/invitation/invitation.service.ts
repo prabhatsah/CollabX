@@ -8,7 +8,7 @@ import { randomUUID } from 'crypto';
 import { status } from '@grpc/grpc-js';
 import { UserOrgEventsProducer } from '../kafka/kafka.producer';
 import { type ClientGrpc, RpcException } from '@nestjs/microservices';
-import { AUTH_SERVICE_NAME, AuthServiceClient } from '@app/common';
+import { AUTH_SERVICE_NAME, AuthServiceClient, formatDate } from '@app/common';
 import { firstValueFrom } from 'rxjs';
 
 @Injectable()
@@ -29,7 +29,7 @@ export class InvitationService implements OnModuleInit {
   }
 
   async inviteUser(req: InviteUserRequest) {
-    const { orgId, email, role, invitedByUserId } = req;
+    const { organizationId, email, role, invitedById, organizationName } = req;
     console.log('req in inviteUser:', req);
 
     const existingUser = await this.prismaService.user.findUnique({
@@ -42,9 +42,10 @@ export class InvitationService implements OnModuleInit {
     // If user already created in the CollabX
     if (existingUser) {
       this.logger.log(`User already belongs some some organization: ${email}`);
+
       // Check if user already belongs to this organization
       const isAlreadyMember = existingUser.memberships?.find(
-        (membership) => membership.organizationId === orgId,
+        (membership) => membership.organizationId === organizationId,
       );
 
       if (isAlreadyMember) {
@@ -62,8 +63,8 @@ export class InvitationService implements OnModuleInit {
       const newMembership = await this.prismaService.membership.create({
         data: {
           userId: existingUser.id,
-          organizationId: orgId,
-          role: role,
+          organizationId,
+          role,
         },
       });
       this.logger.log(
@@ -73,26 +74,29 @@ export class InvitationService implements OnModuleInit {
       // Record an invitation (auto-accepted)
       const invitation = await this.prismaService.invitation.create({
         data: {
-          organizationId: orgId,
-          email: email,
-          role: role,
-          invitedById: invitedByUserId,
+          organizationId,
+          email,
+          role,
+          invitedById,
           status: 'ACCEPTED',
           acceptedAt: new Date(),
-          token: randomUUID(), // no token needed
+          token: randomUUID(),
           expiresAt: new Date(),
         },
       });
-      this.logger.log(`Invitation record created with auto accepted: ${email}`);
+      this.logger.log(`Invitation record created and auto accepted: ${email}`);
 
       // Producer user invitation event
       await this.userOrgEventsProducer.invitationAccepted({
-        email: email,
-        orgId: orgId,
-        role: role,
-        invitedBy: invitedByUserId,
+        email,
+        userName: existingUser.fullName,
+        organizationId: invitation.organizationId,
+        organizationName,
+        role: invitation.role,
+        invitedById: invitation.invitedById,
+        acceptedAt: invitation.acceptedAt,
       });
-      this.logger.log(`Event produced for user invitation accepted: ${email}`);
+      this.logger.log(`Event produced for accepted invitation: ${email}`);
 
       return invitation;
     }
@@ -103,28 +107,31 @@ export class InvitationService implements OnModuleInit {
 
     const invitation = await this.prismaService.invitation.create({
       data: {
-        organizationId: orgId,
-        email: email,
-        role: role,
-        invitedById: invitedByUserId,
+        organizationId,
+        email,
+        role,
+        invitedById,
         status: 'PENDING',
-        acceptedAt: new Date(),
+        acceptedAt: null,
         token,
-        expiresAt: expiresAt,
+        expiresAt,
       },
     });
 
     // Producer user invitation event
     await this.userOrgEventsProducer.invitationCreated({
-      email: email,
-      orgId: orgId,
-      role: role,
-      invitedBy: invitedByUserId,
-      token,
+      email: invitation.email,
+      organizationId: invitation.organizationId,
+      organizationName,
+      role: invitation.role,
+      invitedById: invitation.invitedById,
+      token: invitation.token,
+      invitedAt: formatDate(invitation.createdAt),
+      expiresAt: formatDate(invitation.expiresAt),
     });
     this.logger.log(`Event produced for invitation created: ${email}`);
 
-    return 'hello';
+    return invitation;
   }
 
   async acceptInvitation(req: AcceptInvitationRequest) {
@@ -201,6 +208,11 @@ export class InvitationService implements OnModuleInit {
     });
     this.logger.log(`Membership establised: ${newUser.email}`);
 
+    // Fetch organization details so taht we can send the organization name to event
+    const orgDetails = await this.prismaService.organization.findUnique({
+      where: { id: invitation.organizationId },
+    });
+
     // mark invitation as accepted
     await this.prismaService.invitation.update({
       where: { id: invitation.id },
@@ -213,9 +225,12 @@ export class InvitationService implements OnModuleInit {
     // Producer invitation accept event
     await this.userOrgEventsProducer.invitationAccepted({
       email: invitation.email,
-      orgId: invitation.organizationId,
+      userName: fullName,
+      organizationId: invitation.organizationId,
+      organizationName: orgDetails?.name,
       role: invitation.role,
-      invitedBy: invitation.invitedById,
+      invitedById: invitation.invitedById,
+      acceptedAt: invitation.acceptedAt,
     });
     this.logger.log(
       `Event produced for invitation accepted: ${invitation.email}`,
